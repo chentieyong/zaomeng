@@ -102,6 +102,8 @@ public class MessageHeader implements Serializable {
         contactNameIsNull(10026),//地址为空
         memberShopIDIsNull(10027),//会员店铺id为空
         memberShopIDIsError(10028),//会员店铺id不正确
+        navigatorIDIsNull(10029),//导航id为空
+        objectDefineIDIsNull(10029),//对象定义id为空
         ;
         public int code;
 
