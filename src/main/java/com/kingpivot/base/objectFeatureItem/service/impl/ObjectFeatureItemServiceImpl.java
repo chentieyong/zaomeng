@@ -22,4 +22,14 @@ public class ObjectFeatureItemServiceImpl extends BaseServiceImpl<ObjectFeatureI
     public BaseDao<ObjectFeatureItem, String> getDAO() {
         return this.objectFeatureItemDao;
     }
+
+    @Override
+    public Object[] getFeatureItemDefineList(String objectID) {
+        return objectFeatureItemDao.getFeatureItemDefineList(objectID);
+    }
+
+    @Override
+    public Object[] getFeatureItemList(String objectID, String featureDefineID) {
+        return objectFeatureItemDao.getFeatureItemList(objectID, featureDefineID);
+    }
 }

@@ -23,4 +23,9 @@ public class ObjectFeatureDataServiceImpl extends BaseServiceImpl<ObjectFeatureD
     public BaseDao<ObjectFeatureData, String> getDAO() {
         return this.objectFeatureDataDao;
     }
+
+    @Override
+    public Object[] getObjectFetureData(String objectID, String objectFeatureItemID1) {
+        return objectFeatureDataDao.getObjectFetureData(objectID, objectFeatureItemID1);
+    }
 }
