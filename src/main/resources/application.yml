@@ -1,0 +1,13 @@
+server:
+  context-path: /zaomeng-api
+spring:
+  mvc:
+    favicon:
+      enabled: false
+      pathmatch:
+        use-suffix-pattern: false
+        use-registered-suffix-pattern: true
+      contentnegotiation:
+          favor-path-extension: false
+  profiles:
+    active: dev

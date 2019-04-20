@@ -1,0 +1,114 @@
+package com.kingpivot.protocol;
+
+import java.io.Serializable;
+
+public class MessageHeader implements Serializable {
+
+    private static final long serialVersionUID = 9035153501525586531L;
+
+    private int code = Code.success.code;
+
+    private String msg;
+
+    public MessageHeader() {
+
+    }
+
+    public MessageHeader(int code, String msg) {
+        this.code = code;
+        this.msg = msg;
+    }
+
+    public static MessageHeader success() {
+        return new MessageHeader(Code.success.code, "success");
+    }
+
+    public static MessageHeader success(String msg) {
+        return new MessageHeader(Code.success.code, msg);
+    }
+
+    public static MessageHeader fail() {
+        return new MessageHeader(Code.fail.code, "failed");
+    }
+
+    public static MessageHeader fail(String msg) {
+        return new MessageHeader(Code.fail.code, msg);
+    }
+
+    public static MessageHeader fail(Code code) {
+        return new MessageHeader(code.code, "failed");
+    }
+
+    public static MessageHeader fail(Code code, String msg) {
+        return new MessageHeader(code.code, msg);
+    }
+
+    public static MessageHeader fail(int code, String msg) {
+        return new MessageHeader(code, msg);
+    }
+
+    public int getCode() {
+        return code;
+    }
+
+    public void setCode(int code) {
+        this.code = code;
+    }
+
+    public String getMsg() {
+        return msg;
+    }
+
+    public void setMsg(String msg) {
+        this.msg = msg;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("MessageHeader [code=%s, msg=%s]", code, msg);
+    }
+
+    public static enum Code {
+        serverException(88888),//服务器异常
+        success(0), //成功 除此之外全是失败
+        fail(-1),//失败
+        unauth(10000),//未登录
+        illegalParameter(10001),//参数不正确
+        loginTypeIsNull(10002),//登录类型不能为空
+        loginTypeIsError(10003),//登录类型不正确
+        loginNameIsNull(10004),//登录名为空
+        passwordIsNull(10004),//密码为空
+        loginNameIsError(10005),//登录名异常
+        passwordError(10006),//密码异常
+        memberIsLock(10007),//会员被锁定
+        siteIdIsNull(10008),//站点id为空
+        siteIdError(10009),//站点id不正确
+        deviceIdIsNull(10010),//设备id为空
+        vCodeIsNull(10011),//验证码为空
+        vCodeError(10012),//验证码错误
+        phoneIsNull(10013),//手机号为空
+        phoneIsUsed(10014),//手机号已使用
+        sendTypeIsNull(10015),//发送类型为空
+        focusIDIsNull(10016),//轮播id为空
+        goodsCategoryIDIsNull(10017),//商品分类id为空
+        goodsShopIdIsNull(10018),//店铺商品id为空
+        goodsShopIdIsError(10019),//店铺商品id为空
+        objectIdIsNull(10020),//对象id为空
+        cartGoodsIDIsNull(10021),//购物车商品id为空
+        cartGoodsIDIsError(10022),//购物车商品id不正确
+        qtyIsNull(10023),//数量为空
+        addressIsNull(10024),//地址为空
+        contactPhoneIsNull(10025),//地址为空
+        contactNameIsNull(10026),//地址为空
+        memberShopIDIsNull(10027),//会员店铺id为空
+        memberShopIDIsError(10028),//会员店铺id不正确
+        ;
+        public int code;
+
+        Code(int code) {
+            this.code = code;
+        }
+
+    }
+
+}
