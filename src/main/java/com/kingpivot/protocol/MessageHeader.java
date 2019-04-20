@@ -106,6 +106,14 @@ public class MessageHeader implements Serializable {
         objectDefineIDIsNull(10029),//对象定义id为空
         memberOrderIDIsNull(10030),//会员订单id为空
         memberOrderIDIsError(10031),//会员订单id不正确
+        nameIsNull(10031),//名称不能为空
+        shopCategoryIDIsNull(10032),//店铺分类id不能为空
+        shopCategoryIDIsError(10033),//店铺分类id不正确
+        shopFaceImageIsNull(10034),//名称不能为空
+        businessImageIsNull(10035),//营业执照不能为空
+        contactIsNull(10036),//联系人不能为空
+        contactIdCardFaceImageIsNull(10037),//联系人身份证正面照不能为空
+        contactIdCardBackImageIsNull(10037),//联系人身份证反面照不能为空
         ;
         public int code;
 
