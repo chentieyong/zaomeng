@@ -1,7 +1,10 @@
 package com.kingpivot.api.controller.ApiReleaseController;
 
 import com.google.common.collect.Maps;
+import com.kingpivot.api.dto.release.ReleaseArticleListDto;
 import com.kingpivot.api.dto.release.ReleaseGoodsShopListDto;
+import com.kingpivot.base.article.model.Article;
+import com.kingpivot.base.article.service.ArticleService;
 import com.kingpivot.base.goodsShop.model.GoodsShop;
 import com.kingpivot.base.goodsShop.service.GoodsShopService;
 import com.kingpivot.base.memberRank.service.MemberRankService;
@@ -44,6 +47,8 @@ public class ApiReleaseController extends ApiBaseController {
     private GoodsShopService goodsShopService;
     @Autowired
     private MemberRankService memberRankService;
+    @Autowired
+    private ArticleService articleService;
 
     @ApiOperation(value = "获取导航发布列表", notes = "获取导航发布列表")
     @ApiImplicitParams({
@@ -88,7 +93,7 @@ public class ApiReleaseController extends ApiBaseController {
         if (rs != null && rs.getSize() != 0) {
             switch (objectDefineID) {
                 case "422429993732"://店铺商品
-                    List<ReleaseGoodsShopListDto> list = new ArrayList<>();
+                    List<ReleaseGoodsShopListDto> goodsShopList = new ArrayList<>();
                     ReleaseGoodsShopListDto releaseGoodsShopListDto = null;
                     GoodsShop goodsShop = null;
                     for (Release release : rs.getContent()) {
@@ -106,13 +111,32 @@ public class ApiReleaseController extends ApiBaseController {
                                     double rate = memberRankService.getDepositeRateByMemberId(memberID);
                                     releaseGoodsShopListDto.setShowPrice(NumberUtils.keepPrecision(rate * goodsShop.getRealPrice(), 2));
                                 }
-                                list.add(releaseGoodsShopListDto);
+                                goodsShopList.add(releaseGoodsShopListDto);
                             }
                         }
                     }
-                    messagePage = new MessagePage(page, list);
+                    messagePage = new MessagePage(page, goodsShopList);
                     break;
                 case "422429993731"://文章
+                    List<ReleaseArticleListDto> articleList = new ArrayList<>();
+                    Article article = null;
+                    ReleaseArticleListDto releaseArticleListDto = null;
+                    for (Release release : rs.getContent()) {
+                        if (StringUtils.isNotBlank(release.getObjectID())) {
+                            article = articleService.findById(release.getObjectID());
+                            if (article != null) {
+                                releaseArticleListDto = new ReleaseArticleListDto();
+                                releaseArticleListDto.setId(article.getId());
+                                releaseArticleListDto.setAuthor(article.getAuthor());
+                                releaseArticleListDto.setDescription(article.getDescription());
+                                releaseArticleListDto.setFaceImage(article.getFaceImage());
+                                releaseArticleListDto.setListImage(article.getListImage());
+                                releaseArticleListDto.setTitle(article.getTitle());
+                                articleList.add(releaseArticleListDto);
+                            }
+                        }
+                    }
+                    messagePage = new MessagePage(page, articleList);
                     break;
                 default:
                     messagePage = new MessagePage(page, new ArrayList());

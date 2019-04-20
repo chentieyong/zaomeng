@@ -114,6 +114,8 @@ public class MessageHeader implements Serializable {
         contactIsNull(10036),//联系人不能为空
         contactIdCardFaceImageIsNull(10037),//联系人身份证正面照不能为空
         contactIdCardBackImageIsNull(10037),//联系人身份证反面照不能为空
+        articleIDIsNull(10030),//文章id为空
+        articleIDIsError(10031),///文章id不正确
         ;
         public int code;
 
