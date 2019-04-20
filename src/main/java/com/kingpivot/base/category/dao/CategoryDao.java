@@ -11,7 +11,6 @@ import javax.persistence.Table;
 @Repository
 @Table(name = "category")
 @Qualifier("categoryDao")
-
 public interface CategoryDao extends BaseDao<Category, String> {
     @Query(value = "SELECT node.id id,node.parentID pId,node.name name,node.smallIcon smallIcon,\n" +
             "node.largeIcon largeIcon,node.depth depth,node.orderSeq,node.isLeaf\n" +
