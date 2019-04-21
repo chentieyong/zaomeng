@@ -123,6 +123,10 @@ public class MessageHeader implements Serializable {
         collectIDIsError(10045),//收藏id不能为空
         memberIDIsNull(10046),//收藏id不能为空
         contantIsNull(10047),//内容不能为空
+        memberBonusIdIsNull(10048),//会员红包id不能为空
+        memberBonusIdIsError(10049),//会员红包id不正确
+        memberbonusIsUsed(10050),//会员红包已使用
+        memberbonusIsTimeOut(10051),//会员红包已过期
         ;
         public int code;
 

@@ -103,7 +103,7 @@ public class Memberlog extends BaseModel<String> {
         REMOVECARTGOODS("删除购物车商品"),GETCARTGOODSLIST("获取购物车商品列表"),CREATEMEMBERORDER("店铺商品生成订单"),SELECTCARTGOODS("勾选购物车商品"),
         APPLYMEMBERSHOP("申请会员店铺"),UPDATEMEMBERSHOP("修改会员店铺"),GETMEMBERORDERLIST("获取会员订单列表"),GETMEMBERORDERDETAIL("获取会员订单详情"),
         GETMEMBERSHOPLIST("获取会员店铺列表"),GETMEMBERSHOPDETAIL("获取会员店铺详情"),REMOVEMEMBERSHOP("删除会员店铺"),GETMESSAGELIST("获取收藏列表"),
-        REMOVECOLLECT("删除收藏"),SUBMITONEFEE("提交一个意见反馈"),GETMYMEMBERBONUSLIST("获取我的会员红包列表");
+        REMOVECOLLECT("删除收藏"),SUBMITONEFEE("提交一个意见反馈"),GETMYMEMBERBONUSLIST("获取我的会员红包列表"),USEMEMBERBONUS("使用会员红包");
         private String oname;
 
         MemberOperateType(String oname) {
