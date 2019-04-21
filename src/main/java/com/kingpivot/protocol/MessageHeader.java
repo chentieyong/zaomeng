@@ -121,6 +121,7 @@ public class MessageHeader implements Serializable {
         objectNameIsNull(10043),//对象名称不能为空
         collectIDIsNull(10044),//收藏id不能为空
         collectIDIsError(10045),//收藏id不能为空
+        memberIDIsNull(10046),//收藏id不能为空
         ;
         public int code;
 

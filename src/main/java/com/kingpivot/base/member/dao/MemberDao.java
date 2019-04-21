@@ -22,4 +22,7 @@ public interface MemberDao extends BaseDao<Member, String> {
 
     @Query(value = "SELECT id FROM member WHERE phone=?1 and applicationID=?2 AND isValid=1 AND isLock=0 LIMIT 1", nativeQuery = true)
     String getMemberIdByPhoneAndApplicationId(String phone,String applicationId);
+
+    @Query(value = "SELECT applicationID FROM member WHERE id=?1 AND isValid=1 AND isLock=0 LIMIT 1", nativeQuery = true)
+    String getMemberApplicationID(String memberID);
 }

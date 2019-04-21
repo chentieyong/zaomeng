@@ -5,6 +5,7 @@ import com.kingpivot.api.dto.release.ReleaseArticleListDto;
 import com.kingpivot.api.dto.release.ReleaseGoodsShopListDto;
 import com.kingpivot.base.article.model.Article;
 import com.kingpivot.base.article.service.ArticleService;
+import com.kingpivot.base.config.Config;
 import com.kingpivot.base.goodsShop.model.GoodsShop;
 import com.kingpivot.base.goodsShop.service.GoodsShopService;
 import com.kingpivot.base.memberRank.service.MemberRankService;
@@ -91,8 +92,9 @@ public class ApiReleaseController extends ApiBaseController {
         Map<String, Object> rsMap = Maps.newHashMap();
         MessagePage messagePage = null;
         if (rs != null && rs.getSize() != 0) {
+
             switch (objectDefineID) {
-                case "422429993732"://店铺商品
+                case Config.GOODSSHOP_OBJECTDEFINEID://店铺商品
                     List<ReleaseGoodsShopListDto> goodsShopList = new ArrayList<>();
                     ReleaseGoodsShopListDto releaseGoodsShopListDto = null;
                     GoodsShop goodsShop = null;
@@ -119,7 +121,7 @@ public class ApiReleaseController extends ApiBaseController {
                     }
                     messagePage = new MessagePage(page, goodsShopList);
                     break;
-                case "422429993731"://文章
+                case Config.ARTICLE_OBJECTDEFINEID://文章
                     List<ReleaseArticleListDto> articleList = new ArrayList<>();
                     Article article = null;
                     ReleaseArticleListDto releaseArticleListDto = null;

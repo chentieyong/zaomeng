@@ -3,9 +3,15 @@ package com.kingpivot.api.controller.ApiGoodsShopController;
 import com.google.common.collect.Maps;
 import com.kingpivot.api.dto.goodsShop.GoodsShopDetailDto;
 import com.kingpivot.api.dto.goodsShop.GoodsShopListDto;
+import com.kingpivot.base.config.Config;
 import com.kingpivot.base.goodsShop.model.GoodsShop;
 import com.kingpivot.base.goodsShop.service.GoodsShopService;
+import com.kingpivot.base.hotWord.model.HotWord;
+import com.kingpivot.base.member.model.Member;
+import com.kingpivot.base.member.service.MemberService;
 import com.kingpivot.base.memberRank.service.MemberRankService;
+import com.kingpivot.base.memberSearch.model.MemberSearch;
+import com.kingpivot.base.memberSearch.service.MemberSearchService;
 import com.kingpivot.common.jms.SendMessageService;
 import com.kingpivot.common.util.Constants;
 import com.kingpivot.common.utils.ApiPageUtil;
@@ -30,6 +36,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,7 +50,10 @@ public class ApiGoodsShopController extends ApiBaseController {
     private GoodsShopService goodsShopService;
     @Autowired
     private MemberRankService memberRankService;
-
+    @Autowired
+    private MemberService memberService;
+    @Autowired
+    private MemberSearchService memberSearchService;
 
     @ApiOperation(value = "获取商品列表", notes = "获取商品列表")
     @ApiImplicitParams({
@@ -54,6 +64,7 @@ public class ApiGoodsShopController extends ApiBaseController {
     @RequestMapping(value = "/getGoodsShopList")
     public MessagePacket getGoodsShopList(HttpServletRequest request) {
         String goodsCategoryID = request.getParameter("goodsCategoryID");
+        String hotWords = request.getParameter("hotWords");
         String memberID = request.getParameter("memberID");
 
         if (StringUtils.isEmpty(goodsCategoryID)) {
@@ -93,6 +104,17 @@ public class ApiGoodsShopController extends ApiBaseController {
             }
             page.setTotalSize(rs.getSize());
         }
+
+        if (StringUtils.isNotBlank(hotWords) && StringUtils.isNotBlank(memberID)) {
+            MemberSearch memberSearch = new MemberSearch();
+            memberSearch.setApplicationID(memberService.getMemberApplicationID(memberID));
+            memberSearch.setMemberID(memberID);
+            memberSearch.setName(hotWords);
+            memberSearch.setObjectDefineID(Config.GOODSSHOP_OBJECTDEFINEID);
+            memberSearch.setSearchTime(new Timestamp(System.currentTimeMillis()));
+            memberSearchService.save(memberSearch);
+        }
+
         Map<String, Object> rsMap = Maps.newHashMap();
         MessagePage messagePage = new MessagePage(page, list);
         rsMap.put("data", messagePage);

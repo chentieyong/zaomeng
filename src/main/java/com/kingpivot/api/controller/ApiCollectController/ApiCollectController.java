@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import com.kingpivot.api.dto.collect.CollectGoodsShopListDto;
 import com.kingpivot.base.collect.model.Collect;
 import com.kingpivot.base.collect.service.CollectService;
+import com.kingpivot.base.config.Config;
 import com.kingpivot.base.config.RedisKey;
 import com.kingpivot.base.config.UserAgent;
 import com.kingpivot.base.goodsShop.model.GoodsShop;
@@ -215,7 +216,7 @@ public class ApiCollectController extends ApiBaseController {
         MessagePage messagePage = null;
         if (rs != null && rs.getSize() != 0) {
             switch (objectDefineID) {
-                case "422429993732"://店铺商品
+                case Config.GOODSSHOP_OBJECTDEFINEID://店铺商品
                     List<CollectGoodsShopListDto> goodsShopList = new ArrayList<>();
                     CollectGoodsShopListDto collectGoodsShopListDto = null;
                     GoodsShop goodsShop = null;

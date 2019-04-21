@@ -32,4 +32,9 @@ public class MemberServiceImpl extends BaseServiceImpl<Member, String> implement
     public String getMemberIdByPhoneAndApplicationId(String phone, String applicationID) {
         return memberDao.getMemberIdByPhoneAndApplicationId(phone, applicationID);
     }
+
+    @Override
+    public String getMemberApplicationID(String memberID) {
+        return memberDao.getMemberApplicationID(memberID);
+    }
 }

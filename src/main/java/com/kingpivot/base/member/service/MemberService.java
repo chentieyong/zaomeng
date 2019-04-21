@@ -10,4 +10,6 @@ public interface MemberService extends BaseService<Member, String> {
     String getCurRecommandCode(String applicationId);
 
     String getMemberIdByPhoneAndApplicationId(String phone,String applicationID);
+
+    String getMemberApplicationID(String memberID);
 }
