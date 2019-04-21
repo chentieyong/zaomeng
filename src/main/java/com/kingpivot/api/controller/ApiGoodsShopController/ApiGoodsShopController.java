@@ -85,7 +85,7 @@ public class ApiGoodsShopController extends ApiBaseController {
             list = BeanMapper.mapList(rs.getContent(), GoodsShopListDto.class);
             if (StringUtils.isNotBlank(memberID)) {
                 double rate = memberRankService.getDepositeRateByMemberId(memberID);
-                if (rate != 1) {
+                if (rate != 0d) {
                     for (GoodsShopListDto goodsShopListDto : list) {
                         goodsShopListDto.setShowPrice(NumberUtils.keepPrecision(rate * goodsShopListDto.getRealPrice(), 2));
                     }
@@ -121,7 +121,7 @@ public class ApiGoodsShopController extends ApiBaseController {
         GoodsShopDetailDto goodsShopDetailDto = BeanMapper.map(goodsShop, GoodsShopDetailDto.class);
         if (StringUtils.isNotBlank(memberID)) {
             double rate = memberRankService.getDepositeRateByMemberId(memberID);
-            if (rate != 1) {
+            if (rate != 0d) {
                 goodsShopDetailDto.setShowPrice(NumberUtils.keepPrecision(rate * goodsShopDetailDto.getRealPrice(), 2));
             }
         }

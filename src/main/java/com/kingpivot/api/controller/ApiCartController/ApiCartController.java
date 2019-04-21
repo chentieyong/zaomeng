@@ -129,10 +129,10 @@ public class ApiCartController extends ApiBaseController {
             cartGoods.setIsSelected(1);
             cartGoods.setStandPrice(goodsShop.getRealPrice());
             cartGoods.setStandPriceTotal(NumberUtils.keepPrecision(cartGoods.getStandPrice() * Integer.parseInt(qty), 2));
-            double rate = memberRankService.getDepositeRateByMemberId(member.getId());
-            cartGoods.setDiscountRate(rate);
             cartGoods.setPriceNow(goodsShop.getRealPrice());
-            if (rate != 1) {
+            double rate = memberRankService.getDepositeRateByMemberId(member.getId());
+            if(rate!=0d){
+                cartGoods.setDiscountRate(rate);
                 cartGoods.setPriceNow(NumberUtils.keepPrecision(cartGoods.getPriceNow() * rate, 2));
             }
             cartGoods.setPriceTotal(NumberUtils.keepPrecision(cartGoods.getPriceNow() * Integer.parseInt(qty), 2));

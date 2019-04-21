@@ -109,7 +109,9 @@ public class ApiReleaseController extends ApiBaseController {
                                 releaseGoodsShopListDto.setStockOut(goodsShop.getStockOut());
                                 if (StringUtils.isNotBlank(memberID)) {
                                     double rate = memberRankService.getDepositeRateByMemberId(memberID);
-                                    releaseGoodsShopListDto.setShowPrice(NumberUtils.keepPrecision(rate * goodsShop.getRealPrice(), 2));
+                                    if(rate!=0d){
+                                        releaseGoodsShopListDto.setShowPrice(NumberUtils.keepPrecision(rate * goodsShop.getRealPrice(), 2));
+                                    }
                                 }
                                 goodsShopList.add(releaseGoodsShopListDto);
                             }
