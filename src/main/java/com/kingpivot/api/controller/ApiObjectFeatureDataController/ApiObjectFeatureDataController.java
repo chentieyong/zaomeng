@@ -3,6 +3,7 @@ package com.kingpivot.api.controller.ApiObjectFeatureDataController;
 import com.google.common.collect.Maps;
 import com.kingpivot.api.dto.objectFeatureData.ApiObjectFeatureDataDto;
 import com.kingpivot.base.objectFeatureData.service.ObjectFeatureDataService;
+import com.kingpivot.protocol.ApiBaseController;
 import com.kingpivot.protocol.MessageHeader;
 import com.kingpivot.protocol.MessagePacket;
 import io.swagger.annotations.Api;
@@ -20,7 +21,7 @@ import java.util.Map;
 @RequestMapping("/api")
 @RestController
 @Api(description = "对象特征定义数据管理接口")
-public class ApiObjectFeatureDataController {
+public class ApiObjectFeatureDataController extends ApiBaseController {
     @Autowired
     private ObjectFeatureDataService objectFeatureDataService;
 

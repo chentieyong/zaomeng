@@ -71,7 +71,7 @@ public class MemberOrder extends BaseModel<String> {
     private Double payTotal = 0.0d;//实际付款金额
 
     @Column()
-    private Integer payFrom;//付款方式
+    private Integer payFrom=1;//付款方式 默认第三方支付
 
     @Column()
     private Timestamp payTime;//付款时间

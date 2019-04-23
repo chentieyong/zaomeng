@@ -6,6 +6,7 @@ import com.kingpivot.api.dto.objectFeatureItem.ApiObjectFeatureItemDto;
 import com.kingpivot.base.featureDefine.model.FeatureDefine;
 import com.kingpivot.base.featureDefine.service.FeatureDefineService;
 import com.kingpivot.base.objectFeatureItem.service.ObjectFeatureItemService;
+import com.kingpivot.protocol.ApiBaseController;
 import com.kingpivot.protocol.MessageHeader;
 import com.kingpivot.protocol.MessagePacket;
 import io.swagger.annotations.Api;
@@ -25,7 +26,7 @@ import java.util.Map;
 @RequestMapping("/api")
 @RestController
 @Api(description = "对象特征定义选项管理接口")
-public class ApiObjectFeatureItemController {
+public class ApiObjectFeatureItemController extends ApiBaseController {
 
     @Autowired
     private ObjectFeatureItemService objectFeatureItemService;

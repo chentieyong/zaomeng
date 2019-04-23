@@ -127,6 +127,12 @@ public class MessageHeader implements Serializable {
         memberBonusIdIsError(10049),//会员红包id不正确
         memberbonusIsUsed(10050),//会员红包已使用
         memberbonusIsTimeOut(10051),//会员红包已过期
+        wecharterror(10052),
+        sendError(10053),//发送失败
+        paywayIDNotNull(10054),//支付机构ID不能为空
+        paywayIDIsError(10055),//支付机构ID不正确
+        amountNotNull(10056),//公司付款账户不能为空
+        appTypeIsNull(10057),
         ;
         public int code;
 
