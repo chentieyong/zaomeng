@@ -46,9 +46,6 @@ public class Point extends BaseModel<String> {
     @Column(columnDefinition = "int default 0")
     private int number = 0;//个数
 
-    @Column()
-    private Integer isRead = 0;//黑莓用  是否查看  0:否  1:是
-
     @Column(length = 36)
     private String objectDefineID;//操作对象类型
 
@@ -151,14 +148,6 @@ public class Point extends BaseModel<String> {
 
     public void setNumber(int number) {
         this.number = number;
-    }
-
-    public Integer getIsRead() {
-        return isRead;
-    }
-
-    public void setIsRead(Integer isRead) {
-        this.isRead = isRead;
     }
 
     public String getObjectDefineID() {
