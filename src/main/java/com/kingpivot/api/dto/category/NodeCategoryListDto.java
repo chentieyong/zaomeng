@@ -1,5 +1,9 @@
 package com.kingpivot.api.dto.category;
 
+import com.kingpivot.api.dto.message.ApiCategoryMessageDto;
+
+import java.util.List;
+
 public class NodeCategoryListDto {
     private String id;
     private String name;
@@ -7,6 +11,7 @@ public class NodeCategoryListDto {
     private Long orderSeq;
     private String parentID;
     private String smallIcon;//小图标
+    private List<ApiCategoryMessageDto> messageList;
 
     public String getId() {
         return id;
@@ -54,5 +59,13 @@ public class NodeCategoryListDto {
 
     public void setSmallIcon(String smallIcon) {
         this.smallIcon = smallIcon;
+    }
+
+    public List<ApiCategoryMessageDto> getMessageList() {
+        return messageList;
+    }
+
+    public void setMessageList(List<ApiCategoryMessageDto> messageList) {
+        this.messageList = messageList;
     }
 }
