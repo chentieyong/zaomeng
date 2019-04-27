@@ -264,7 +264,7 @@ public class ApiCollectController extends ApiBaseController {
                 .sessionID(sessionID)
                 .description(description)
                 .userAgent(userAgent == null ? null : userAgent.getBrowserType())
-                .operateType(Memberlog.MemberOperateType.GETMESSAGELIST.getOname())
+                .operateType(Memberlog.MemberOperateType.GETCOLLECTLIST.getOname())
                 .build();
 
         sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));

@@ -134,6 +134,7 @@ public class MessageHeader implements Serializable {
         amountNotNull(10056),//公司付款账户不能为空
         appTypeIsNull(10057),//appType不能为空
         memberIsCollect(10058),//会员已收藏
+        messageTypeIsNull(10059),//消息类型不能为空
         ;
         public int code;
 

@@ -102,9 +102,10 @@ public class Memberlog extends BaseModel<String> {
         MEMBER_LOGIN("会员登录"),GETFOCUSPICTURELIST("轮播列表"),ADDGOODSSHOPTOCART("店铺商品加入购物车"),UPDATECARTGOODSNUMBER("更改购物车商品数量"),
         REMOVECARTGOODS("删除购物车商品"),GETCARTGOODSLIST("获取购物车商品列表"),CREATEMEMBERORDER("店铺商品生成订单"),SELECTCARTGOODS("勾选购物车商品"),
         APPLYMEMBERSHOP("申请会员店铺"),UPDATEMEMBERSHOP("修改会员店铺"),GETMEMBERORDERLIST("获取会员订单列表"),GETMEMBERORDERDETAIL("获取会员订单详情"),
-        GETMEMBERSHOPLIST("获取会员店铺列表"),GETMEMBERSHOPDETAIL("获取会员店铺详情"),REMOVEMEMBERSHOP("删除会员店铺"),GETMESSAGELIST("获取收藏列表"),
+        GETMEMBERSHOPLIST("获取会员店铺列表"),GETMEMBERSHOPDETAIL("获取会员店铺详情"),REMOVEMEMBERSHOP("删除会员店铺"),GETCOLLECTLIST("获取收藏列表"),
         REMOVECOLLECT("删除收藏"),SUBMITONEFEE("提交一个意见反馈"),GETMYMEMBERBONUSLIST("获取我的会员红包列表"),USEMEMBERBONUS("使用会员红包"),
-        APPAPPLYMEMBERORDERPAY("APP申请订单支付"),SUBMITONESIGNIN("会员签到"),GETSIGNINLIST("获取签到记录"),GETMYPOINTLIST("获取我的积分列表");
+        APPAPPLYMEMBERORDERPAY("APP申请订单支付"),SUBMITONESIGNIN("会员签到"),GETSIGNINLIST("获取签到记录"),GETMYPOINTLIST("获取我的积分列表"),
+        GETMYMESSAGELIST("获取我的消息列表");
         private String oname;
 
         MemberOperateType(String oname) {
