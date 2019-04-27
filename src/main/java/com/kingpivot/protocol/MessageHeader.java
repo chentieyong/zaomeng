@@ -132,7 +132,8 @@ public class MessageHeader implements Serializable {
         paywayIDNotNull(10054),//支付机构ID不能为空
         paywayIDIsError(10055),//支付机构ID不正确
         amountNotNull(10056),//公司付款账户不能为空
-        appTypeIsNull(10057),
+        appTypeIsNull(10057),//appType不能为空
+        memberIsCollect(10058),//会员已收藏
         ;
         public int code;
 

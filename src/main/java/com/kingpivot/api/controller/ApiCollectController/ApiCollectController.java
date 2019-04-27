@@ -80,6 +80,13 @@ public class ApiCollectController extends ApiBaseController {
         }
 
         String objectID = request.getParameter("objectID");
+
+        String collectID = collectService.getCollectByObjectIDAndMemberID(objectID,member.getId());
+
+        if(StringUtils.isNotBlank(collectID)){
+            return MessagePacket.newFail(MessageHeader.Code.memberIsCollect, "会员已收藏");
+        }
+
         if(StringUtils.isEmpty(objectID)){
             return MessagePacket.newFail(MessageHeader.Code.objectIdIsNull, "objectID不能为空");
         }

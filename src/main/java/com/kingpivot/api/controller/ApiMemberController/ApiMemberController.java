@@ -247,7 +247,7 @@ public class ApiMemberController extends ApiBaseController {
         redisTemplate.opsForValue().set(String.format("%s_%s", CacheContant.REGISTER_AUTH_CODE, phone), authCode, 300, TimeUnit.SECONDS);
 
         Map<String, Object> rsMap = Maps.newHashMap();
-        rsMap.put("vCode", authCode);
+        rsMap.put("data", authCode);
         return MessagePacket.newSuccess(rsMap, "sendSmsCommon success!");
     }
 

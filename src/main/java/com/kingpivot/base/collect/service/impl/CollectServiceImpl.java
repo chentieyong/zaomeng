@@ -19,4 +19,9 @@ public class CollectServiceImpl extends BaseServiceImpl<Collect, String> impleme
     public BaseDao<Collect, String> getDAO() {
         return this.collectDao;
     }
+
+    @Override
+    public String getCollectByObjectIDAndMemberID(String objectID, String memberID) {
+        return collectDao.getCollectByObjectIDAndMemberID(objectID, memberID);
+    }
 }
