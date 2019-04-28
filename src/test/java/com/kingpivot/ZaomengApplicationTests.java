@@ -11,7 +11,7 @@ public class ZaomengApplicationTests {
 
     @Test
     public void contextLoads() {
-        System.out.println("111");
+
     }
 
 }
