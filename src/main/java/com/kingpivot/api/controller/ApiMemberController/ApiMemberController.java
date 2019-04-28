@@ -246,17 +246,6 @@ public class ApiMemberController extends ApiBaseController {
             return MessagePacket.newFail(MessageHeader.Code.sendTypeIsNull, "发送类型不能为空!");
         }
 
-        String sendTypeName = "";
-        String templateValue = "";
-        switch (sendType) {
-            case "1":
-                sendTypeName = "注册";
-                templateValue = CacheContant.REGISTER_AUTH_CODE;
-                break;
-            default:
-                return MessagePacket.newFail(MessageHeader.Code.sendTypeError, "发送类型不正确!");
-        }
-
         if (StringUtils.isEmpty(siteID)) {
             return MessagePacket.newFail(MessageHeader.Code.siteIdIsNull, "siteID为空");
         }
@@ -265,6 +254,21 @@ public class ApiMemberController extends ApiBaseController {
             return MessagePacket.newFail(MessageHeader.Code.siteIdError, "siteID不正确");
         }
 
+
+        String sendTypeName = "";
+        String templateValue = "";
+        switch (sendType) {
+            case "0":
+                String memberID = memberService.getMemberIdByPhoneAndApplicationId(phone, site.getApplicationID());
+                if (StringUtils.isNotBlank(memberID)) {
+                    return MessagePacket.newFail(MessageHeader.Code.phoneIsUsed, "手机号已注册");
+                }
+                sendTypeName = "注册";
+                templateValue = CacheContant.REGISTER_AUTH_CODE;
+                break;
+            default:
+                return MessagePacket.newFail(MessageHeader.Code.sendTypeError, "发送类型不正确!");
+        }
         if (StringUtils.isEmpty(site.getApplicationID())) {
             return MessagePacket.newFail(MessageHeader.Code.applicationIdIsNull, "站点未设置应用");
         }
@@ -289,41 +293,33 @@ public class ApiMemberController extends ApiBaseController {
         if (smsTemplate == null) {
             return MessagePacket.newFail(MessageHeader.Code.smsTemplateIsNull, "模板不存在");
         }
-
-        if (smsWay.getDayNumberTimes() == null) {
-            smsWay.setDayNumberTimes(5);
-        }
-
-        if (smsWay.getIntervalMinute() == null) {
-            smsWay.setIntervalMinute(5);
-        }
-
-        int numbers = smsService.getTodayCount(phone, sendTypeName);
-        if (numbers >= smsWay.getDayNumberTimes()) {
-            return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "今日发送次数已超额");
-        }
-
-        if (numbers != 0) {
-            int s = 0;
-            if (numbers != 1) {
-                s = 1;
-            }
-            Timestamp sendDate = smsService.getPerSms(phone, sendTypeName, s, 1);
-            if ((new Timestamp(System.currentTimeMillis()).getTime() / 1000 - sendDate.getTime() / 1000) < smsWay.getIntervalMinute() * 60) {
-                return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "请勿重复请求");
-            }
-        }
-
-        if ("0".equals(sendType)) {
-            String memberID = memberService.getMemberIdByPhoneAndApplicationId(phone, site.getApplicationID());
-            if (StringUtils.isNotBlank(memberID)) {
-                return MessagePacket.newFail(MessageHeader.Code.phoneIsUsed, "手机号已注册");
-            }
-        }
         String msg = "";
         String authCode = RadomMsgAuthCodeUtil.createRandom(true, 4);
 
         if (smsWay.getIsTest() != null && smsWay.getIsTest() == 1) {
+            if (smsWay.getDayNumberTimes() == null) {
+                smsWay.setDayNumberTimes(5);
+            }
+
+            if (smsWay.getIntervalMinute() == null) {
+                smsWay.setIntervalMinute(5);
+            }
+
+            int numbers = smsService.getTodayCount(phone, sendTypeName);
+            if (numbers >= smsWay.getDayNumberTimes()) {
+                return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "今日发送次数已超额");
+            }
+
+            if (numbers != 0) {
+                int s = 0;
+                if (numbers != 1) {
+                    s = 1;
+                }
+                Timestamp sendDate = smsService.getPerSms(phone, sendTypeName, s, 1);
+                if ((new Timestamp(System.currentTimeMillis()).getTime() / 1000 - sendDate.getTime() / 1000) < smsWay.getIntervalMinute() * 60) {
+                    return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "请勿重复请求");
+                }
+            }
             switch (smsWay.getSmsType()) {
                 case 1:
                     String templateParam = smsTemplate.getTextDefine().replaceAll("CODE", authCode);
