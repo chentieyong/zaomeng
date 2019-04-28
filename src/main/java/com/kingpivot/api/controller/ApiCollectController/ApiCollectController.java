@@ -81,28 +81,28 @@ public class ApiCollectController extends ApiBaseController {
 
         String objectID = request.getParameter("objectID");
 
-        String collectID = collectService.getCollectByObjectIDAndMemberID(objectID,member.getId());
+        String collectID = collectService.getCollectByObjectIDAndMemberID(objectID, member.getId());
 
-        if(StringUtils.isNotBlank(collectID)){
+        if (StringUtils.isNotBlank(collectID)) {
             return MessagePacket.newFail(MessageHeader.Code.memberIsCollect, "会员已收藏");
         }
 
-        if(StringUtils.isEmpty(objectID)){
+        if (StringUtils.isEmpty(objectID)) {
             return MessagePacket.newFail(MessageHeader.Code.objectIdIsNull, "objectID不能为空");
         }
         String objectName = request.getParameter("objectName");
-        if(StringUtils.isEmpty(objectName)){
+        if (StringUtils.isEmpty(objectName)) {
             return MessagePacket.newFail(MessageHeader.Code.objectNameIsNull, "objectName不能为空");
         }
         String objectDefineID = request.getParameter("objectDefineID");
-        if(StringUtils.isEmpty(objectDefineID)){
+        if (StringUtils.isEmpty(objectDefineID)) {
             return MessagePacket.newFail(MessageHeader.Code.objectDefineIDIsNull, "objectDefineID不能为空");
         }
 
         Collect collect = new Collect();
         collect.setApplicationID(member.getApplicationID());
         collect.setMemberID(member.getId());
-        collect.setName(String.format("%s收藏%s",member.getName(),objectName));
+        collect.setName(String.format("%s收藏%s", member.getName(), objectName));
         collect.setObjectDefineID(objectDefineID);
         collect.setObjectID(objectID);
         collect.setObjectName(objectName);
@@ -121,7 +121,7 @@ public class ApiCollectController extends ApiBaseController {
         sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
 
         Map<String, Object> rsMap = Maps.newHashMap();
-        rsMap.put("collectID", collect.getId());
+        rsMap.put("data", collect.getId());
 
         return MessagePacket.newSuccess(rsMap, "addCollect success!");
     }
@@ -170,7 +170,7 @@ public class ApiCollectController extends ApiBaseController {
         sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
 
         Map<String, Object> rsMap = Maps.newHashMap();
-        rsMap.put("removeTime", TimeTest.getNowDateFormat());
+        rsMap.put("data", TimeTest.getNowDateFormat());
 
         return MessagePacket.newSuccess(rsMap, "removeCollect success!");
     }
@@ -240,7 +240,7 @@ public class ApiCollectController extends ApiBaseController {
                                 collectGoodsShopListDto.setStockNumber(goodsShop.getStockNumber());
                                 collectGoodsShopListDto.setStockOut(goodsShop.getStockOut());
                                 double rate = memberRankService.getDepositeRateByMemberId(member.getId());
-                                if(rate!=0d){
+                                if (rate != 0d) {
                                     collectGoodsShopListDto.setShowPrice(NumberUtils.keepPrecision(rate * goodsShop.getRealPrice(), 2));
                                 }
                                 goodsShopList.add(collectGoodsShopListDto);

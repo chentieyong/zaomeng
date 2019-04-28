@@ -93,7 +93,7 @@ public class ApiFeedController extends ApiBaseController {
         sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
 
         Map<String, Object> rsMap = Maps.newHashMap();
-        rsMap.put("feeID", feed.getId());
+        rsMap.put("data", feed.getId());
 
         return MessagePacket.newSuccess(rsMap, "submitOneFee success!");
     }

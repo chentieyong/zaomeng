@@ -134,7 +134,7 @@ public class ApiMemberOrderController extends ApiBaseController {
         sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
 
         Map<String, Object> rsMap = Maps.newHashMap();
-        rsMap.put("memberOrderID", memberOrderID);
+        rsMap.put("data", memberOrderID);
 
         return MessagePacket.newSuccess(rsMap, "createMemberOrder success!");
     }
@@ -199,7 +199,7 @@ public class ApiMemberOrderController extends ApiBaseController {
         sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
 
         Map<String, Object> rsMap = Maps.newHashMap();
-        rsMap.put("memberOrderID", memberOrderID);
+        rsMap.put("data", memberOrderID);
 
         return MessagePacket.newSuccess(rsMap, "createMemberOrder success!");
     }

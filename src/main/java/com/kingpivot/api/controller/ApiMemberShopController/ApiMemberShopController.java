@@ -160,7 +160,7 @@ public class ApiMemberShopController extends ApiBaseController {
         sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
 
         Map<String, Object> rsMap = Maps.newHashMap();
-        rsMap.put("memberShopID", memberShop.getId());
+        rsMap.put("data", memberShop.getId());
 
         return MessagePacket.newSuccess(rsMap, "applyMemberShop success!");
     }
@@ -280,7 +280,7 @@ public class ApiMemberShopController extends ApiBaseController {
         sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
 
         Map<String, Object> rsMap = Maps.newHashMap();
-        rsMap.put("updateTime", TimeTest.getNowDateFormat());
+        rsMap.put("data", TimeTest.getNowDateFormat());
 
         return MessagePacket.newSuccess(rsMap, "updateMemberShop success!");
     }
@@ -329,7 +329,7 @@ public class ApiMemberShopController extends ApiBaseController {
         sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
 
         Map<String, Object> rsMap = Maps.newHashMap();
-        rsMap.put("removeTime", TimeTest.getNowDateFormat());
+        rsMap.put("data", TimeTest.getNowDateFormat());
 
         return MessagePacket.newSuccess(rsMap, "removeMemberShop success!");
     }

@@ -151,7 +151,8 @@ public class ApiCartController extends ApiBaseController {
         sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
 
         Map<String, Object> rsMap = Maps.newHashMap();
-        rsMap.put("addTime", TimeTest.getNowDateFormat());
+        rsMap.put("data", TimeTest.getNowDateFormat());
+        rsMap.put("qty", cartGoods.getQty());
 
         return MessagePacket.newSuccess(rsMap, "addGoodsShopToCart success!");
     }
@@ -208,7 +209,8 @@ public class ApiCartController extends ApiBaseController {
         sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
 
         Map<String, Object> rsMap = Maps.newHashMap();
-        rsMap.put("updateTime", TimeTest.getNowDateFormat());
+        rsMap.put("data", TimeTest.getNowDateFormat());
+        rsMap.put("qty", cartGoods.getQty());
 
         return MessagePacket.newSuccess(rsMap, "updateCartGoodsNumber success!");
     }
@@ -257,7 +259,8 @@ public class ApiCartController extends ApiBaseController {
         sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
 
         Map<String, Object> rsMap = Maps.newHashMap();
-        rsMap.put("removeTime", TimeTest.getNowDateFormat());
+        rsMap.put("data", TimeTest.getNowDateFormat());
+        rsMap.put("qty", cartGoods.getQty());
 
         return MessagePacket.newSuccess(rsMap, "removeCartGoods success!");
     }
@@ -312,7 +315,7 @@ public class ApiCartController extends ApiBaseController {
         sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
 
         Map<String, Object> rsMap = Maps.newHashMap();
-        rsMap.put("removeTime", TimeTest.getNowDateFormat());
+        rsMap.put("data", TimeTest.getNowDateFormat());
 
         return MessagePacket.newSuccess(rsMap, "selectCartGoods success!");
     }

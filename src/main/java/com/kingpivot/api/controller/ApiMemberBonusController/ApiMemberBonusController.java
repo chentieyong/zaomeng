@@ -191,7 +191,7 @@ public class ApiMemberBonusController extends ApiBaseController {
         sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
 
         Map<String, Object> rsMap = Maps.newHashMap();
-        rsMap.put("useTime", TimeTest.getTimeStr());
+        rsMap.put("data", TimeTest.getTimeStr());
         return MessagePacket.newSuccess(rsMap, "useMemberBonus success!");
     }
 }
