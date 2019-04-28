@@ -98,7 +98,7 @@ public class ApiCategoryController extends ApiBaseController {
         List<NodeCategoryListDto> list = null;
 
         if (rs != null && rs.getSize() != 0) {
-            page.setTotalSize(rs.getSize());
+            page.setTotalSize((int) rs.getTotalElements());
             list = BeanMapper.mapList(rs.getContent(), NodeCategoryListDto.class);
             if (StringUtils.isNotBlank(objectDefineID)) {
                 switch (objectDefineID) {

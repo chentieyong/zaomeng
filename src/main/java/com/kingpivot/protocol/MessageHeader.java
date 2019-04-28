@@ -135,6 +135,12 @@ public class MessageHeader implements Serializable {
         appTypeIsNull(10057),//appType不能为空
         memberIsCollect(10058),//会员已收藏
         messageTypeIsNull(10059),//消息类型不能为空
+        applicationIdIsNull(10060),//应用id为空
+        applicationIdIsError(10061),//应用不存在
+        smsWayIdIsNull(10062),//短信通道id为空
+        smsWayIdIsError(10063),//短信通道id不正确
+        sendTypeError(10064),//发送类型不正确
+        smsTemplateIsNull(10065),//模板不存在
         ;
         public int code;
 

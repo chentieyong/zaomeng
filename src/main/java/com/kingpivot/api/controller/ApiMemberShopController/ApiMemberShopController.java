@@ -373,7 +373,7 @@ public class ApiMemberShopController extends ApiBaseController {
         List<MemberShopListDto> list = null;
         if (rs != null && rs.getSize() != 0) {
             list = BeanMapper.mapList(rs.getContent(), MemberShopListDto.class);
-            page.setTotalSize(rs.getSize());
+            page.setTotalSize((int) rs.getTotalElements());
         }
 
         String description = String.format("%s获取会员店铺列表", member.getName());

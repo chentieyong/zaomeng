@@ -58,8 +58,8 @@ public class ApiReleaseController extends ApiBaseController {
             @ApiImplicitParam(paramType = "query", name = "memberID", value = "会员id", dataType = "String"),
             @ApiImplicitParam(paramType = "query", name = "objectDefineID", value = "对象定义id", dataType = "String"),
             @ApiImplicitParam(paramType = "query", name = "navigatorID", value = "导航id", dataType = "String")})
-    @RequestMapping(value = "/getNavigatorGoodsShopList")
-    public MessagePacket getNavigatorGoodsShopList(HttpServletRequest request) {
+    @RequestMapping(value = "/getNavigatorReleaseList")
+    public MessagePacket getNavigatorReleaseList(HttpServletRequest request) {
         String navigatorID = request.getParameter("navigatorID");
         String objectDefineID = request.getParameter("objectDefineID");
         String memberID = request.getParameter("memberID");
@@ -92,7 +92,7 @@ public class ApiReleaseController extends ApiBaseController {
         Map<String, Object> rsMap = Maps.newHashMap();
         MessagePage messagePage = null;
         if (rs != null && rs.getSize() != 0) {
-
+            page.setTotalSize((int) rs.getTotalElements());
             switch (objectDefineID) {
                 case Config.GOODSSHOP_OBJECTDEFINEID://店铺商品
                     List<ReleaseGoodsShopListDto> goodsShopList = new ArrayList<>();
@@ -111,7 +111,7 @@ public class ApiReleaseController extends ApiBaseController {
                                 releaseGoodsShopListDto.setStockOut(goodsShop.getStockOut());
                                 if (StringUtils.isNotBlank(memberID)) {
                                     double rate = memberRankService.getDepositeRateByMemberId(memberID);
-                                    if(rate!=0d){
+                                    if (rate != 0d) {
                                         releaseGoodsShopListDto.setShowPrice(NumberUtils.keepPrecision(rate * goodsShop.getRealPrice(), 2));
                                     }
                                 }
@@ -143,13 +143,13 @@ public class ApiReleaseController extends ApiBaseController {
                     messagePage = new MessagePage(page, articleList);
                     break;
                 default:
+                    page.setTotalSize(0);
                     messagePage = new MessagePage(page, new ArrayList());
                     break;
             }
-            page.setTotalSize(rs.getSize());
         }
         rsMap.put("data", messagePage);
 
-        return MessagePacket.newSuccess(rsMap, "getNavigatorGoodsShopList success!");
+        return MessagePacket.newSuccess(rsMap, "getNavigatorReleaseList success!");
     }
 }

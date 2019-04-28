@@ -139,7 +139,7 @@ public class ApiSignInController extends ApiBaseController {
         List<SigninListDto> list = null;
         if (rs != null && rs.getSize() != 0) {
             list = BeanMapper.mapList(rs.getContent(), SigninListDto.class);
-            page.setTotalSize(rs.getSize());
+            page.setTotalSize((int) rs.getTotalElements());
         }
 
         String description = String.format("%s获取签到记录", member.getName());

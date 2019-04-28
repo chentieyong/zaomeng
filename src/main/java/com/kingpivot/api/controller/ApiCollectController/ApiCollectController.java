@@ -247,7 +247,7 @@ public class ApiCollectController extends ApiBaseController {
                             }
                         }
                     }
-                    page.setTotalSize(rs.getSize());
+                    page.setTotalSize((int) rs.getTotalElements());
                     messagePage = new MessagePage(page, goodsShopList);
                     break;
                 default:

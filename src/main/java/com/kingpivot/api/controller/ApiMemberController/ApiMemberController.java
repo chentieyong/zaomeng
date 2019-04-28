@@ -1,7 +1,9 @@
 package com.kingpivot.api.controller.ApiMemberController;
 
+import com.aliyuncs.exceptions.ClientException;
 import com.google.common.collect.Maps;
 import com.kingpivot.api.dto.member.MemberLoginDto;
+import com.kingpivot.base.application.model.Application;
 import com.kingpivot.base.application.service.ApplicationService;
 import com.kingpivot.base.config.Config;
 import com.kingpivot.base.config.UserAgent;
@@ -10,7 +12,13 @@ import com.kingpivot.base.member.service.MemberService;
 import com.kingpivot.base.memberlog.model.Memberlog;
 import com.kingpivot.base.site.model.Site;
 import com.kingpivot.base.site.service.SiteService;
+import com.kingpivot.base.sms.service.SMSService;
+import com.kingpivot.base.smsTemplate.model.SmsTemplate;
+import com.kingpivot.base.smsTemplate.service.SmsTemplateService;
+import com.kingpivot.base.smsWay.model.SmsWay;
+import com.kingpivot.base.smsWay.service.SmsWayService;
 import com.kingpivot.base.support.MemberLogDTO;
+import com.kingpivot.common.KingBase;
 import com.kingpivot.common.jms.SendMessageService;
 import com.kingpivot.common.jms.dto.memberLog.MemberLogRequestBase;
 import com.kingpivot.common.jms.dto.memberLogin.MemberLoginRequestBase;
@@ -32,6 +40,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.sql.Timestamp;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -51,6 +60,14 @@ public class ApiMemberController extends ApiBaseController {
     private ApplicationService applicationService;
     @Autowired
     private StringRedisTemplate redisTemplate;
+    @Autowired
+    private SmsWayService smsWayService;
+    @Autowired
+    private SMSService smsService;
+    @Autowired
+    private KingBase kingBase;
+    @Autowired
+    private SmsTemplateService smsTemplateService;
 
     @ApiOperation(value = "会员登录", notes = "会员登录")
     @ApiImplicitParams({
@@ -218,7 +235,7 @@ public class ApiMemberController extends ApiBaseController {
      * @return
      */
     @RequestMapping("sendSmsCommon")
-    public MessagePacket sendSmsCommon(HttpServletRequest request) {
+    public MessagePacket sendSmsCommon(HttpServletRequest request) throws Exception {
         String phone = request.getParameter("phone");
         String siteID = request.getParameter("siteID");
         String sendType = request.getParameter("sendType");
@@ -228,6 +245,18 @@ public class ApiMemberController extends ApiBaseController {
         if (StringUtils.isBlank(sendType)) {
             return MessagePacket.newFail(MessageHeader.Code.sendTypeIsNull, "发送类型不能为空!");
         }
+
+        String sendTypeName = "";
+        String templateValue = "";
+        switch (sendType) {
+            case "1":
+                sendTypeName = "注册";
+                templateValue = CacheContant.REGISTER_AUTH_CODE;
+                break;
+            default:
+                return MessagePacket.newFail(MessageHeader.Code.sendTypeError, "发送类型不正确!");
+        }
+
         if (StringUtils.isEmpty(siteID)) {
             return MessagePacket.newFail(MessageHeader.Code.siteIdIsNull, "siteID为空");
         }
@@ -236,15 +265,77 @@ public class ApiMemberController extends ApiBaseController {
             return MessagePacket.newFail(MessageHeader.Code.siteIdError, "siteID不正确");
         }
 
+        if (StringUtils.isEmpty(site.getApplicationID())) {
+            return MessagePacket.newFail(MessageHeader.Code.applicationIdIsNull, "站点未设置应用");
+        }
+
+        Application application = applicationService.findById(site.getApplicationID());
+
+        if (application == null) {
+            return MessagePacket.newFail(MessageHeader.Code.applicationIdIsError, "站点应用不存在");
+        }
+
+        if (StringUtils.isEmpty(application.getSmsWayID())) {
+            return MessagePacket.newFail(MessageHeader.Code.smsWayIdIsNull, "应用未设置短信通道");
+        }
+
+        SmsWay smsWay = smsWayService.findById(application.getSmsWayID());
+
+        if (smsWay == null) {
+            return MessagePacket.newFail(MessageHeader.Code.smsWayIdIsError, "短信通道不存在");
+        }
+
+        SmsTemplate smsTemplate = smsTemplateService.getSmsTemplateBySmsWayIDAndTemplateValue(smsWay.getId(), templateValue);
+        if (smsTemplate == null) {
+            return MessagePacket.newFail(MessageHeader.Code.smsTemplateIsNull, "模板不存在");
+        }
+
+        if (smsWay.getDayNumberTimes() == null) {
+            smsWay.setDayNumberTimes(5);
+        }
+
+        if (smsWay.getIntervalMinute() == null) {
+            smsWay.setIntervalMinute(5);
+        }
+
+        int numbers = smsService.getTodayCount(phone, sendTypeName);
+        if (numbers >= smsWay.getDayNumberTimes()) {
+            return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "今日发送次数已超额");
+        }
+
+        if (numbers != 0) {
+            int s = 0;
+            if (numbers != 1) {
+                s = 1;
+            }
+            Timestamp sendDate = smsService.getPerSms(phone, sendTypeName, s, 1);
+            if ((new Timestamp(System.currentTimeMillis()).getTime() / 1000 - sendDate.getTime() / 1000) < smsWay.getIntervalMinute() * 60) {
+                return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "请勿重复请求");
+            }
+        }
+
         if ("0".equals(sendType)) {
             String memberID = memberService.getMemberIdByPhoneAndApplicationId(phone, site.getApplicationID());
             if (StringUtils.isNotBlank(memberID)) {
                 return MessagePacket.newFail(MessageHeader.Code.phoneIsUsed, "手机号已注册");
             }
         }
-
+        String msg = "";
         String authCode = RadomMsgAuthCodeUtil.createRandom(true, 4);
-        redisTemplate.opsForValue().set(String.format("%s_%s", CacheContant.REGISTER_AUTH_CODE, phone), authCode, 300, TimeUnit.SECONDS);
+
+        if (smsWay.getIsTest() != null && smsWay.getIsTest() == 1) {
+            switch (smsWay.getSmsType()) {
+                case 1:
+                    String templateParam = smsTemplate.getTextDefine().replaceAll("CODE", authCode);
+                    msg = SmsSendUtil.aliyunSmsSend(smsWay.getAccount(), smsWay.getPwd(), templateParam, smsTemplate.getTemplateCode(), smsWay.getSignName(), phone);
+                    break;
+            }
+        }
+
+        if (StringUtils.isEmpty(msg)) {
+            kingBase.addSms(sendTypeName, authCode, smsTemplate.getDescription().replaceAll("CODE", authCode), phone, smsWay.getId());
+            redisTemplate.opsForValue().set(String.format("%s_%s", templateValue, phone), authCode, smsWay.getIntervalMinute() * 60, TimeUnit.SECONDS);
+        }
 
         Map<String, Object> rsMap = Maps.newHashMap();
         rsMap.put("data", authCode);

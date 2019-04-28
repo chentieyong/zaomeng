@@ -102,7 +102,7 @@ public class ApiMemberBonusController extends ApiBaseController {
                     myMemberBonusListDto.setStatus(3);
                 }
             }
-            page.setTotalSize(rs.getSize());
+            page.setTotalSize((int) rs.getTotalElements());
         }
 
         String description = String.format("%s获取我的会员红包", member.getName());

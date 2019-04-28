@@ -102,7 +102,7 @@ public class ApiGoodsShopController extends ApiBaseController {
                     }
                 }
             }
-            page.setTotalSize(rs.getSize());
+            page.setTotalSize((int) rs.getTotalElements());
         }
 
         if (StringUtils.isNotBlank(hotWords) && StringUtils.isNotBlank(memberID)) {

@@ -68,7 +68,7 @@ public class ApiFocusController extends ApiBaseController {
         List<FocusPictureListDto> list = null;
         if (rs != null && rs.getSize() != 0) {
             list = BeanMapper.mapList(rs.getContent(), FocusPictureListDto.class);
-            page.setTotalSize(rs.getSize());
+            page.setTotalSize((int) rs.getTotalElements());
         }
         Map<String, Object> rsMap = Maps.newHashMap();
         MessagePage messagePage = new MessagePage(page, list);

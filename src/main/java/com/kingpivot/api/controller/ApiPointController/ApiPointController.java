@@ -90,7 +90,7 @@ public class ApiPointController extends ApiBaseController {
         List<MyPointListDto> list = null;
         if (rs != null && rs.getSize() != 0) {
             list = BeanMapper.mapList(rs.getContent(), MyPointListDto.class);
-            page.setTotalSize(rs.getSize());
+            page.setTotalSize((int) rs.getTotalElements());
         }
 
         String description = String.format("%s获取我的积分列表", member.getName());
