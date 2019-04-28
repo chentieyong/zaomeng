@@ -247,13 +247,14 @@ public class ApiCollectController extends ApiBaseController {
                             }
                         }
                     }
+                    page.setTotalSize(rs.getSize());
                     messagePage = new MessagePage(page, goodsShopList);
                     break;
                 default:
+                    page.setTotalSize(0);
                     messagePage = new MessagePage(page, new ArrayList());
                     break;
             }
-            page.setTotalSize(rs.getSize());
         }
         rsMap.put("data", messagePage);
 

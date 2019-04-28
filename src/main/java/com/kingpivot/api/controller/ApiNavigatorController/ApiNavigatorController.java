@@ -107,7 +107,7 @@ public class ApiNavigatorController extends ApiBaseController {
         List<NodeNavigatorListDto> list = null;
         if (rs != null && rs.getSize() != 0) {
             list = BeanMapper.mapList(rs.getContent(), NodeNavigatorListDto.class);
-
+            page.setTotalSize(rs.getSize());
             if (StringUtils.isNotBlank(objectDefineID)) {
                 switch (objectDefineID) {
                     case Config.GOODSSHOP_OBJECTDEFINEID://店铺商品
@@ -161,7 +161,6 @@ public class ApiNavigatorController extends ApiBaseController {
                         break;
                 }
             }
-            page.setTotalSize(rs.getSize());
         }
         Map<String, Object> rsMap = Maps.newHashMap();
         MessagePage messagePage = new MessagePage(page, list);

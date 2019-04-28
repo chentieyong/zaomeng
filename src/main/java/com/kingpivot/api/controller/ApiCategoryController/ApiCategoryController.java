@@ -98,7 +98,7 @@ public class ApiCategoryController extends ApiBaseController {
         List<NodeCategoryListDto> list = null;
 
         if (rs != null && rs.getSize() != 0) {
-
+            page.setTotalSize(rs.getSize());
             list = BeanMapper.mapList(rs.getContent(), NodeCategoryListDto.class);
             if (StringUtils.isNotBlank(objectDefineID)) {
                 switch (objectDefineID) {
@@ -136,7 +136,6 @@ public class ApiCategoryController extends ApiBaseController {
                         break;
                 }
             }
-            page.setTotalSize(rs.getSize());
         }
         Map<String, Object> rsMap = Maps.newHashMap();
         MessagePage messagePage = new MessagePage(page, list);
