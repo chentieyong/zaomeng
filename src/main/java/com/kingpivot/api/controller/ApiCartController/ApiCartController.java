@@ -286,7 +286,7 @@ public class ApiCartController extends ApiBaseController {
         }
 
         String isSelect = request.getParameter("isSelect");
-        if (StringUtils.isEmpty(isSelect) || !isSelect.equals("1") || isSelect.equals("0")) {
+        if (StringUtils.isEmpty(isSelect) || !isSelect.equals("1") || !isSelect.equals("0")) {
             isSelect = "1";
         }
 
@@ -295,12 +295,13 @@ public class ApiCartController extends ApiBaseController {
             return MessagePacket.newFail(MessageHeader.Code.cartGoodsIDIsNull, "cartGoodsID不能为空");
         }
 
-        CartGoods cartGoods = cartGoodsService.findById(cartGoodsID);
-        if (cartGoods == null) {
-            return MessagePacket.newFail(MessageHeader.Code.cartGoodsIDIsNull, "cartGoodsID不正确");
+        String[] cartGoodsIDs = cartGoodsID.split(",");
+        CartGoods cartGoods = null;
+        for(int i=0;i<cartGoodsIDs.length;i++){
+            cartGoods = cartGoodsService.findById(cartGoodsIDs[i]);
+            cartGoods.setIsSelected(Integer.parseInt(isSelect));
+            cartGoodsService.save(cartGoods);
         }
-        cartGoods.setIsSelected(Integer.parseInt(isSelect));
-        cartGoodsService.save(cartGoods);
 
         String description = String.format("%s勾选购物车商品", member.getName());
 
@@ -328,6 +329,7 @@ public class ApiCartController extends ApiBaseController {
     @RequestMapping(value = "/getCartGoodsList")
     public MessagePacket getCartGoodsList(HttpServletRequest request) {
         String sessionID = request.getParameter("sessionID");
+        String isSelect = request.getParameter("isSelect");
         if (StringUtils.isEmpty(sessionID)) {
             return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
         }
@@ -349,6 +351,9 @@ public class ApiCartController extends ApiBaseController {
             cartID = kingBase.insertCart(member);
         }
         paramMap.put("cartID", cartID);
+        if(StringUtils.isNotBlank(isSelect)){
+            paramMap.put("isSelect",Integer.parseInt(isSelect));
+        }
 
         List<Sort.Order> orders = new ArrayList<Sort.Order>();
         orders.add(new Sort.Order(Sort.Direction.DESC, "createdTime"));

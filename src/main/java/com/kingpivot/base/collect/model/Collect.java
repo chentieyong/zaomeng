@@ -14,7 +14,7 @@ public class Collect extends BaseModel<String> {
     @Column(length = 36)
     private String id;//主键
 
-    @Column(length = 50)
+    @Column(length = 100)
     private String name;//主键
 
     @Column(length = 100)

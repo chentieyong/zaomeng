@@ -46,6 +46,7 @@ public class ApiAttachmentController extends ApiBaseController {
     @RequestMapping(value = "/getObjectAttachmentList")
     public MessagePacket getObjectAttachmentList(HttpServletRequest request) {
         String objectID = request.getParameter("objectID");
+        String name = request.getParameter("name");
 
         if (StringUtils.isEmpty(objectID)) {
             return MessagePacket.newFail(MessageHeader.Code.objectIdIsNull, "objectID不能为空");
@@ -56,6 +57,9 @@ public class ApiAttachmentController extends ApiBaseController {
         paramMap.put("isLock", Constants.ISLOCK_NO);
         if (StringUtils.isNotBlank(objectID)) {
             paramMap.put("objectID", objectID);
+        }
+        if(StringUtils.isNotBlank(name)){
+            paramMap.put("name", name);
         }
 
         List<Sort.Order> orders = new ArrayList<Sort.Order>();

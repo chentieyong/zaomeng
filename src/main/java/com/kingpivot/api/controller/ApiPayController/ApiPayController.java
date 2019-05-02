@@ -134,8 +134,11 @@ public class ApiPayController extends ApiBaseController {
         Map<String, Object> param = Maps.newHashMap();
 
         if (payway.getSupportType() == 1) {//app支付宝
+            String signType = "RSA2";
             //实例化客户端
-            AlipayClient alipayClient = new DefaultAlipayClient(Config.ALIPAY_GATEWAY, payway.getServerPassword(), payway.getPrivateKey(), "json", "utf-8", payway.getCommonKey(), payway.getSecurityType());
+            AlipayClient alipayClient = new DefaultAlipayClient(Config.ALIPAY_GATEWAY, payway.getServerPassword(),
+                    payway.getPrivateKey().replaceAll(" ", ""), "json", "utf-8",
+                    payway.getCommonKey().replaceAll(" ", ""), signType);
             //实例化具体API对应的request类,类名称和接口名称对应,当前调用接口名称：alipay.trade.app.pay
             AlipayTradeAppPayRequest alipayTradeAppPayRequest = new AlipayTradeAppPayRequest();
             //SDK已经封装掉了公共参数，这里只需要传入业务参数。以下方法为sdk的model入参方式(model和biz_content同时存在的情况下取biz_content)。

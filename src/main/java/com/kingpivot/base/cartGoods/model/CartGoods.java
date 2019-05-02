@@ -1,5 +1,6 @@
 package com.kingpivot.base.cartGoods.model;
 
+import com.kingpivot.base.goodsShop.model.GoodsShop;
 import com.kingpivot.base.objectFeatureItem.model.ObjectFeatureItem;
 import com.kingpivot.common.model.BaseModel;
 import org.hibernate.annotations.GenericGenerator;
@@ -26,6 +27,9 @@ public class CartGoods extends BaseModel<String> {
 
     @Column(length = 36)
     private String goodsShopID;//商品店铺ID
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "goodsShopID", updatable = false, insertable = false)
+    private GoodsShop goodsShop;
 
     @Column()
     private Double standPrice = 0.00d;//标准价格
@@ -165,5 +169,13 @@ public class CartGoods extends BaseModel<String> {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public GoodsShop getGoodsShop() {
+        return goodsShop;
+    }
+
+    public void setGoodsShop(GoodsShop goodsShop) {
+        this.goodsShop = goodsShop;
     }
 }

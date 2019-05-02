@@ -1,7 +1,10 @@
 package com.kingpivot.api.dto.cart;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.kingpivot.base.goodsShop.model.GoodsShop;
 import com.kingpivot.base.objectFeatureItem.model.ObjectFeatureItem;
+
+import javax.persistence.Column;
 
 public class CartGoodsListDto {
     private String id;//主键
@@ -28,6 +31,12 @@ public class CartGoodsListDto {
     private ObjectFeatureItem objectFeatureItem1;
 
     private Integer isSelected = 1;//是否选中: 1是 2否
+
+    @JsonIgnore
+    private GoodsShop goodsShop;
+
+    @Column(length = 100)
+    private String littleImage;//小图
 
 
     public String getId() {
@@ -127,5 +136,24 @@ public class CartGoodsListDto {
 
     public void setIsSelected(Integer isSelected) {
         this.isSelected = isSelected;
+    }
+
+    public GoodsShop getGoodsShop() {
+        return goodsShop;
+    }
+
+    public void setGoodsShop(GoodsShop goodsShop) {
+        this.goodsShop = goodsShop;
+        if (goodsShop != null) {
+            this.littleImage = goodsShop.getLittleImage();
+        }
+    }
+
+    public String getLittleImage() {
+        return littleImage;
+    }
+
+    public void setLittleImage(String littleImage) {
+        this.littleImage = littleImage;
     }
 }
