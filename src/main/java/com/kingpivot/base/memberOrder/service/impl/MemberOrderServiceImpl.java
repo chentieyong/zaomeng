@@ -181,7 +181,7 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
                 double priceTotalReturn = memberOrderGoods.getPriceTotal() / priceTotal * memberOrder.getBonusAmount();
                 memberOrderGoods.setPriceTotalReturn(NumberUtils.keepPrecision(memberOrderGoods.getPriceReturn() -
                         priceTotalReturn, 2));
-                memberOrderGoods.setPriceReturn(NumberUtils.keepPrecision(memberOrderGoods.getPriceStandTotal() /
+                memberOrderGoods.setPriceReturn(NumberUtils.keepPrecision(memberOrderGoods.getPriceTotal() /
                         memberOrderGoods.getQTY(), 2));
             }
             memberOrderGoodsService.save(memberOrderGoods);
