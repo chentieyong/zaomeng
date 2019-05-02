@@ -124,6 +124,12 @@ public class MemberOrder extends BaseModel<String> {
     @Column(length = 100)
     private String address;//地址
 
+    @Column(length = 36)
+    private String companyID;//公司ID
+
+    @Column(length = 36)
+    private String shopID;//销售店铺ID
+
     @Override
     public String getId() {
         return id;
@@ -419,5 +425,21 @@ public class MemberOrder extends BaseModel<String> {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public String getCompanyID() {
+        return companyID;
+    }
+
+    public void setCompanyID(String companyID) {
+        this.companyID = companyID;
+    }
+
+    public String getShopID() {
+        return shopID;
+    }
+
+    public void setShopID(String shopID) {
+        this.shopID = shopID;
     }
 }

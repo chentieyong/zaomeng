@@ -56,7 +56,13 @@ public class CartGoods extends BaseModel<String> {
     private ObjectFeatureItem objectFeatureItem1;
 
     @Column(name = "isSelected", columnDefinition = "int default 1")
-    private Integer isSelected = 1;//是否选中: 1是 2否
+    private Integer isSelected = 1;//是否选中: 1是 0否
+
+    @Column(length = 36)
+    private String companyID;//公司ID
+
+    @Column(length = 36)
+    private String shopID;//销售店铺ID
 
     @Override
     public String getId() {
@@ -177,5 +183,21 @@ public class CartGoods extends BaseModel<String> {
 
     public void setGoodsShop(GoodsShop goodsShop) {
         this.goodsShop = goodsShop;
+    }
+
+    public String getCompanyID() {
+        return companyID;
+    }
+
+    public void setCompanyID(String companyID) {
+        this.companyID = companyID;
+    }
+
+    public String getShopID() {
+        return shopID;
+    }
+
+    public void setShopID(String shopID) {
+        this.shopID = shopID;
     }
 }

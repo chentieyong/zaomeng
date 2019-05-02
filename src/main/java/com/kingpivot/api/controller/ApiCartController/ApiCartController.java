@@ -130,8 +130,10 @@ public class ApiCartController extends ApiBaseController {
             cartGoods.setStandPrice(goodsShop.getRealPrice());
             cartGoods.setStandPriceTotal(NumberUtils.keepPrecision(cartGoods.getStandPrice() * Integer.parseInt(qty), 2));
             cartGoods.setPriceNow(goodsShop.getRealPrice());
+            cartGoods.setShopID(goodsShop.getShopID());
+            cartGoods.setCompanyID(goodsShop.getCompanyID());
             double rate = memberRankService.getDepositeRateByMemberId(member.getId());
-            if(rate!=0d){
+            if (rate != 0d) {
                 cartGoods.setDiscountRate(rate);
                 cartGoods.setPriceNow(NumberUtils.keepPrecision(cartGoods.getPriceNow() * rate, 2));
             }
@@ -297,7 +299,7 @@ public class ApiCartController extends ApiBaseController {
 
         String[] cartGoodsIDs = cartGoodsID.split(",");
         CartGoods cartGoods = null;
-        for(int i=0;i<cartGoodsIDs.length;i++){
+        for (int i = 0; i < cartGoodsIDs.length; i++) {
             cartGoods = cartGoodsService.findById(cartGoodsIDs[i]);
             cartGoods.setIsSelected(Integer.parseInt(isSelect));
             cartGoodsService.save(cartGoods);
@@ -351,8 +353,8 @@ public class ApiCartController extends ApiBaseController {
             cartID = kingBase.insertCart(member);
         }
         paramMap.put("cartID", cartID);
-        if(StringUtils.isNotBlank(isSelect)){
-            paramMap.put("isSelect",Integer.parseInt(isSelect));
+        if (StringUtils.isNotBlank(isSelect)) {
+            paramMap.put("isSelect", Integer.parseInt(isSelect));
         }
 
         List<Sort.Order> orders = new ArrayList<Sort.Order>();

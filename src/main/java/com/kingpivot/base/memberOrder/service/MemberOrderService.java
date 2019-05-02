@@ -13,8 +13,8 @@ import java.util.List;
  */
 public interface MemberOrderService extends BaseService<MemberOrder, String> {
 
-    String createMemberOrder(Member member, GoodsShop goodsShop, String objectFeatureItemID1, int qty, String contactName, String contactPhone, String address);
+    String createMemberOrder(Member member, GoodsShop goodsShop, String objectFeatureItemID1, int qty, String contactName, String contactPhone, String address,String memberBonusID);
 
-    String createMemberOrderFromCart(List<CartGoods> cartGoodsList, Member member, String contactName, String contactPhone, String address);
+    String createMemberOrderFromCart(List<CartGoods> cartGoodsList, Member member, String contactName, String contactPhone, String address,String memberBonusID);
 }
 

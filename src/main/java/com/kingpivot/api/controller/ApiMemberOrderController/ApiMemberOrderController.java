@@ -118,8 +118,9 @@ public class ApiMemberOrderController extends ApiBaseController {
         }
 
         String objectFeatureItemID1 = request.getParameter("objectFeatureItemID1");
+        String memberBonusID = request.getParameter("memberBonusID");
 
-        String memberOrderID = memberOrderService.createMemberOrder(member, goodsShop, objectFeatureItemID1, Integer.parseInt(qty), contactName, contactPhone, address);
+        String memberOrderID = memberOrderService.createMemberOrder(member, goodsShop, objectFeatureItemID1, Integer.parseInt(qty), contactName, contactPhone, address, memberBonusID);
 
         String description = String.format("%s店铺商品生成订单", member.getName());
 
@@ -184,7 +185,9 @@ public class ApiMemberOrderController extends ApiBaseController {
             return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "购物车为空");
         }
 
-        String memberOrderID = memberOrderService.createMemberOrderFromCart(cartGoodsList, member, contactName, contactPhone, address);
+        String memberBonusID = request.getParameter("memberBonusID");
+
+        String memberOrderID = memberOrderService.createMemberOrderFromCart(cartGoodsList, member, contactName, contactPhone, address, memberBonusID);
 
         String description = String.format("%s店铺商品生成订单", member.getName());
 

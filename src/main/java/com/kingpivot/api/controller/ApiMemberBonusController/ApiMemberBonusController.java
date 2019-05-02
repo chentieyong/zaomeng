@@ -75,9 +75,23 @@ public class ApiMemberBonusController extends ApiBaseController {
             return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
         }
 
+        /**
+         * 1订单id为空，开始时间大于当前，结束时间小于当前
+         */
+        String sortType = request.getParameter("sortType");
+
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("isValid", Constants.ISVALID_YES);
         paramMap.put("isLock", Constants.ISLOCK_NO);
+        if (StringUtils.isNotBlank(sortType)) {
+            switch (sortType) {
+                case "1":
+                    paramMap.put("memberOrderID", null);
+                    paramMap.put("startDate:gte", new Timestamp(System.currentTimeMillis()));
+                    paramMap.put("endDate:lte", new Timestamp(System.currentTimeMillis()));
+                    break;
+            }
+        }
 
         List<Sort.Order> orders = new ArrayList<Sort.Order>();
         orders.add(new Sort.Order(Sort.Direction.DESC, "createdTime"));

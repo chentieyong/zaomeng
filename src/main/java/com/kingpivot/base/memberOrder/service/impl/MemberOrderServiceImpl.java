@@ -4,6 +4,8 @@ import com.kingpivot.base.cartGoods.dao.CartGoodsDao;
 import com.kingpivot.base.cartGoods.model.CartGoods;
 import com.kingpivot.base.goodsShop.model.GoodsShop;
 import com.kingpivot.base.member.model.Member;
+import com.kingpivot.base.memberBonus.dao.MemberBonusDao;
+import com.kingpivot.base.memberBonus.model.MemberBonus;
 import com.kingpivot.base.memberOrder.dao.MemberOrderDao;
 import com.kingpivot.base.memberOrder.model.MemberOrder;
 import com.kingpivot.base.memberOrder.service.MemberOrderService;
@@ -39,6 +41,8 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
     private MemberRankDao memberRankDao;
     @Autowired
     private CartGoodsDao cartGoodsDao;
+    @Autowired
+    private MemberBonusDao memberBonusDao;
 
     @Override
     public BaseDao<MemberOrder, String> getDAO() {
@@ -47,28 +51,42 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public String createMemberOrder(Member member, GoodsShop goodsShop, String objectFeatureItemID1, int qty, String contactName, String contactPhone, String address) {
-
+    public String createMemberOrder(Member member, GoodsShop goodsShop, String objectFeatureItemID1,
+                                    int qty, String contactName, String contactPhone, String address,
+                                    String memberBonusID) {
         Double rate = memberRankDao.getDepositeRateByMemberId(member.getId());
         if (rate == null) {
             rate = 1d;
         }
-
         MemberOrder memberOrder = new MemberOrder();
         memberOrder.setOrderCode(sequenceDefineService.genCode("orderSeq", memberOrder.getId()));
         memberOrder.setApplicationID(member.getApplicationID());
         memberOrder.setMemberID(member.getId());
+        memberOrder.setCompanyID(goodsShop.getCompanyID());
+        memberOrder.setShopID(goodsShop.getShopID());
         memberOrder.setGoodsQTY(qty);
         memberOrder.setGoodsNumbers(1);
-        memberOrder.setDiscountRate(rate);
         memberOrder.setPriceStandTotal(NumberUtils.keepPrecision(goodsShop.getRealPrice() * qty, 2));
         memberOrder.setPriceTotal(NumberUtils.keepPrecision(goodsShop.getRealPrice() * qty * rate, 2));
         memberOrder.setPriceAfterDiscount(memberOrder.getPriceTotal());
+        memberOrder.setBonusAmount(0d);
         memberOrder.setContactName(contactPhone);
         memberOrder.setContactPhone(contactPhone);
         memberOrder.setAddress(address);
         memberOrder.setApplyTime(new Timestamp(System.currentTimeMillis()));
         memberOrder.setCreatedTime(memberOrder.getApplyTime());
+
+        if (StringUtils.isNotBlank(memberBonusID)) {
+            MemberBonus memberBonus = memberBonusDao.findOne(memberBonusID);
+            if (memberBonus != null) {
+                memberOrder.setBonusAmount(memberBonus.getAmount());//红包金额
+                memberOrder.setPriceAfterDiscount(NumberUtils.keepPrecision(memberOrder.getPriceAfterDiscount() - memberBonus.getAmount(), 2));//优惠后金额
+
+                memberBonus.setMemberOrderID(memberOrder.getId());
+                memberBonusDao.save(memberBonus);
+            }
+        }
+        memberOrder.setDiscountRate(rate);//折扣比例
         memberOrderDao.save(memberOrder);
 
         MemberOrderGoods memberOrderGoods = new MemberOrderGoods();
@@ -84,6 +102,8 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
         if (StringUtils.isNotBlank(objectFeatureItemID1)) {
             memberOrderGoods.setObjectFeatureItemID1(objectFeatureItemID1);
         }
+        memberOrderGoods.setPriceReturn(memberOrder.getPriceAfterDiscount());//退款金额
+        memberOrderGoods.setPriceTotalReturn(memberOrder.getPriceAfterDiscount());//退款总金额
         memberOrderGoods.setQTY(qty);
         memberOrderGoods.setCreatedTime(new Timestamp(System.currentTimeMillis()));
         memberOrderGoodsService.save(memberOrderGoods);
@@ -92,30 +112,48 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public String createMemberOrderFromCart(List<CartGoods> cartGoodsList, Member member, String contactName, String contactPhone, String address) {
-
+    public String createMemberOrderFromCart(List<CartGoods> cartGoodsList, Member member, String contactName,
+                                            String contactPhone, String address,
+                                            String memberBonusID) {
         double rate = 1;
         double priceStandTotal = 0d;
         double priceTotal = 0d;
         int qty = 0;
         int goodsNumbers = 0;
+        String companyID = null;
+        String shopID = null;
         for (CartGoods cartGoods : cartGoodsList) {
             rate = cartGoods.getDiscountRate();
             qty += cartGoods.getQty();
             priceStandTotal += cartGoods.getStandPriceTotal();
             priceTotal += cartGoods.getPriceTotal();
+            companyID = cartGoods.getCompanyID();
+            shopID = cartGoods.getShopID();
         }
         goodsNumbers = cartGoodsList.size();
         MemberOrder memberOrder = new MemberOrder();
         memberOrder.setOrderCode(sequenceDefineService.genCode("orderSeq", memberOrder.getId()));
         memberOrder.setApplicationID(member.getApplicationID());
         memberOrder.setMemberID(member.getId());
+        memberOrder.setCompanyID(companyID);
+        memberOrder.setShopID(shopID);
         memberOrder.setGoodsQTY(qty);
         memberOrder.setGoodsNumbers(goodsNumbers);
-        memberOrder.setDiscountRate(rate);
         memberOrder.setPriceStandTotal(priceStandTotal);
         memberOrder.setPriceTotal(priceTotal);
-        memberOrder.setPriceAfterDiscount(priceTotal);
+
+        if (StringUtils.isNotBlank(memberBonusID)) {
+            MemberBonus memberBonus = memberBonusDao.findOne(memberBonusID);
+            if (memberBonus != null) {
+                memberOrder.setBonusAmount(memberBonus.getAmount());//红包金额
+                memberOrder.setPriceAfterDiscount(NumberUtils.keepPrecision(memberOrder.getPriceAfterDiscount() - memberBonus.getAmount(), 2));//优惠后金额
+
+                memberBonus.setMemberOrderID(memberOrder.getId());
+                memberBonusDao.save(memberBonus);
+            }
+        }
+        memberOrder.setDiscountRate(rate);//折扣比例
+
         memberOrder.setContactName(contactPhone);
         memberOrder.setContactPhone(contactPhone);
         memberOrder.setAddress(address);
@@ -137,7 +175,17 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
             memberOrderGoods.setObjectFeatureItemID1(cartGoods.getObjectFeatureItemID1());
             memberOrderGoods.setQTY(cartGoods.getQty());
             memberOrderGoods.setCreatedTime(new Timestamp(System.currentTimeMillis()));
+            memberOrderGoods.setPriceTotalReturn(memberOrderGoods.getPriceTotal());//退款总金额
+            memberOrderGoods.setPriceReturn(memberOrderGoods.getPriceNow());//退款金额
+            if (memberOrder.getBonusAmount() != null && memberOrder.getBonusAmount() != 0) {
+                double priceTotalReturn = memberOrderGoods.getPriceTotal() / priceTotal * memberOrder.getBonusAmount();
+                memberOrderGoods.setPriceTotalReturn(NumberUtils.keepPrecision(memberOrderGoods.getPriceReturn() -
+                        priceTotalReturn, 2));
+                memberOrderGoods.setPriceReturn(NumberUtils.keepPrecision(memberOrderGoods.getPriceStandTotal() /
+                        memberOrderGoods.getQTY(), 2));
+            }
             memberOrderGoodsService.save(memberOrderGoods);
+
             cartGoods.setIsValid(0);
             cartGoods.setModifiedTime(new Timestamp(System.currentTimeMillis()));
             cartGoodsDao.save(cartGoods);
