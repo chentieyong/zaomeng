@@ -15,6 +15,9 @@ public class ActiveMQConfig {
     @Value("${memberLogQueueName}")
     private String memberLogQueueName;
 
+    @Value("${memberLoginQueueName}")
+    private String memberLoginQueueName;
+
     @Value("${spring.activemq.user}")
     private String usrName;
 
@@ -27,6 +30,11 @@ public class ActiveMQConfig {
     @Bean
     public Queue memberLogQueue() {
         return new ActiveMQQueue(memberLogQueueName);
+    }
+
+    @Bean
+    public Queue memberLoginQueue() {
+        return new ActiveMQQueue(memberLoginQueueName);
     }
 
     @Bean

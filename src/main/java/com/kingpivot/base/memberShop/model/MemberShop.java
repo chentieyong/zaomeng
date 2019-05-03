@@ -45,6 +45,8 @@ public class MemberShop extends BaseModel<String> {
     private String contactIdCardFaceImage;//联系人身份证正面
     @Column(length = 100)
     private String contactIdCardBackImage;//联系人身份证反面
+    @Column
+    private Integer verifyStatus = 0;
 
     @Override
     public String getId() {
@@ -173,6 +175,14 @@ public class MemberShop extends BaseModel<String> {
 
     public void setMember(Member member) {
         this.member = member;
+    }
+
+    public Integer getVerifyStatus() {
+        return verifyStatus;
+    }
+
+    public void setVerifyStatus(Integer verifyStatus) {
+        this.verifyStatus = verifyStatus;
     }
 }
 

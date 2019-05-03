@@ -10,4 +10,4 @@ spring:
       contentnegotiation:
           favor-path-extension: false
   profiles:
-    active: local
+    active: dev

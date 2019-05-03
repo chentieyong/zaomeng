@@ -288,8 +288,9 @@ public class ApiCartController extends ApiBaseController {
         }
 
         String isSelect = request.getParameter("isSelect");
-        if (StringUtils.isEmpty(isSelect) || !isSelect.equals("1") || !isSelect.equals("0")) {
-            isSelect = "1";
+
+        if(StringUtils.isEmpty(isSelect)){
+            return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "isSelect不能为空");
         }
 
         String cartGoodsID = request.getParameter("cartGoodsID");

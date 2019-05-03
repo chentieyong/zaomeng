@@ -14,9 +14,16 @@ public class SendMessageServiceImpl implements SendMessageService {
     private JmsMessagingTemplate jms;
     @Autowired
     private Queue memberLogQueue;
+    @Autowired
+    private Queue memberLoginQueue;
 
     @Override
     public void sendMemberLogMessage(String msg) {
         jms.convertAndSend(memberLogQueue, msg);
+    }
+
+    @Override
+    public void sendMemberLoginMessage(String msg) {
+        jms.convertAndSend(memberLoginQueue, msg);
     }
 }

@@ -1,6 +1,5 @@
 package com.kingpivot.api.controller.ApiMemberController;
 
-import com.aliyuncs.exceptions.ClientException;
 import com.google.common.collect.Maps;
 import com.kingpivot.api.dto.member.MemberLoginDto;
 import com.kingpivot.base.application.model.Application;
@@ -20,7 +19,6 @@ import com.kingpivot.base.smsWay.service.SmsWayService;
 import com.kingpivot.base.support.MemberLogDTO;
 import com.kingpivot.common.KingBase;
 import com.kingpivot.common.jms.SendMessageService;
-import com.kingpivot.common.jms.dto.memberLog.MemberLogRequestBase;
 import com.kingpivot.common.jms.dto.memberLogin.MemberLoginRequestBase;
 import com.kingpivot.common.util.Constants;
 import com.kingpivot.common.util.sms.RadomMsgAuthCodeUtil;
@@ -344,15 +342,16 @@ public class ApiMemberController extends ApiBaseController {
     public void sendMemberLoginLog(HttpServletRequest request, Member member, boolean isNew) {
         UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));
 
-        MemberLogRequestBase base = MemberLogRequestBase.BALANCE()
+        MemberLoginRequestBase base = MemberLoginRequestBase.BALANCE()
                 .sessionID(request.getSession().getId())
                 .description(String.format("%s登录[来自App：%s]", member.getLoginName(),
                         applicationService.getNameByAppid(member.getApplicationID())))
                 .ipaddr(WebUtil.getRemortIP(request))
+                .isnew(isNew)
                 .userAgent(userAgent == null ? null : userAgent.getBrowserType())
                 .operateType(Memberlog.MemberOperateType.MEMBER_LOGIN.getOname())
                 .build();
-        sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
+        sendMessageService.sendMemberLoginMessage(JacksonHelper.toJson(base));
     }
 
     private void putMemberLogSession(HttpServletRequest request, MemberLogDTO memberLogDTO) {
