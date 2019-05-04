@@ -109,7 +109,7 @@ public class ApiCartController extends ApiBaseController {
         if (StringUtils.isEmpty(objectFeatureItemID1)) {
             objectFeatureItemID1 = null;
         }
-        CartGoods cartGoods = cartGoodsService.getCartGoodsByCartIDAndObjectFeatureItemID(cartID, objectFeatureItemID1);
+        CartGoods cartGoods = cartGoodsService.getCartGoodsByCartIDAndObjectFeatureItemID(cartID, goodsShopID, objectFeatureItemID1);
 
         if (cartGoods != null) {
             cartGoods.setQty(cartGoods.getQty() == null ? Math.abs(Integer.parseInt(qty)) : Math.abs(Integer.parseInt(qty)) + cartGoods.getQty().intValue());
@@ -289,7 +289,7 @@ public class ApiCartController extends ApiBaseController {
 
         String isSelect = request.getParameter("isSelect");
 
-        if(StringUtils.isEmpty(isSelect)){
+        if (StringUtils.isEmpty(isSelect)) {
             return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "isSelect不能为空");
         }
 

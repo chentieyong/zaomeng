@@ -22,8 +22,8 @@ public class CartGoodsServiceImpl extends BaseServiceImpl<CartGoods, String> imp
     }
 
     @Override
-    public CartGoods getCartGoodsByCartIDAndObjectFeatureItemID(String cartID, String objectFeatureItemID1) {
-        return cartGoodsDao.getCartGoodsByCartIDAndObjectFeatureItemID(cartID, objectFeatureItemID1);
+    public CartGoods getCartGoodsByCartIDAndObjectFeatureItemID(String cartID, String goodsShopID, String objectFeatureItemID1) {
+        return cartGoodsDao.getCartGoodsByCartIDAndObjectFeatureItemID(cartID, goodsShopID, objectFeatureItemID1);
     }
 
     @Override
