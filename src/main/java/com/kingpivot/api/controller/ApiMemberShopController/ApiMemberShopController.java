@@ -222,6 +222,15 @@ public class ApiMemberShopController extends ApiBaseController {
             return MessagePacket.newFail(MessageHeader.Code.nameIsNull, "name不能为空");
         }
 
+        if (StringUtils.isEmpty(address)) {
+            return MessagePacket.newFail(MessageHeader.Code.addressIsNull, "address不能为空");
+        }
+
+        String id = memberShopService.getIdByAddress(address);
+        if (StringUtils.isNotBlank(id)) {
+            return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "已申请");
+        }
+
         if (StringUtils.isEmpty(shopCategoryID)) {
             return MessagePacket.newFail(MessageHeader.Code.shopCategoryIDIsNull, "shopCategoryID不能为空");
         }
@@ -237,10 +246,6 @@ public class ApiMemberShopController extends ApiBaseController {
 
         if (StringUtils.isEmpty(businessImage)) {
             return MessagePacket.newFail(MessageHeader.Code.businessImageIsNull, "businessImage不能为空");
-        }
-
-        if (StringUtils.isEmpty(address)) {
-            return MessagePacket.newFail(MessageHeader.Code.addressIsNull, "address不能为空");
         }
 
         if (StringUtils.isEmpty(contact)) {
