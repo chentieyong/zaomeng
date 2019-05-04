@@ -4,4 +4,5 @@ import com.kingpivot.base.memberShop.model.MemberShop;
 import com.kingpivot.common.service.BaseService;
 
 public interface MemberShopService extends BaseService<MemberShop, String> {
+    String getIdByAddress(String address);
 }

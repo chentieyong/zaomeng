@@ -19,4 +19,9 @@ public class MemberShopServiceImpl extends BaseServiceImpl<MemberShop, String> i
     public BaseDao<MemberShop, String> getDAO() {
         return this.memberShopDao;
     }
+
+    @Override
+    public String getIdByAddress(String address) {
+        return memberShopDao.getIdByAddress(address);
+    }
 }
