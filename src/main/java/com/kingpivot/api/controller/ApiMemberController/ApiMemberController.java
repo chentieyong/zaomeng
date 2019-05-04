@@ -156,6 +156,7 @@ public class ApiMemberController extends ApiBaseController {
 
         Map<String, Object> rsMap = Maps.newHashMap();
         rsMap.put("data", BeanMapper.map(member, MemberLoginDto.class));
+        rsMap.put("sessionID", request.getSession().getId());
 
         MemberLogDTO memberLogDTO = new MemberLogDTO(site.getId(), member.getApplicationID(),
                 null, member.getId(), null, member.getCompanyID());
