@@ -35,10 +35,10 @@ public class ApiFileController extends ApiBaseController {
 
     @ApiOperation(value = "上传文件", notes = "上传文件")
     @ApiImplicitParams({
-            @ApiImplicitParam(paramType = "query", name = "multipartFile", value = "文件集合对象", dataType = "MultipartFile[]")})
+            @ApiImplicitParam(paramType = "query", name = "file", value = "文件对象", dataType = "file")})
     @RequestMapping(value = "/uploadFile")
-    public MessagePacket uploadFile(@RequestParam(value = "file", required = false) MultipartFile[] multipartFile) throws IOException {
-        if (multipartFile == null || multipartFile.length == 0) {
+    public MessagePacket uploadFile(@RequestParam MultipartFile file) throws IOException {
+        if (file == null || file.isEmpty()) {
             return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "文件为空");
         }
         List<String> list = new LinkedList<>();
@@ -49,15 +49,13 @@ public class ApiFileController extends ApiBaseController {
         //生成上传凭证，然后准备上传
         Auth auth = Auth.create(Config.QINIU_ACCESSKEY, Config.QINIU_SECRETKEY);
         String upToken = auth.uploadToken(Config.QINIU_BUCKETNAME);
-        for (int i = 0; i < multipartFile.length; i++) {
-            byte[] uploadBytes = getBytes(multipartFile[i]);
-            Response response = uploadManager.put(uploadBytes, null, upToken);
-            //解析上传成功的结果
-            DefaultPutRet putRet = new Gson().fromJson(response.bodyString(), DefaultPutRet.class);
-            StringBuilder uploadUrl = new StringBuilder(Config.QINIU_LOOKHEAD);
-            uploadUrl.append(putRet.key);
-            list.add(uploadUrl.toString());
-        }
+        byte[] uploadBytes = getBytes(file);
+        Response response = uploadManager.put(uploadBytes, null, upToken);
+        //解析上传成功的结果
+        DefaultPutRet putRet = new Gson().fromJson(response.bodyString(), DefaultPutRet.class);
+        StringBuilder uploadUrl = new StringBuilder(Config.QINIU_LOOKHEAD);
+        uploadUrl.append(putRet.key);
+        list.add(uploadUrl.toString());
         Map<String, Object> rsMap = Maps.newHashMap();
         rsMap.put("data", list);
         return MessagePacket.newSuccess(rsMap, "uploadFile success!");
