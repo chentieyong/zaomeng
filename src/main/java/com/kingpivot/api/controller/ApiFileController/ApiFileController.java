@@ -41,7 +41,6 @@ public class ApiFileController extends ApiBaseController {
         if (file == null || file.isEmpty()) {
             return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "文件为空");
         }
-        List<String> list = new LinkedList<>();
         //构造一个带指定Zone对象的配置类
         Configuration cfg = new Configuration(Zone.zone0());
         //其他参数参考类注释
@@ -55,9 +54,8 @@ public class ApiFileController extends ApiBaseController {
         DefaultPutRet putRet = new Gson().fromJson(response.bodyString(), DefaultPutRet.class);
         StringBuilder uploadUrl = new StringBuilder(Config.QINIU_LOOKHEAD);
         uploadUrl.append(putRet.key);
-        list.add(uploadUrl.toString());
         Map<String, Object> rsMap = Maps.newHashMap();
-        rsMap.put("data", list);
+        rsMap.put("data", uploadUrl.toString());
         return MessagePacket.newSuccess(rsMap, "uploadFile success!");
     }
 
