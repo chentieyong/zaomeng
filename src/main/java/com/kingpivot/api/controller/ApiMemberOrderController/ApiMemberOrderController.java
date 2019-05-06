@@ -415,7 +415,7 @@ public class ApiMemberOrderController extends ApiBaseController {
             return MessagePacket.newFail(MessageHeader.Code.statusIsError, "状态正确");
         }
         memberOrder.setStatus(8);
-        memberOrder.setGetTime(TimeTest.getTimeStr());
+        memberOrder.setGetGoodsTime(new Timestamp(System.currentTimeMillis()));
         memberOrderService.save(memberOrder);
 
         String description = String.format("%s确认收货", member.getName());
@@ -429,7 +429,7 @@ public class ApiMemberOrderController extends ApiBaseController {
         sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
 
         Map<String, Object> rsMap = Maps.newHashMap();
-        rsMap.put("data", memberOrder.getGetTime());
+        rsMap.put("data", TimeTest.toDateTimeFormat(memberOrder.getGetGoodsTime()));
 
         return MessagePacket.newSuccess(rsMap, "confirmMemberOrder success!");
     }
