@@ -141,6 +141,7 @@ public class MessageHeader implements Serializable {
         smsWayIdIsError(10063),//短信通道id不正确
         sendTypeError(10064),//发送类型不正确
         smsTemplateIsNull(10065),//模板不存在
+        statusIsError(10067),//状态不正确
         ;
         public int code;
 

@@ -5,4 +5,5 @@ import com.kingpivot.common.service.BaseService;
 
 public interface MemberBonusService extends BaseService<MemberBonus, String> {
 
+    void initMemberBonusByMemberOrderID(String memberOrderID);
 }

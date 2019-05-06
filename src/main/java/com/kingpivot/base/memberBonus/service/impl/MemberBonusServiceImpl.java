@@ -19,6 +19,11 @@ public class MemberBonusServiceImpl extends BaseServiceImpl<MemberBonus, String>
 	public BaseDao<MemberBonus, String> getDAO() {
 		return this.memberBonusDao;
 	}
+
+	@Override
+	public void initMemberBonusByMemberOrderID(String memberOrderID) {
+		memberBonusDao.initMemberBonusByMemberOrderID(memberOrderID);
+	}
 }
 
 

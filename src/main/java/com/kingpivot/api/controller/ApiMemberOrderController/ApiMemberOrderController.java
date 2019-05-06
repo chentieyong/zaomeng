@@ -11,6 +11,8 @@ import com.kingpivot.base.config.UserAgent;
 import com.kingpivot.base.goodsShop.model.GoodsShop;
 import com.kingpivot.base.goodsShop.service.GoodsShopService;
 import com.kingpivot.base.member.model.Member;
+import com.kingpivot.base.memberBonus.model.MemberBonus;
+import com.kingpivot.base.memberBonus.service.MemberBonusService;
 import com.kingpivot.base.memberOrder.model.MemberOrder;
 import com.kingpivot.base.memberOrder.service.MemberOrderService;
 import com.kingpivot.base.memberlog.model.Memberlog;
@@ -40,6 +42,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -63,6 +66,8 @@ public class ApiMemberOrderController extends ApiBaseController {
     private KingBase kingBase;
     @Autowired
     private CartGoodsService cartGoodsService;
+    @Autowired
+    private MemberBonusService memberBonusService;
 
     @ApiOperation(value = "店铺商品生成订单", notes = "店铺商品生成订单")
     @ApiImplicitParams({
@@ -317,5 +322,115 @@ public class ApiMemberOrderController extends ApiBaseController {
         Map<String, Object> rsMap = Maps.newHashMap();
         rsMap.put("data", memberOrderDetailDto);
         return MessagePacket.newSuccess(rsMap, "getMemberOrderDetail success!");
+    }
+
+    /**
+     * 取消订单
+     *
+     * @param request
+     * @return
+     */
+    @ApiOperation(value = "取消订单", notes = "获取会员订单详情")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query", name = "sessionID", value = "登录标识", dataType = "String"),
+            @ApiImplicitParam(paramType = "query", name = "memberOrderID", value = "会员订单id", dataType = "String")})
+    @RequestMapping(value = "/cancelMemberOrder")
+    public MessagePacket cancelMemberOrder(HttpServletRequest request) {
+        String sessionID = request.getParameter("sessionID");
+        String memberOrderID = request.getParameter("memberOrderID");
+        if (StringUtils.isEmpty(sessionID)) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        Member member = (Member) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBER_KEY.key, sessionID));
+        if (member == null) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        MemberLogDTO memberLogDTO = (MemberLogDTO) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBERLOG_KEY.key, sessionID));
+        if (memberLogDTO == null) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        if (StringUtils.isEmpty(memberOrderID)) {
+            return MessagePacket.newFail(MessageHeader.Code.memberOrderIDIsNull, "memberOrderID不能为空");
+        }
+        MemberOrder memberOrder = memberOrderService.findById(memberOrderID);
+        if (memberOrder == null) {
+            return MessagePacket.newFail(MessageHeader.Code.memberOrderIDIsError, "memberOrderID不正确");
+        }
+        memberOrder.setCancelTime(new Timestamp(System.currentTimeMillis()));
+        memberOrder.setStatus(2);
+        memberOrderService.save(memberOrder);
+
+        //红包还原
+        memberBonusService.initMemberBonusByMemberOrderID(memberOrderID);
+
+        String description = String.format("%s取消订单", member.getName());
+        UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));
+        MemberLogRequestBase base = MemberLogRequestBase.BALANCE()
+                .sessionID(sessionID)
+                .description(description)
+                .userAgent(userAgent == null ? null : userAgent.getBrowserType())
+                .operateType(Memberlog.MemberOperateType.CANCELMEMBERORDER.getOname())
+                .build();
+        sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
+
+        Map<String, Object> rsMap = Maps.newHashMap();
+        rsMap.put("data", TimeTest.toDateTimeFormat(memberOrder.getCancelTime()));
+
+        return MessagePacket.newSuccess(rsMap, "cancelMemberOrder success!");
+    }
+
+    /**
+     * 确认收货
+     *
+     * @param request
+     * @return
+     */
+    @ApiOperation(value = "确认收货", notes = "确认收货")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query", name = "sessionID", value = "登录标识", dataType = "String"),
+            @ApiImplicitParam(paramType = "query", name = "memberOrderID", value = "会员订单id", dataType = "String")})
+    @RequestMapping(value = "/confirmMemberOrder")
+    public MessagePacket confirmMemberOrder(HttpServletRequest request) {
+        String sessionID = request.getParameter("sessionID");
+        String memberOrderID = request.getParameter("memberOrderID");
+        if (StringUtils.isEmpty(sessionID)) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        Member member = (Member) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBER_KEY.key, sessionID));
+        if (member == null) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        MemberLogDTO memberLogDTO = (MemberLogDTO) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBERLOG_KEY.key, sessionID));
+        if (memberLogDTO == null) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        if (StringUtils.isEmpty(memberOrderID)) {
+            return MessagePacket.newFail(MessageHeader.Code.memberOrderIDIsNull, "memberOrderID不能为空");
+        }
+        MemberOrder memberOrder = memberOrderService.findById(memberOrderID);
+        if (memberOrder == null) {
+            return MessagePacket.newFail(MessageHeader.Code.memberOrderIDIsError, "memberOrderID不正确");
+        }
+        if (memberOrder.getStatus() != 6) {
+            return MessagePacket.newFail(MessageHeader.Code.statusIsError, "状态正确");
+        }
+        memberOrder.setStatus(8);
+        memberOrder.setGetTime(TimeTest.getTimeStr());
+        memberOrderService.save(memberOrder);
+
+        String description = String.format("%s确认收货", member.getName());
+        UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));
+        MemberLogRequestBase base = MemberLogRequestBase.BALANCE()
+                .sessionID(sessionID)
+                .description(description)
+                .userAgent(userAgent == null ? null : userAgent.getBrowserType())
+                .operateType(Memberlog.MemberOperateType.CONFIRMMEMBERORDER.getOname())
+                .build();
+        sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
+
+        Map<String, Object> rsMap = Maps.newHashMap();
+        rsMap.put("data", memberOrder.getGetTime());
+
+        return MessagePacket.newSuccess(rsMap, "confirmMemberOrder success!");
     }
 }

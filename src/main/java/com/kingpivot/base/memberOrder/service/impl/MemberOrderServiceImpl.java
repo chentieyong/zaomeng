@@ -82,6 +82,7 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
                 memberOrder.setBonusAmount(memberBonus.getAmount());//红包金额
                 memberOrder.setPriceAfterDiscount(NumberUtils.keepPrecision(memberOrder.getPriceAfterDiscount() - memberBonus.getAmount(), 2));//优惠后金额
 
+                memberBonus.setUseTime(new Timestamp(System.currentTimeMillis()));
                 memberBonus.setMemberOrderID(memberOrder.getId());
                 memberBonusDao.save(memberBonus);
             }
@@ -148,6 +149,7 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
                 memberOrder.setBonusAmount(memberBonus.getAmount());//红包金额
                 memberOrder.setPriceAfterDiscount(NumberUtils.keepPrecision(memberOrder.getPriceAfterDiscount() - memberBonus.getAmount(), 2));//优惠后金额
 
+                memberBonus.setUseTime(new Timestamp(System.currentTimeMillis()));
                 memberBonus.setMemberOrderID(memberOrder.getId());
                 memberBonusDao.save(memberBonus);
             }

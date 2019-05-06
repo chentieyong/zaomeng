@@ -130,6 +130,9 @@ public class MemberOrder extends BaseModel<String> {
     @Column(length = 36)
     private String shopID;//销售店铺ID
 
+    @Column(length = 100)
+    private String getTime;//提货时间
+
     @Override
     public String getId() {
         return id;
@@ -441,5 +444,13 @@ public class MemberOrder extends BaseModel<String> {
 
     public void setShopID(String shopID) {
         this.shopID = shopID;
+    }
+
+    public String getGetTime() {
+        return getTime;
+    }
+
+    public void setGetTime(String getTime) {
+        this.getTime = getTime;
     }
 }
