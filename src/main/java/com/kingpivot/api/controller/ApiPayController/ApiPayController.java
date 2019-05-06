@@ -20,6 +20,7 @@ import com.kingpivot.base.payway.model.PayWay;
 import com.kingpivot.base.payway.service.PayWayService;
 import com.kingpivot.base.sequenceDefine.service.SequenceDefineService;
 import com.kingpivot.base.support.MemberLogDTO;
+import com.kingpivot.common.KingBase;
 import com.kingpivot.common.jms.SendMessageService;
 import com.kingpivot.common.jms.dto.memberLog.MemberLogRequestBase;
 import com.kingpivot.common.util.MapUtil;
@@ -65,6 +66,8 @@ public class ApiPayController extends ApiBaseController {
     private MemberPaymentService memberPaymentService;
     @Autowired
     private MemberOrderService memberOrderService;
+    @Autowired
+    private KingBase kingBase;
 
     @ApiOperation(value = "app申请订单支付", notes = "app申请订单支付")
     @ApiImplicitParams({
@@ -93,6 +96,7 @@ public class ApiPayController extends ApiBaseController {
         String payWayID = request.getParameter("payWayID");
         String appType = request.getParameter("appType");
         String memberOrderID = request.getParameter("memberOrderID");
+        String memberPaymentID = request.getParameter("memberPaymentID");
 
         if (StringUtils.isEmpty(payWayID)) {
             return MessagePacket.newFail(MessageHeader.Code.paywayIDNotNull, "paywayID不能为空！");
@@ -105,28 +109,36 @@ public class ApiPayController extends ApiBaseController {
             return MessagePacket.newFail(MessageHeader.Code.memberOrderIDIsNull, "memberOrderID不能为空！");
         }
 
-        MemberOrder memberOrder = memberOrderService.findById(memberOrderID);
-        if (memberOrder == null) {
-            return MessagePacket.newFail(MessageHeader.Code.memberOrderIDIsError, "memberOrderID不正确！");
+        if (StringUtils.isEmpty(memberPaymentID) && StringUtils.isEmpty(memberOrderID)) {
+            return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "memberOrderID和memberPaymentID不能同时为空");
         }
 
-        if (StringUtils.isEmpty(appType)) {
-            return MessagePacket.newFail(MessageHeader.Code.appTypeIsNull, "appType不能为空！终端类型1：Android 2：ios 3：WAP");
-        }
+        String outTradeNo = "";
+        double amount = 0d;
 
-        //创建会员支付记录
-        MemberPayment memberPayment = new MemberPayment();
-        memberPayment.setMemberID(member.getId());
-        memberPayment.setName(String.format("%s:订单申请支付", memberOrder.getOrderCode()));
-        memberPayment.setDescription(memberPayment.getName());
-        memberPayment.setOrderCode(sequenceDefineService.genCode("orderSeq", memberPayment.getId()));
-        memberPayment.setObjectDefineID(Config.MEMBERORDER_OBJECTDEFINEID);
-        memberPayment.setObjectID(memberOrderID);
-        memberPayment.setObjectName(memberOrder.getName());
-        memberPayment.setApplyTime(new Timestamp(System.currentTimeMillis()));
-        memberPayment.setPaywayID(payWayID);
-        memberPayment.setStatus(1);
-        memberPaymentService.save(memberPayment);
+        if (StringUtils.isNotBlank(memberPaymentID)) {
+            MemberPayment memberPayment = memberPaymentService.findById(memberPaymentID);
+            if (memberPayment == null) {
+                return MessagePacket.newFail(MessageHeader.Code.memberOrderIDIsError, "memberPaymentID不正确！");
+            }
+            outTradeNo = memberPaymentID;
+            amount = memberPayment.getAmount();
+        } else if (StringUtils.isNotBlank(memberOrderID)) {
+            MemberOrder memberOrder = memberOrderService.findById(memberOrderID);
+            if (memberOrder == null) {
+                return MessagePacket.newFail(MessageHeader.Code.memberOrderIDIsError, "memberOrderID不正确！");
+            }
+
+            if (StringUtils.isEmpty(appType)) {
+                return MessagePacket.newFail(MessageHeader.Code.appTypeIsNull, "appType不能为空！终端类型1：Android 2：ios 3：WAP");
+            }
+
+            memberPaymentID = kingBase.addMemberPayment(member, Config.MEMBERORDER_OBJECTDEFINEID, memberOrder.getPriceAfterDiscount());
+            memberOrder.setMemberPaymentID(memberPaymentID);
+            memberOrderService.save(memberOrder);
+            outTradeNo = memberPaymentID;
+            amount = memberOrder.getPriceAfterDiscount();
+        }
 
         Map<String, Object> param = Maps.newHashMap();
 
@@ -142,10 +154,10 @@ public class ApiPayController extends ApiBaseController {
             AlipayTradeAppPayModel model = new AlipayTradeAppPayModel();
             model.setBody("会员购买商品");
             model.setSubject("会员购买商品");
-            model.setOutTradeNo(memberPayment.getId());
+            model.setOutTradeNo(outTradeNo);
             model.setPassbackParams(null);
             model.setTimeoutExpress("30m");
-            model.setTotalAmount(String.valueOf(memberOrder.getPriceAfterDiscount()));
+            model.setTotalAmount(String.valueOf(amount));
             model.setProductCode("QUICK_MSECURITY_PAY");
             alipayTradeAppPayRequest.setBizModel(model);
             alipayTradeAppPayRequest.setNotifyUrl(payway.getOrderNotifyURL());
@@ -163,8 +175,8 @@ public class ApiPayController extends ApiBaseController {
             payInfo.setMch_id(payway.getPartnerID());
             payInfo.setNonce_str(WechatPayUtils.buildRandom());
             payInfo.setBody("会员购买商品");
-            payInfo.setOut_trade_no(memberPayment.getId());
-            payInfo.setTotal_fee((int) (NumberUtils.keepPrecision(memberOrder.getPriceAfterDiscount().doubleValue(), 2) * 100));
+            payInfo.setOut_trade_no(outTradeNo);
+            payInfo.setTotal_fee((int) (NumberUtils.keepPrecision(amount, 2) * 100));
             payInfo.setSpbill_create_ip(request.getRemoteAddr());
             payInfo.setNotify_url(payway.getOrderNotifyURL());
             payInfo.setAttach(null);

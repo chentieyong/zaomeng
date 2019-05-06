@@ -2,6 +2,7 @@ package com.kingpivot.base.memberOrder.service.impl;
 
 import com.kingpivot.base.cartGoods.dao.CartGoodsDao;
 import com.kingpivot.base.cartGoods.model.CartGoods;
+import com.kingpivot.base.config.Config;
 import com.kingpivot.base.goodsShop.model.GoodsShop;
 import com.kingpivot.base.member.model.Member;
 import com.kingpivot.base.memberBonus.dao.MemberBonusDao;
@@ -13,10 +14,10 @@ import com.kingpivot.base.memberOrderGoods.model.MemberOrderGoods;
 import com.kingpivot.base.memberOrderGoods.service.MemberOrderGoodsService;
 import com.kingpivot.base.memberRank.dao.MemberRankDao;
 import com.kingpivot.base.sequenceDefine.service.SequenceDefineService;
+import com.kingpivot.common.KingBase;
 import com.kingpivot.common.dao.BaseDao;
 import com.kingpivot.common.service.BaseServiceImpl;
 import com.kingpivot.common.utils.NumberUtils;
-import com.kingpivot.common.utils.TimeTest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -43,6 +44,8 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
     private CartGoodsDao cartGoodsDao;
     @Autowired
     private MemberBonusDao memberBonusDao;
+    @Autowired
+    private KingBase kingBase;
 
     @Override
     public BaseDao<MemberOrder, String> getDAO() {
@@ -58,6 +61,7 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
         if (rate == null) {
             rate = 1d;
         }
+
         MemberOrder memberOrder = new MemberOrder();
         memberOrder.setOrderCode(sequenceDefineService.genCode("orderSeq", memberOrder.getId()));
         memberOrder.setApplicationID(member.getApplicationID());
@@ -75,6 +79,8 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
         memberOrder.setAddress(address);
         memberOrder.setApplyTime(new Timestamp(System.currentTimeMillis()));
         memberOrder.setCreatedTime(memberOrder.getApplyTime());
+        String memberPaymentID = kingBase.addMemberPayment(member, Config.MEMBERORDER_OBJECTDEFINEID,memberOrder.getPriceAfterDiscount());
+        memberOrder.setMemberPaymentID(memberPaymentID);
 
         if (StringUtils.isNotBlank(memberBonusID)) {
             MemberBonus memberBonus = memberBonusDao.findOne(memberBonusID);
@@ -108,7 +114,7 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
         memberOrderGoods.setQTY(qty);
         memberOrderGoods.setCreatedTime(new Timestamp(System.currentTimeMillis()));
         memberOrderGoodsService.save(memberOrderGoods);
-        return memberOrder.getId();
+        return memberPaymentID;
     }
 
     @Override
@@ -132,6 +138,8 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
             shopID = cartGoods.getShopID();
         }
         goodsNumbers = cartGoodsList.size();
+
+
         MemberOrder memberOrder = new MemberOrder();
         memberOrder.setOrderCode(sequenceDefineService.genCode("orderSeq", memberOrder.getId()));
         memberOrder.setApplicationID(member.getApplicationID());
@@ -161,6 +169,8 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
         memberOrder.setAddress(address);
         memberOrder.setApplyTime(new Timestamp(System.currentTimeMillis()));
         memberOrder.setCreatedTime(memberOrder.getApplyTime());
+        String memberPaymentID = kingBase.addMemberPayment(member, Config.MEMBERORDER_OBJECTDEFINEID,memberOrder.getPriceAfterDiscount());
+        memberOrder.setMemberPaymentID(memberPaymentID);
         memberOrderDao.save(memberOrder);
 
         for (CartGoods cartGoods : cartGoodsList) {
@@ -192,7 +202,7 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
             cartGoods.setModifiedTime(new Timestamp(System.currentTimeMillis()));
             cartGoodsDao.save(cartGoods);
         }
-        return memberOrder.getId();
+        return memberPaymentID;
     }
 
 }

@@ -3,8 +3,12 @@ package com.kingpivot.common;
 import com.kingpivot.base.cart.model.Cart;
 import com.kingpivot.base.cart.service.CartService;
 import com.kingpivot.base.member.model.Member;
+import com.kingpivot.base.memberPayment.model.MemberPayment;
+import com.kingpivot.base.memberPayment.service.MemberPaymentService;
+import com.kingpivot.base.sequenceDefine.service.SequenceDefineService;
 import com.kingpivot.base.sms.model.SMS;
 import com.kingpivot.base.sms.service.SMSService;
+import com.kingpivot.common.utils.TimeTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +25,10 @@ public class KingBase {
     private CartService cartService;
     @Autowired
     private SMSService smsService;
+    @Autowired
+    private MemberPaymentService memberPaymentService;
+    @Autowired
+    private SequenceDefineService sequenceDefineService;
 
     private static final Logger logger = LoggerFactory.getLogger(KingBase.class);
 
@@ -42,5 +50,19 @@ public class KingBase {
         sms.setSmsWayID(smsWayID);
         sms.setSendDate(new Timestamp(System.currentTimeMillis()));
         smsService.save(sms);
+    }
+
+    public String addMemberPayment(Member member, String objectDefineID, double amount) {
+        MemberPayment memberPayment = new MemberPayment();
+        memberPayment.setName(String.format("%s%s申请支付", member.getName(), TimeTest.getNowDateFormat()));
+        memberPayment.setMemberID(member.getId());
+        memberPayment.setObjectDefineID(objectDefineID);
+        memberPayment.setApplicationID(member.getApplicationID());
+        memberPayment.setAmount(amount);
+        memberPayment.setApplyTime(new Timestamp(System.currentTimeMillis()));
+        memberPayment.setOrderCode(sequenceDefineService.genCode("orderSeq", memberPayment.getId()));
+        memberPayment.setStatus(1);
+        memberPayment = memberPaymentService.save(memberPayment);
+        return memberPayment.getId();
     }
 }

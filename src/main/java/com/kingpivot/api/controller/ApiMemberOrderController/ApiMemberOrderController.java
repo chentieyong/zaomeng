@@ -125,7 +125,7 @@ public class ApiMemberOrderController extends ApiBaseController {
         String objectFeatureItemID1 = request.getParameter("objectFeatureItemID1");
         String memberBonusID = request.getParameter("memberBonusID");
 
-        String memberOrderID = memberOrderService.createMemberOrder(member, goodsShop, objectFeatureItemID1, Integer.parseInt(qty), contactName, contactPhone, address, memberBonusID);
+        String memberPaymentID = memberOrderService.createMemberOrder(member, goodsShop, objectFeatureItemID1, Integer.parseInt(qty), contactName, contactPhone, address, memberBonusID);
 
         String description = String.format("%s店铺商品生成订单", member.getName());
 
@@ -140,7 +140,7 @@ public class ApiMemberOrderController extends ApiBaseController {
         sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
 
         Map<String, Object> rsMap = Maps.newHashMap();
-        rsMap.put("data", memberOrderID);
+        rsMap.put("data", memberPaymentID);
 
         return MessagePacket.newSuccess(rsMap, "createMemberOrder success!");
     }
@@ -192,7 +192,7 @@ public class ApiMemberOrderController extends ApiBaseController {
 
         String memberBonusID = request.getParameter("memberBonusID");
 
-        String memberOrderID = memberOrderService.createMemberOrderFromCart(cartGoodsList, member, contactName, contactPhone, address, memberBonusID);
+        String memberPaymentID = memberOrderService.createMemberOrderFromCart(cartGoodsList, member, contactName, contactPhone, address, memberBonusID);
 
         String description = String.format("%s店铺商品生成订单", member.getName());
 
@@ -207,7 +207,7 @@ public class ApiMemberOrderController extends ApiBaseController {
         sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
 
         Map<String, Object> rsMap = Maps.newHashMap();
-        rsMap.put("data", memberOrderID);
+        rsMap.put("data", memberPaymentID);
 
         return MessagePacket.newSuccess(rsMap, "createMemberOrder success!");
     }
