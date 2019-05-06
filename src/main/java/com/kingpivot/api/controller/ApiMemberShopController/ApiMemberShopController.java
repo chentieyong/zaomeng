@@ -352,6 +352,7 @@ public class ApiMemberShopController extends ApiBaseController {
     @RequestMapping(value = "/getMemberShopList")
     public MessagePacket getMemberShopList(HttpServletRequest request) {
         String sessionID = request.getParameter("sessionID");
+        String verifyStatus = request.getParameter("verifyStatus");
         if (StringUtils.isEmpty(sessionID)) {
             return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
         }
@@ -366,6 +367,9 @@ public class ApiMemberShopController extends ApiBaseController {
 
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("memberID", member.getId());
+        if(StringUtils.isNotBlank(verifyStatus)){
+            paramMap.put("verifyStatus", Integer.parseInt(verifyStatus));
+        }
         paramMap.put("isValid", Constants.ISVALID_YES);
         paramMap.put("isLock", Constants.ISLOCK_NO);
         List<Sort.Order> orders = new ArrayList<Sort.Order>();

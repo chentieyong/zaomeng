@@ -46,7 +46,7 @@ public class MemberShop extends BaseModel<String> {
     @Column(length = 100)
     private String contactIdCardBackImage;//联系人身份证反面
     @Column
-    private Integer verifyStatus = 0;
+    private Integer verifyStatus = 0;//0未审核，1审核通过，2审核拒绝
 
     @Override
     public String getId() {
