@@ -9,6 +9,8 @@ import javax.persistence.Column;
 public class CartGoodsListDto {
     private String id;//主键
 
+    private String name;
+
     private String cartID;
 
     private String goodsShopID;//商品店铺ID
@@ -155,5 +157,13 @@ public class CartGoodsListDto {
 
     public void setLittleImage(String littleImage) {
         this.littleImage = littleImage;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }
