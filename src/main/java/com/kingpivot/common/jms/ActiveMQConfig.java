@@ -49,6 +49,11 @@ public class ActiveMQConfig {
     }
 
     @Bean
+    public Queue zmGetMemberBonusQueueName() {
+        return new ActiveMQQueue(zmGetMemberBonusQueueName);
+    }
+
+    @Bean
     public ActiveMQConnectionFactory connectionFactory() {
         return new ActiveMQConnectionFactory(usrName, password, brokerUrl);
     }
