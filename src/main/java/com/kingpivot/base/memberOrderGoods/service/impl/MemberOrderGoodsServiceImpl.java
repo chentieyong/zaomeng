@@ -8,6 +8,7 @@ import com.kingpivot.common.service.BaseServiceImpl;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * Created by Administrator on 2016/9/18.
@@ -20,5 +21,10 @@ public class MemberOrderGoodsServiceImpl extends BaseServiceImpl<MemberOrderGood
     @Override
     public BaseDao<MemberOrderGoods, String> getDAO() {
         return this.memberOrderGoodsDao;
+    }
+
+    @Override
+    public List<MemberOrderGoods> getMemberOrderGoodsByMemberOrderID(String memberOrderID) {
+        return memberOrderGoodsDao.getMemberOrderGoodsByMemberOrderID(memberOrderID);
     }
 }

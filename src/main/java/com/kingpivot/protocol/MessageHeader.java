@@ -142,6 +142,8 @@ public class MessageHeader implements Serializable {
         sendTypeError(10064),//发送类型不正确
         smsTemplateIsNull(10065),//模板不存在
         statusIsError(10067),//状态不正确
+        memberOrderGoodsIDIsNull(10066),//订单商品id不存在
+        memberOrderGoodsIDIsError(10067),//订单商品id不正确
         ;
         public int code;
 

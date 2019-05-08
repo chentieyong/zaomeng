@@ -2,7 +2,9 @@ package com.kingpivot.api.controller.ApiMemberOrderController;
 
 import com.google.common.collect.Maps;
 import com.kingpivot.api.dto.memberOrder.MemberOrderDetailDto;
+import com.kingpivot.api.dto.memberOrder.MemberOrderDetailGoodsListDto;
 import com.kingpivot.api.dto.memberOrder.MemberOrderListDto;
+import com.kingpivot.api.dto.memberOrder.MemberOrderListGoodsListDto;
 import com.kingpivot.base.cart.service.CartService;
 import com.kingpivot.base.cartGoods.model.CartGoods;
 import com.kingpivot.base.cartGoods.service.CartGoodsService;
@@ -15,6 +17,8 @@ import com.kingpivot.base.memberBonus.model.MemberBonus;
 import com.kingpivot.base.memberBonus.service.MemberBonusService;
 import com.kingpivot.base.memberOrder.model.MemberOrder;
 import com.kingpivot.base.memberOrder.service.MemberOrderService;
+import com.kingpivot.base.memberOrderGoods.model.MemberOrderGoods;
+import com.kingpivot.base.memberOrderGoods.service.MemberOrderGoodsService;
 import com.kingpivot.base.memberlog.model.Memberlog;
 import com.kingpivot.base.support.MemberLogDTO;
 import com.kingpivot.common.KingBase;
@@ -68,6 +72,8 @@ public class ApiMemberOrderController extends ApiBaseController {
     private CartGoodsService cartGoodsService;
     @Autowired
     private MemberBonusService memberBonusService;
+    @Autowired
+    private MemberOrderGoodsService memberOrderGoodsService;
 
     @ApiOperation(value = "店铺商品生成订单", notes = "店铺商品生成订单")
     @ApiImplicitParams({
@@ -254,6 +260,17 @@ public class ApiMemberOrderController extends ApiBaseController {
         List<MemberOrderListDto> list = null;
         if (rs != null && rs.getSize() != 0) {
             list = BeanMapper.mapList(rs.getContent(), MemberOrderListDto.class);
+
+            List<MemberOrderListGoodsListDto> memberOrderGoodsListDtoList = null;
+            List<MemberOrderGoods> memberOrderGoodsList = null;
+            for (MemberOrderListDto memberOrderListDto : list) {
+                memberOrderGoodsList = memberOrderGoodsService.getMemberOrderGoodsByMemberOrderID(memberOrderListDto.getId());
+                if (memberOrderGoodsList != null) {
+                    memberOrderGoodsListDtoList = BeanMapper.mapList(memberOrderGoodsList, MemberOrderListGoodsListDto.class);
+                    memberOrderListDto.setGoodsList(memberOrderGoodsListDtoList);
+                }
+            }
+
             page.setTotalSize((int) rs.getTotalElements());
         }
 
@@ -306,6 +323,11 @@ public class ApiMemberOrderController extends ApiBaseController {
         }
 
         MemberOrderDetailDto memberOrderDetailDto = BeanMapper.map(memberOrder, MemberOrderDetailDto.class);
+        List<MemberOrderGoods> memberOrderGoodsList = memberOrderGoodsService.getMemberOrderGoodsByMemberOrderID(memberOrderDetailDto.getId());
+        if (memberOrderGoodsList != null && !memberOrderGoodsList.isEmpty()) {
+            List<MemberOrderDetailGoodsListDto> memberOrderDetailGoodsListDtos = BeanMapper.mapList(memberOrderGoodsList, MemberOrderDetailGoodsListDto.class);
+            memberOrderDetailDto.setGoodsList(memberOrderDetailGoodsListDtos);
+        }
 
         String description = String.format("%s获取会员订单详情", member.getName());
 
@@ -377,6 +399,60 @@ public class ApiMemberOrderController extends ApiBaseController {
         rsMap.put("data", TimeTest.toDateTimeFormat(memberOrder.getCancelTime()));
 
         return MessagePacket.newSuccess(rsMap, "cancelMemberOrder success!");
+    }
+
+    /**
+     * 申请订单商品退货
+     *
+     * @param request
+     * @return
+     */
+    @ApiOperation(value = "申请订单商品退货", notes = "申请订单商品退货")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query", name = "sessionID", value = "登录标识", dataType = "String"),
+            @ApiImplicitParam(paramType = "query", name = "memberOrderGoodsID", value = "会员订单商品id", dataType = "String")})
+    @RequestMapping(value = "/applyReturnMemberOrderGoods")
+    public MessagePacket applyReturnMemberOrderGoods(HttpServletRequest request) {
+        String sessionID = request.getParameter("sessionID");
+        String memberOrderGoodsID = request.getParameter("memberOrderGoodsID");
+        if (StringUtils.isEmpty(sessionID)) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        Member member = (Member) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBER_KEY.key, sessionID));
+        if (member == null) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        MemberLogDTO memberLogDTO = (MemberLogDTO) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBERLOG_KEY.key, sessionID));
+        if (memberLogDTO == null) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        if (StringUtils.isEmpty(memberOrderGoodsID)) {
+            return MessagePacket.newFail(MessageHeader.Code.memberOrderGoodsIDIsNull, "memberOrderGoodsID不能为空");
+        }
+        MemberOrderGoods memberOrderGoods = memberOrderGoodsService.findById(memberOrderGoodsID);
+        if (memberOrderGoods == null) {
+            return MessagePacket.newFail(MessageHeader.Code.memberOrderIDIsError, "memberOrderID不正确");
+        }
+        if (memberOrderGoods.getStatus() != 4) {
+            return MessagePacket.newFail(MessageHeader.Code.statusIsError, "状态正确");
+        }
+        memberOrderGoods.setStatus(2);
+        memberOrderGoodsService.save(memberOrderGoods);
+
+        String description = String.format("%s申请订单商品退货", member.getName());
+        UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));
+        MemberLogRequestBase base = MemberLogRequestBase.BALANCE()
+                .sessionID(sessionID)
+                .description(description)
+                .userAgent(userAgent == null ? null : userAgent.getBrowserType())
+                .operateType(Memberlog.MemberOperateType.APPLYRETURNMEMBERORDERGOODS.getOname())
+                .build();
+        sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
+
+        Map<String, Object> rsMap = Maps.newHashMap();
+        rsMap.put("data", TimeTest.toDateTimeFormat(new Timestamp(System.currentTimeMillis())));
+
+        return MessagePacket.newSuccess(rsMap, "applyReturnMemberOrderGoods success!");
     }
 
     /**

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.kingpivot.base.member.model.Member;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 public class MemberOrderListDto {
     private String id;//主键
@@ -35,6 +36,7 @@ public class MemberOrderListDto {
     private String contactName;//联系人
     private String contactPhone;//联系电话
     private String address;//地址
+    private List<MemberOrderListGoodsListDto> goodsList;
 
     public String getId() {
         return id;
@@ -262,5 +264,13 @@ public class MemberOrderListDto {
 
     public void setAvatarURL(String avatarURL) {
         this.avatarURL = avatarURL;
+    }
+
+    public List<MemberOrderListGoodsListDto> getGoodsList() {
+        return goodsList;
+    }
+
+    public void setGoodsList(List<MemberOrderListGoodsListDto> goodsList) {
+        this.goodsList = goodsList;
     }
 }
