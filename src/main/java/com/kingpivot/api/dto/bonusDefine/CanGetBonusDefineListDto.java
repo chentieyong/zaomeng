@@ -11,6 +11,7 @@ public class CanGetBonusDefineListDto {
     private String faceImage;
     private double price;
     private int maxNumber = 0;
+    private int canGetNumber = 0;
     private Timestamp startDate;//开始日期
     private String startDateStr;//开始日期Str
     private Timestamp endDate;//结束日期
@@ -62,6 +63,14 @@ public class CanGetBonusDefineListDto {
 
     public void setMaxNumber(int maxNumber) {
         this.maxNumber = maxNumber;
+    }
+
+    public int getCanGetNumber() {
+        return canGetNumber;
+    }
+
+    public void setCanGetNumber(int canGetNumber) {
+        this.canGetNumber = canGetNumber;
     }
 
     public Timestamp getStartDate() {
