@@ -2,8 +2,11 @@ package com.kingpivot.api.controller.ApiThirdNotifyController;
 
 import com.kingpivot.base.memberOrder.model.MemberOrder;
 import com.kingpivot.base.memberOrder.service.MemberOrderService;
+import com.kingpivot.base.memberOrderGoods.model.MemberOrderGoods;
+import com.kingpivot.base.memberOrderGoods.service.MemberOrderGoodsService;
 import com.kingpivot.base.memberPayment.model.MemberPayment;
 import com.kingpivot.base.memberPayment.service.MemberPaymentService;
+import com.kingpivot.common.jms.SendMessageService;
 import com.kingpivot.common.util.JsonUtil;
 import com.kingpivot.common.util.MapUtil;
 import com.kingpivot.common.util.XmlUtils;
@@ -16,8 +19,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.Map;
 
 
@@ -30,6 +35,10 @@ public class ApiThirdNotifyController extends ApiBaseController {
     private MemberPaymentService memberPaymentService;
     @Autowired
     private MemberOrderService memberOrderService;
+    @Autowired
+    private MemberOrderGoodsService memberOrderGoodsService;
+    @Resource
+    private SendMessageService sendMessageService;
 
     @RequestMapping("/weiXinPayMemberOrderNotify")
     public String weiXinPayMemberOrderNotify(HttpServletRequest request) {
@@ -75,6 +84,12 @@ public class ApiThirdNotifyController extends ApiBaseController {
                 memberOrder.setPayTotal(memberPayment.getAmount());
                 memberOrder.setPaySequence(transaction_id);
                 memberOrderService.save(memberOrder);
+
+                List<MemberOrderGoods> memberOrderGoodsList = memberOrderGoodsService.getMemberOrderGoodsByMemberOrderID(memberOrder.getId());
+                for (MemberOrderGoods memberOrderGoods : memberOrderGoodsList) {
+                    memberOrderGoods.setStatus(4);
+                    memberOrderGoodsService.save(memberOrderGoods);
+                }
 
                 //支付成功
                 resXml = "<xml>" + "<return_code><![CDATA[SUCCESS]]></return_code>"
@@ -122,6 +137,16 @@ public class ApiThirdNotifyController extends ApiBaseController {
                 memberOrder.setPayTotal(memberPayment.getAmount());
                 memberOrder.setPaySequence(trade_no);
                 memberOrderService.save(memberOrder);
+
+                List<MemberOrderGoods> memberOrderGoodsList = memberOrderGoodsService.getMemberOrderGoodsByMemberOrderID(memberOrder.getId());
+                for (MemberOrderGoods memberOrderGoods : memberOrderGoodsList) {
+                    memberOrderGoods.setStatus(4);
+                    memberOrderGoodsService.save(memberOrderGoods);
+                }
+
+                //发送支付成功消息队列
+                sendMessageService.sendZmPaySuccessMessage(memberOrder.getMemberID());
+
                 return "success";
             }
         }
