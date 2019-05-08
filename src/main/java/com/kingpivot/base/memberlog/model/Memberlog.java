@@ -105,7 +105,8 @@ public class Memberlog extends BaseModel<String> {
         GETMEMBERSHOPLIST("获取会员店铺列表"),GETMEMBERSHOPDETAIL("获取会员店铺详情"),REMOVEMEMBERSHOP("删除会员店铺"),GETCOLLECTLIST("获取收藏列表"),
         REMOVECOLLECT("删除收藏"),SUBMITONEFEE("提交一个意见反馈"),GETMYMEMBERBONUSLIST("获取我的会员红包列表"),USEMEMBERBONUS("使用会员红包"),
         APPAPPLYMEMBERORDERPAY("APP申请订单支付"),SUBMITONESIGNIN("会员签到"),GETSIGNINLIST("获取签到记录"),GETMYPOINTLIST("获取我的积分列表"),
-        GETMYMESSAGELIST("获取我的消息列表"),CANCELMEMBERORDER("取消订单"),CONFIRMMEMBERORDER("确认收货"),APPLYRETURNMEMBERORDERGOODS("申请订单商品退货");
+        GETMYMESSAGELIST("获取我的消息列表"),CANCELMEMBERORDER("取消订单"),CONFIRMMEMBERORDER("确认收货"),APPLYRETURNMEMBERORDERGOODS("申请订单商品退货"),
+        GETCANGETBONUSDEFINELIST("获取可领红包定义列表");
         private String oname;
 
         MemberOperateType(String oname) {
