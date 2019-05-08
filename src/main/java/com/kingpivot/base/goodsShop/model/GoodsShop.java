@@ -67,6 +67,8 @@ public class GoodsShop extends BaseModel<String> {
     private String brandName;//品牌名
     @Column(name = "startingNumber", columnDefinition = "int default 1")
     private Integer startingNumber = 1;//起订量
+    @Column(name = "isReturn", columnDefinition = "int default 0")
+    private Integer isReturn = 0;//是否支持退货
 
     @Override
     public String getId() {
@@ -275,5 +277,13 @@ public class GoodsShop extends BaseModel<String> {
 
     public void setStartingNumber(Integer startingNumber) {
         this.startingNumber = startingNumber;
+    }
+
+    public Integer getIsReturn() {
+        return isReturn;
+    }
+
+    public void setIsReturn(Integer isReturn) {
+        this.isReturn = isReturn;
     }
 }

@@ -60,6 +60,10 @@ public class MemberOrderGoods extends BaseModel<String> {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "objectFeatureItemID1", updatable = false, insertable = false)
     private ObjectFeatureItem objectFeatureItem1;
+    @Column(name = "isReturn", columnDefinition = "int default 0")
+    private Integer isReturn = 0;//是否支持退货
+    @Column(name = "status", columnDefinition = "int default 1")
+    private Integer status = 1;//状态，1新
 
     @Override
     public String getId() {
@@ -196,5 +200,21 @@ public class MemberOrderGoods extends BaseModel<String> {
 
     public void setObjectFeatureItem1(ObjectFeatureItem objectFeatureItem1) {
         this.objectFeatureItem1 = objectFeatureItem1;
+    }
+
+    public Integer getIsReturn() {
+        return isReturn;
+    }
+
+    public void setIsReturn(Integer isReturn) {
+        this.isReturn = isReturn;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
     }
 }

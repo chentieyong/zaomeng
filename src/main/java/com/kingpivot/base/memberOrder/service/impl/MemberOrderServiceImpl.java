@@ -79,7 +79,7 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
         memberOrder.setAddress(address);
         memberOrder.setApplyTime(new Timestamp(System.currentTimeMillis()));
         memberOrder.setCreatedTime(memberOrder.getApplyTime());
-        String memberPaymentID = kingBase.addMemberPayment(member, Config.MEMBERORDER_OBJECTDEFINEID,memberOrder.getPriceAfterDiscount());
+        String memberPaymentID = kingBase.addMemberPayment(member, Config.MEMBERORDER_OBJECTDEFINEID, memberOrder.getPriceAfterDiscount());
         memberOrder.setMemberPaymentID(memberPaymentID);
 
         if (StringUtils.isNotBlank(memberBonusID)) {
@@ -112,6 +112,7 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
         memberOrderGoods.setPriceReturn(memberOrder.getPriceAfterDiscount());//退款金额
         memberOrderGoods.setPriceTotalReturn(memberOrder.getPriceAfterDiscount());//退款总金额
         memberOrderGoods.setQTY(qty);
+        memberOrderGoods.setIsReturn(goodsShop.getIsReturn());
         memberOrderGoods.setCreatedTime(new Timestamp(System.currentTimeMillis()));
         memberOrderGoodsService.save(memberOrderGoods);
         return memberPaymentID;
@@ -169,7 +170,7 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
         memberOrder.setAddress(address);
         memberOrder.setApplyTime(new Timestamp(System.currentTimeMillis()));
         memberOrder.setCreatedTime(memberOrder.getApplyTime());
-        String memberPaymentID = kingBase.addMemberPayment(member, Config.MEMBERORDER_OBJECTDEFINEID,memberOrder.getPriceAfterDiscount());
+        String memberPaymentID = kingBase.addMemberPayment(member, Config.MEMBERORDER_OBJECTDEFINEID, memberOrder.getPriceAfterDiscount());
         memberOrder.setMemberPaymentID(memberPaymentID);
         memberOrderDao.save(memberOrder);
 
@@ -196,6 +197,7 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
                 memberOrderGoods.setPriceReturn(NumberUtils.keepPrecision(memberOrderGoods.getPriceTotal() /
                         memberOrderGoods.getQTY(), 2));
             }
+            memberOrderGoods.setIsReturn(cartGoods.getGoodsShop().getIsReturn());
             memberOrderGoodsService.save(memberOrderGoods);
 
             cartGoods.setIsValid(0);
@@ -204,5 +206,4 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
         }
         return memberPaymentID;
     }
-
 }
