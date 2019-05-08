@@ -21,6 +21,9 @@ public class ActiveMQConfig {
     @Value("${zmPaySuccessQueueName}")
     private String zmPaySuccessQueueName;
 
+    @Value("${zmGetMemberBonusQueueName}")
+    private String zmGetMemberBonusQueueName;
+
     @Value("${spring.activemq.user}")
     private String usrName;
 

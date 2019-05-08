@@ -28,6 +28,8 @@ public class BonusDefine extends BaseModel<String> {
     private double price;
     @Column(name = "maxNumber", columnDefinition = "int default 0")
     private int maxNumber = 0;
+    @Column(name = "canGetNumber", columnDefinition = "int default 0")
+    private Integer canGetNumber = 0;
     @Column()
     private Timestamp startDate;//开始日期
     @Column()
@@ -112,5 +114,13 @@ public class BonusDefine extends BaseModel<String> {
 
     public void setEndDate(Timestamp endDate) {
         this.endDate = endDate;
+    }
+
+    public Integer getCanGetNumber() {
+        return canGetNumber;
+    }
+
+    public void setCanGetNumber(Integer canGetNumber) {
+        this.canGetNumber = canGetNumber;
     }
 }

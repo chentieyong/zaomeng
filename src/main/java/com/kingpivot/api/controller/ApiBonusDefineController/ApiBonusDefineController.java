@@ -10,6 +10,7 @@ import com.kingpivot.base.member.model.Member;
 import com.kingpivot.base.memberlog.model.Memberlog;
 import com.kingpivot.base.support.MemberLogDTO;
 import com.kingpivot.common.jms.SendMessageService;
+import com.kingpivot.common.jms.dto.getMemberBonus.GetMemberBonusDto;
 import com.kingpivot.common.jms.dto.memberLog.MemberLogRequestBase;
 import com.kingpivot.common.util.Constants;
 import com.kingpivot.common.utils.*;
@@ -109,5 +110,63 @@ public class ApiBonusDefineController extends ApiBaseController {
         MessagePage messagePage = new MessagePage(page, list);
         rsMap.put("data", messagePage);
         return MessagePacket.newSuccess(rsMap, "getCanGetBonusDefineList success!");
+    }
+
+
+    @ApiOperation(value = "会员领红包", notes = "会员领红包")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query", name = "sessionID", value = "登录标识", dataType = "String"),
+            @ApiImplicitParam(paramType = "query", name = "bonusDefineID", value = "红包定义id", dataType = "String")})
+    @RequestMapping(value = "/memberGetBonus")
+    public MessagePacket memberGetBonus(HttpServletRequest request) {
+        String sessionID = request.getParameter("sessionID");
+        if (StringUtils.isEmpty(sessionID)) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        Member member = (Member) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBER_KEY.key, sessionID));
+        if (member == null) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        MemberLogDTO memberLogDTO = (MemberLogDTO) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBERLOG_KEY.key, sessionID));
+        if (memberLogDTO == null) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+
+        String bonusDefineID = request.getParameter("bonusDefineID");
+
+        if (StringUtils.isEmpty(bonusDefineID)) {
+            return MessagePacket.newFail(MessageHeader.Code.bonusIDIsNull, "bonusDefineID不能为空");
+        }
+
+        BonusDefine bonusDefine = bonusDefineService.findById(bonusDefineID);
+
+        if (bonusDefine == null) {
+            return MessagePacket.newFail(MessageHeader.Code.bonusIDIsError, "bonusDefineID不正确");
+        }
+
+        if ((bonusDefine.getCanGetNumber().intValue() + 1) > bonusDefine.getMaxNumber()) {
+            return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "红包已领完");
+        }
+
+        /**
+         * 发送队列生成红包
+         */
+        sendMessageService.sendZmGetMemberBonusMessage(JacksonHelper.toJson(new GetMemberBonusDto(member.getId(), bonusDefineID)));
+
+        String description = String.format("%s会员领红包", member.getName());
+
+        UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));
+        MemberLogRequestBase base = MemberLogRequestBase.BALANCE()
+                .sessionID(sessionID)
+                .description(description)
+                .userAgent(userAgent == null ? null : userAgent.getBrowserType())
+                .operateType(Memberlog.MemberOperateType.MEMBERGETBONUS.getOname())
+                .build();
+
+        sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
+
+        Map<String, Object> rsMap = Maps.newHashMap();
+        rsMap.put("data", TimeTest.getTimeStr());
+        return MessagePacket.newSuccess(rsMap, "memberGetBonus success!");
     }
 }

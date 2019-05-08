@@ -6,4 +6,6 @@ public interface SendMessageService {
     void sendMemberLoginMessage(String msg);
 
     void sendZmPaySuccessMessage(String msg);
+
+    void sendZmGetMemberBonusMessage(String msg);
 }

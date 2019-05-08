@@ -18,6 +18,8 @@ public class SendMessageServiceImpl implements SendMessageService {
     private Queue memberLoginQueue;
     @Autowired
     private Queue zmPaySuccessQueueName;
+    @Autowired
+    private Queue zmGetMemberBonusQueueName;
 
     @Override
     public void sendMemberLogMessage(String msg) {
@@ -32,5 +34,10 @@ public class SendMessageServiceImpl implements SendMessageService {
     @Override
     public void sendZmPaySuccessMessage(String msg) {
         jms.convertAndSend(zmPaySuccessQueueName, msg);
+    }
+
+    @Override
+    public void sendZmGetMemberBonusMessage(String msg) {
+        jms.convertAndSend(zmGetMemberBonusQueueName, msg);
     }
 }
