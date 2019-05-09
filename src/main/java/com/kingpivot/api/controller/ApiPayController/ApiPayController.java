@@ -94,7 +94,6 @@ public class ApiPayController extends ApiBaseController {
         }
 
         String payWayID = request.getParameter("payWayID");
-        String appType = request.getParameter("appType");
         String memberOrderID = request.getParameter("memberOrderID");
         String memberPaymentID = request.getParameter("memberPaymentID");
 
@@ -104,9 +103,6 @@ public class ApiPayController extends ApiBaseController {
         PayWay payway = paywayService.findById(payWayID);
         if (payway == null) {
             return MessagePacket.newFail(MessageHeader.Code.paywayIDIsError, "paywayID不正确！");
-        }
-        if (StringUtils.isEmpty(memberOrderID)) {
-            return MessagePacket.newFail(MessageHeader.Code.memberOrderIDIsNull, "memberOrderID不能为空！");
         }
 
         if (StringUtils.isEmpty(memberPaymentID) && StringUtils.isEmpty(memberOrderID)) {
@@ -129,13 +125,16 @@ public class ApiPayController extends ApiBaseController {
                 return MessagePacket.newFail(MessageHeader.Code.memberOrderIDIsError, "memberOrderID不正确！");
             }
 
-            if (StringUtils.isEmpty(appType)) {
-                return MessagePacket.newFail(MessageHeader.Code.appTypeIsNull, "appType不能为空！终端类型1：Android 2：ios 3：WAP");
+            if (StringUtils.isNotBlank(memberOrder.getMemberPaymentID())) {
+                MemberPayment memberPayment = memberPaymentService.findById(memberOrder.getMemberPaymentID());
+                if (memberPayment != null && memberPayment.getAmount().doubleValue() == memberOrder.getPriceAfterDiscount()) {
+                    memberPaymentID = memberPayment.getId();
+                } else {
+                    memberPaymentID = kingBase.addMemberPayment(member, Config.MEMBERORDER_OBJECTDEFINEID, memberOrder.getPriceAfterDiscount());
+                    memberOrder.setMemberPaymentID(memberPaymentID);
+                    memberOrderService.save(memberOrder);
+                }
             }
-
-            memberPaymentID = kingBase.addMemberPayment(member, Config.MEMBERORDER_OBJECTDEFINEID, memberOrder.getPriceAfterDiscount());
-            memberOrder.setMemberPaymentID(memberPaymentID);
-            memberOrderService.save(memberOrder);
             outTradeNo = memberPaymentID;
             amount = memberOrder.getPriceAfterDiscount();
         }
@@ -143,17 +142,16 @@ public class ApiPayController extends ApiBaseController {
         Map<String, Object> param = Maps.newHashMap();
 
         if (payway.getSupportType() == 1) {//app支付宝
-            String signType = "RSA2";
             //实例化客户端
             AlipayClient alipayClient = new DefaultAlipayClient(Config.ALIPAY_GATEWAY, payway.getServerPassword(),
-                    payway.getPrivateKey().replaceAll(" ", ""), "json", "utf-8",
-                    payway.getCommonKey().replaceAll(" ", ""), signType);
+                    payway.getPrivateKey(), "json", "utf-8",
+                    payway.getCommonKey(), payway.getSignType());
             //实例化具体API对应的request类,类名称和接口名称对应,当前调用接口名称：alipay.trade.app.pay
             AlipayTradeAppPayRequest alipayTradeAppPayRequest = new AlipayTradeAppPayRequest();
             //SDK已经封装掉了公共参数，这里只需要传入业务参数。以下方法为sdk的model入参方式(model和biz_content同时存在的情况下取biz_content)。
             AlipayTradeAppPayModel model = new AlipayTradeAppPayModel();
-            model.setBody("会员购买商品");
-            model.setSubject("会员购买商品");
+            model.setBody("购买商品");
+            model.setSubject("购买商品");
             model.setOutTradeNo(outTradeNo);
             model.setPassbackParams(null);
             model.setTimeoutExpress("30m");
@@ -174,7 +172,7 @@ public class ApiPayController extends ApiBaseController {
             payInfo.setAppid(payway.getServerPassword());
             payInfo.setMch_id(payway.getPartnerID());
             payInfo.setNonce_str(WechatPayUtils.buildRandom());
-            payInfo.setBody("会员购买商品");
+            payInfo.setBody("购买商品");
             payInfo.setOut_trade_no(outTradeNo);
             payInfo.setTotal_fee((int) (NumberUtils.keepPrecision(amount, 2) * 100));
             payInfo.setSpbill_create_ip(request.getRemoteAddr());

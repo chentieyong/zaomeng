@@ -13,6 +13,7 @@ import com.kingpivot.common.util.XmlUtils;
 import com.kingpivot.common.utils.NumberUtils;
 import com.kingpivot.protocol.ApiBaseController;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,6 +41,7 @@ public class ApiThirdNotifyController extends ApiBaseController {
     @Resource
     private SendMessageService sendMessageService;
 
+    @ApiOperation(value = "微信订单支付回调", notes = "微信订单支付回调")
     @RequestMapping("/weiXinPayMemberOrderNotify")
     public String weiXinPayMemberOrderNotify(HttpServletRequest request) {
         String inputLine;
@@ -79,18 +81,23 @@ public class ApiThirdNotifyController extends ApiBaseController {
                 memberPayment.setAmount(NumberUtils.keepPrecision(Double.parseDouble(total_fee) / 100, 2));
                 memberPaymentService.save(memberPayment);
 
-                MemberOrder memberOrder = memberOrderService.findById(memberPayment.getObjectID());
-                memberOrder.setPayTime(memberPayment.getPayTime());
-                memberOrder.setPayTotal(memberPayment.getAmount());
-                memberOrder.setPaySequence(transaction_id);
-                memberOrderService.save(memberOrder);
+                List<MemberOrder> memberOrderList = memberOrderService.getMemberOrderByMemberPayMentID(memberPayment.getId());
+                for (MemberOrder memberOrder : memberOrderList) {
+                    memberOrder.setPayTime(memberPayment.getPayTime());
+                    memberOrder.setPayTotal(memberPayment.getAmount());
+                    memberOrder.setPaySequence(transaction_id);
+                    memberOrder.setStatus(4);
+                    memberOrder.setPayFrom(2);
+                    memberOrderService.save(memberOrder);
 
-                List<MemberOrderGoods> memberOrderGoodsList = memberOrderGoodsService.getMemberOrderGoodsByMemberOrderID(memberOrder.getId());
-                for (MemberOrderGoods memberOrderGoods : memberOrderGoodsList) {
-                    memberOrderGoods.setStatus(4);
-                    memberOrderGoodsService.save(memberOrderGoods);
+                    List<MemberOrderGoods> memberOrderGoodsList = memberOrderGoodsService.getMemberOrderGoodsByMemberOrderID(memberOrder.getId());
+                    for (MemberOrderGoods memberOrderGoods : memberOrderGoodsList) {
+                        memberOrderGoods.setStatus(4);
+                        memberOrderGoodsService.save(memberOrderGoods);
+                    }
+                    //发送支付成功消息队列
+                    sendMessageService.sendZmPaySuccessMessage(memberOrder.getMemberID());
                 }
-
                 //支付成功
                 resXml = "<xml>" + "<return_code><![CDATA[SUCCESS]]></return_code>"
                         + "<return_msg><![CDATA[OK]]></return_msg>" + "</xml> ";
@@ -109,8 +116,8 @@ public class ApiThirdNotifyController extends ApiBaseController {
 
     }
 
-    @RequestMapping("/aliPayMemberOrderNotify")
-    @ResponseBody
+    @ApiOperation(value = "支付宝订单支付回调", notes = "支付宝订单支付回调")
+    @RequestMapping(value = "/aliPayMemberOrderNotify")
     public String aliPayMemberOrderNotify(HttpServletRequest request) {
         Map<String, String> paramMap = MapUtil.getParamMapS(request);
         System.out.println(">>>>>>>>>.zhifubao:" + JsonUtil.toJson(paramMap));
@@ -132,20 +139,23 @@ public class ApiThirdNotifyController extends ApiBaseController {
                 memberPayment.setAmount(NumberUtils.keepPrecision(Double.parseDouble(total_amount), 2));
                 memberPaymentService.save(memberPayment);
 
-                MemberOrder memberOrder = memberOrderService.findById(memberPayment.getObjectID());
-                memberOrder.setPayTime(memberPayment.getPayTime());
-                memberOrder.setPayTotal(memberPayment.getAmount());
-                memberOrder.setPaySequence(trade_no);
-                memberOrderService.save(memberOrder);
+                List<MemberOrder> memberOrderList = memberOrderService.getMemberOrderByMemberPayMentID(memberPayment.getId());
+                for (MemberOrder memberOrder : memberOrderList) {
+                    memberOrder.setPayTime(memberPayment.getPayTime());
+                    memberOrder.setPayTotal(memberPayment.getAmount());
+                    memberOrder.setPaySequence(trade_no);
+                    memberOrder.setStatus(4);
+                    memberOrder.setPayFrom(2);
+                    memberOrderService.save(memberOrder);
 
-                List<MemberOrderGoods> memberOrderGoodsList = memberOrderGoodsService.getMemberOrderGoodsByMemberOrderID(memberOrder.getId());
-                for (MemberOrderGoods memberOrderGoods : memberOrderGoodsList) {
-                    memberOrderGoods.setStatus(4);
-                    memberOrderGoodsService.save(memberOrderGoods);
+                    List<MemberOrderGoods> memberOrderGoodsList = memberOrderGoodsService.getMemberOrderGoodsByMemberOrderID(memberOrder.getId());
+                    for (MemberOrderGoods memberOrderGoods : memberOrderGoodsList) {
+                        memberOrderGoods.setStatus(4);
+                        memberOrderGoodsService.save(memberOrderGoods);
+                    }
+                    //发送支付成功消息队列
+                    sendMessageService.sendZmPaySuccessMessage(memberOrder.getMemberID());
                 }
-
-                //发送支付成功消息队列
-                sendMessageService.sendZmPaySuccessMessage(memberOrder.getMemberID());
 
                 return "success";
             }

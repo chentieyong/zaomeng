@@ -12,6 +12,7 @@ import com.kingpivot.base.goodsShop.service.GoodsShopService;
 import com.kingpivot.base.member.model.Member;
 import com.kingpivot.base.memberRank.service.MemberRankService;
 import com.kingpivot.base.memberlog.model.Memberlog;
+import com.kingpivot.base.objectFeatureData.service.ObjectFeatureDataService;
 import com.kingpivot.base.support.MemberLogDTO;
 import com.kingpivot.common.KingBase;
 import com.kingpivot.common.jms.SendMessageService;
@@ -61,6 +62,8 @@ public class ApiCartController extends ApiBaseController {
     private KingBase kingBase;
     @Autowired
     private MemberRankService memberRankService;
+    @Autowired
+    private ObjectFeatureDataService objectFeatureDataService;
 
     @ApiOperation(value = "商品加入购物车", notes = "商品加入购物车")
     @ApiImplicitParams({
@@ -111,6 +114,18 @@ public class ApiCartController extends ApiBaseController {
         }
         CartGoods cartGoods = cartGoodsService.getCartGoodsByCartIDAndObjectFeatureItemID(cartID, goodsShopID, objectFeatureItemID1);
 
+        double price = goodsShop.getRealPrice();
+
+        if (StringUtils.isNotBlank(objectFeatureItemID1)) {
+            Object[] objectFeatureDataDto = objectFeatureDataService.getObjectFetureData(goodsShopID, objectFeatureItemID1);
+            if (objectFeatureDataDto != null && objectFeatureDataDto.length != 0) {
+                Double val = (Double) objectFeatureDataDto[0];
+                if (val != null && val != 0) {
+                    price = val;
+                }
+            }
+        }
+
         if (cartGoods != null) {
             cartGoods.setQty(cartGoods.getQty() == null ? Math.abs(Integer.parseInt(qty)) : Math.abs(Integer.parseInt(qty)) + cartGoods.getQty().intValue());
             cartGoods.setPriceTotal(NumberUtils.keepPrecision(cartGoods.getQty() * cartGoods.getPriceNow(), 2));
@@ -127,9 +142,9 @@ public class ApiCartController extends ApiBaseController {
             cartGoods.setCartID(cartID);
             cartGoods.setDiscountRate(0);
             cartGoods.setIsSelected(1);
-            cartGoods.setStandPrice(goodsShop.getRealPrice());
+            cartGoods.setStandPrice(price);
             cartGoods.setStandPriceTotal(NumberUtils.keepPrecision(cartGoods.getStandPrice() * Integer.parseInt(qty), 2));
-            cartGoods.setPriceNow(goodsShop.getRealPrice());
+            cartGoods.setPriceNow(price);
             cartGoods.setShopID(goodsShop.getShopID());
             cartGoods.setCompanyID(goodsShop.getCompanyID());
             double rate = memberRankService.getDepositeRateByMemberId(member.getId());

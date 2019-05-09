@@ -13,6 +13,7 @@ import com.kingpivot.base.memberOrder.service.MemberOrderService;
 import com.kingpivot.base.memberOrderGoods.model.MemberOrderGoods;
 import com.kingpivot.base.memberOrderGoods.service.MemberOrderGoodsService;
 import com.kingpivot.base.memberRank.dao.MemberRankDao;
+import com.kingpivot.base.objectFeatureData.dao.ObjectFeatureDataDao;
 import com.kingpivot.base.sequenceDefine.service.SequenceDefineService;
 import com.kingpivot.common.KingBase;
 import com.kingpivot.common.dao.BaseDao;
@@ -46,6 +47,8 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
     private MemberBonusDao memberBonusDao;
     @Autowired
     private KingBase kingBase;
+    @Autowired
+    private ObjectFeatureDataDao objectFeatureDataDao;
 
     @Override
     public BaseDao<MemberOrder, String> getDAO() {
@@ -61,6 +64,16 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
         if (rate == null) {
             rate = 1d;
         }
+        double price = 0d;
+        if (StringUtils.isNotBlank(objectFeatureItemID1)) {
+            Object[] objectFeatureDataDto = objectFeatureDataDao.getObjectFetureData(goodsShop.getId(), objectFeatureItemID1);
+            if (objectFeatureDataDto != null && objectFeatureDataDto.length != 0) {
+                Double val = (Double) objectFeatureDataDto[0];
+                if (val != null && val != 0) {
+                    price = val;
+                }
+            }
+        }
 
         MemberOrder memberOrder = new MemberOrder();
         memberOrder.setOrderCode(sequenceDefineService.genCode("orderSeq", memberOrder.getId()));
@@ -70,8 +83,8 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
         memberOrder.setShopID(goodsShop.getShopID());
         memberOrder.setGoodsQTY(qty);
         memberOrder.setGoodsNumbers(1);
-        memberOrder.setPriceStandTotal(NumberUtils.keepPrecision(goodsShop.getRealPrice() * qty, 2));
-        memberOrder.setPriceTotal(NumberUtils.keepPrecision(goodsShop.getRealPrice() * qty * rate, 2));
+        memberOrder.setPriceStandTotal(NumberUtils.keepPrecision(price * qty, 2));
+        memberOrder.setPriceTotal(NumberUtils.keepPrecision(price * qty * rate, 2));
         memberOrder.setPriceAfterDiscount(memberOrder.getPriceTotal());
         memberOrder.setBonusAmount(0d);
         memberOrder.setContactName(contactPhone);
@@ -103,8 +116,8 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
         memberOrderGoods.setDescription(goodsShop.getDescription());
         memberOrderGoods.setDiscountRate(rate);
         memberOrderGoods.setPriceStand(goodsShop.getRealPrice());
-        memberOrderGoods.setPriceStandTotal(NumberUtils.keepPrecision(goodsShop.getRealPrice() * qty, 2));
-        memberOrderGoods.setPriceNow(NumberUtils.keepPrecision(goodsShop.getRealPrice() * rate, 2));
+        memberOrderGoods.setPriceStandTotal(NumberUtils.keepPrecision(price * qty, 2));
+        memberOrderGoods.setPriceNow(NumberUtils.keepPrecision(price * rate, 2));
         memberOrderGoods.setPriceTotal(NumberUtils.keepPrecision(memberOrderGoods.getPriceNow() * qty, 2));
         if (StringUtils.isNotBlank(objectFeatureItemID1)) {
             memberOrderGoods.setObjectFeatureItemID1(objectFeatureItemID1);
@@ -149,8 +162,9 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
         memberOrder.setShopID(shopID);
         memberOrder.setGoodsQTY(qty);
         memberOrder.setGoodsNumbers(goodsNumbers);
-        memberOrder.setPriceStandTotal(priceStandTotal);
-        memberOrder.setPriceTotal(priceTotal);
+        memberOrder.setPriceStandTotal(NumberUtils.keepPrecision(priceStandTotal,2));
+        memberOrder.setPriceTotal(NumberUtils.keepPrecision(priceTotal,2));
+        memberOrder.setPriceAfterDiscount(NumberUtils.keepPrecision(priceTotal,2));//优惠后金额
 
         if (StringUtils.isNotBlank(memberBonusID)) {
             MemberBonus memberBonus = memberBonusDao.findOne(memberBonusID);
@@ -205,5 +219,10 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
             cartGoodsDao.save(cartGoods);
         }
         return memberPaymentID;
+    }
+
+    @Override
+    public List<MemberOrder> getMemberOrderByMemberPayMentID(String memberPaymentID) {
+        return memberOrderDao.getMemberOrderByMemberPayMentID(memberPaymentID);
     }
 }

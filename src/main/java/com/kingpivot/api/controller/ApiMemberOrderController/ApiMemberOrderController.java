@@ -240,6 +240,7 @@ public class ApiMemberOrderController extends ApiBaseController {
         }
 
         Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("memberID", member.getId());
         paramMap.put("isValid", Constants.ISVALID_YES);
         paramMap.put("isLock", Constants.ISLOCK_NO);
         String status = request.getParameter("status");

@@ -76,7 +76,11 @@ public abstract class BaseServiceImpl<T extends BaseModel<ID>, ID extends Serial
 
     @Override
     public T findById(ID id) {
-        return getDAO().findOne(id);
+        T t = getDAO().findOne(id);
+        if (t != null && t.getIsValid() == 0) {
+            return null;
+        }
+        return t;
     }
 
     @Override
