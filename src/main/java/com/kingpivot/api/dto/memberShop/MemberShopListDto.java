@@ -1,5 +1,7 @@
 package com.kingpivot.api.dto.memberShop;
 
+import com.kingpivot.common.utils.TimeTest;
+
 import java.sql.Timestamp;
 
 public class MemberShopListDto {
@@ -20,6 +22,7 @@ public class MemberShopListDto {
     private String contactIdCardBackImage;//联系人身份证反面
     private Integer verifyStatus;
     private Timestamp verifyDate;
+    private String verifyDateStr;
 
     public String getId() {
         return id;
@@ -155,5 +158,16 @@ public class MemberShopListDto {
 
     public void setVerifyDate(Timestamp verifyDate) {
         this.verifyDate = verifyDate;
+        if(verifyDate!=null){
+            this.verifyDateStr = TimeTest.toDateTimeFormat(verifyDate);
+        }
+    }
+
+    public String getVerifyDateStr() {
+        return verifyDateStr;
+    }
+
+    public void setVerifyDateStr(String verifyDateStr) {
+        this.verifyDateStr = verifyDateStr;
     }
 }
