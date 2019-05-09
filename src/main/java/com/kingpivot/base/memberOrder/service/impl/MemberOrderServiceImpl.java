@@ -225,4 +225,9 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
     public List<MemberOrder> getMemberOrderByMemberPayMentID(String memberPaymentID) {
         return memberOrderDao.getMemberOrderByMemberPayMentID(memberPaymentID);
     }
+
+    @Override
+    public void updateMemberOrderByMemberPaymentID(String paywayID, String memberPaymentID) {
+        memberOrderDao.updateMemberOrderByMemberPaymentID(paywayID, memberPaymentID);
+    }
 }

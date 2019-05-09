@@ -18,5 +18,7 @@ public interface MemberOrderService extends BaseService<MemberOrder, String> {
     String createMemberOrderFromCart(List<CartGoods> cartGoodsList, Member member, String contactName, String contactPhone, String address,String memberBonusID);
 
     List<MemberOrder> getMemberOrderByMemberPayMentID(String memberPaymentID);
+
+    void updateMemberOrderByMemberPaymentID(String paywayID,String memberPaymentID);
 }
 

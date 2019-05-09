@@ -117,6 +117,7 @@ public class ApiPayController extends ApiBaseController {
             if (memberPayment == null) {
                 return MessagePacket.newFail(MessageHeader.Code.memberOrderIDIsError, "memberPaymentID不正确！");
             }
+            memberOrderService.updateMemberOrderByMemberPaymentID(payWayID, memberPaymentID);
             outTradeNo = memberPaymentID;
             amount = memberPayment.getAmount();
         } else if (StringUtils.isNotBlank(memberOrderID)) {
@@ -130,10 +131,13 @@ public class ApiPayController extends ApiBaseController {
             if (StringUtils.isNotBlank(memberOrder.getMemberPaymentID())) {
                 MemberPayment memberPayment = memberPaymentService.findById(memberOrder.getMemberPaymentID());
                 if (memberPayment != null && memberPayment.getAmount().doubleValue() == memberOrder.getPriceAfterDiscount()) {
+                    memberOrder.setPaywayID(payWayID);
+                    memberOrderService.save(memberOrder);
                     memberPaymentID = memberPayment.getId();
                 } else {
                     memberPaymentID = kingBase.addMemberPayment(member, Config.MEMBERORDER_OBJECTDEFINEID, memberOrder.getPriceAfterDiscount());
                     memberOrder.setMemberPaymentID(memberPaymentID);
+                    memberOrder.setPaywayID(payWayID);
                     memberOrderService.save(memberOrder);
                 }
             }
