@@ -124,7 +124,9 @@ public class ApiPayController extends ApiBaseController {
             if (memberOrder == null) {
                 return MessagePacket.newFail(MessageHeader.Code.memberOrderIDIsError, "memberOrderID不正确！");
             }
-
+            if (memberOrder.getStatus() != 1) {
+                return MessagePacket.newFail(MessageHeader.Code.statusIsError, "订单状态异常，请重新下单！");
+            }
             if (StringUtils.isNotBlank(memberOrder.getMemberPaymentID())) {
                 MemberPayment memberPayment = memberPaymentService.findById(memberOrder.getMemberPaymentID());
                 if (memberPayment != null && memberPayment.getAmount().doubleValue() == memberOrder.getPriceAfterDiscount()) {
