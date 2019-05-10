@@ -84,7 +84,7 @@ public class ApiThirdNotifyController extends ApiBaseController {
                 List<MemberOrder> memberOrderList = memberOrderService.getMemberOrderByMemberPayMentID(memberPayment.getId());
                 for (MemberOrder memberOrder : memberOrderList) {
                     memberOrder.setPayTime(memberPayment.getPayTime());
-                    memberOrder.setPayTotal(memberPayment.getAmount());
+                    memberOrder.setPayTotal(memberOrder.getPriceAfterDiscount());
                     memberOrder.setPaySequence(transaction_id);
                     memberOrder.setStatus(4);
                     memberOrder.setPayFrom(2);
@@ -142,7 +142,7 @@ public class ApiThirdNotifyController extends ApiBaseController {
                 List<MemberOrder> memberOrderList = memberOrderService.getMemberOrderByMemberPayMentID(memberPayment.getId());
                 for (MemberOrder memberOrder : memberOrderList) {
                     memberOrder.setPayTime(memberPayment.getPayTime());
-                    memberOrder.setPayTotal(memberPayment.getAmount());
+                    memberOrder.setPayTotal(memberOrder.getPriceAfterDiscount());
                     memberOrder.setPaySequence(trade_no);
                     memberOrder.setStatus(4);
                     memberOrder.setPayFrom(2);
