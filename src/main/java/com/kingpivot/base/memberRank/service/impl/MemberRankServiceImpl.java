@@ -19,13 +19,4 @@ public class MemberRankServiceImpl extends BaseServiceImpl<MemberRank, String> i
     public BaseDao<MemberRank, String> getDAO() {
         return this.memberRankDao;
     }
-
-    @Override
-    public double getDepositeRateByMemberId(String memberID) {
-        Double val = memberRankDao.getDepositeRateByMemberId(memberID);
-        if(val!=null){
-            return val.doubleValue();
-        }
-        return 1;
-    }
 }

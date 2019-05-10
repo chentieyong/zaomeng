@@ -12,8 +12,9 @@ import com.kingpivot.base.memberOrder.model.MemberOrder;
 import com.kingpivot.base.memberOrder.service.MemberOrderService;
 import com.kingpivot.base.memberOrderGoods.model.MemberOrderGoods;
 import com.kingpivot.base.memberOrderGoods.service.MemberOrderGoodsService;
-import com.kingpivot.base.memberRank.dao.MemberRankDao;
 import com.kingpivot.base.objectFeatureData.dao.ObjectFeatureDataDao;
+import com.kingpivot.base.rank.dao.RankDao;
+import com.kingpivot.base.rank.model.Rank;
 import com.kingpivot.base.sequenceDefine.service.SequenceDefineService;
 import com.kingpivot.common.KingBase;
 import com.kingpivot.common.dao.BaseDao;
@@ -40,8 +41,6 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
     @Autowired
     private MemberOrderGoodsService memberOrderGoodsService;
     @Autowired
-    private MemberRankDao memberRankDao;
-    @Autowired
     private CartGoodsDao cartGoodsDao;
     @Autowired
     private MemberBonusDao memberBonusDao;
@@ -49,6 +48,8 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
     private KingBase kingBase;
     @Autowired
     private ObjectFeatureDataDao objectFeatureDataDao;
+    @Autowired
+    private RankDao rankDao;
 
     @Override
     public BaseDao<MemberOrder, String> getDAO() {
@@ -60,10 +61,6 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
     public String createMemberOrder(Member member, GoodsShop goodsShop, String objectFeatureItemID1,
                                     int qty, String contactName, String contactPhone, String address,
                                     String memberBonusID) {
-        Double rate = memberRankDao.getDepositeRateByMemberId(member.getId());
-        if (rate == null) {
-            rate = 1d;
-        }
         double price = 0d;
         if (StringUtils.isNotBlank(objectFeatureItemID1)) {
             Object[] objectFeatureDataDto = objectFeatureDataDao.getObjectFetureData(goodsShop.getId(), objectFeatureItemID1);
@@ -75,6 +72,14 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
             }
         }
 
+        double rate = 1d;
+        if (StringUtils.isNotBlank(member.getRankID())) {
+            Rank rank = rankDao.findOne(member.getRankID());
+            if (rank != null && rank.getDepositeRate() != null && rank.getDepositeRate() != 0) {
+                rate = price * rank.getDepositeRate().doubleValue();
+            }
+        }
+
         MemberOrder memberOrder = new MemberOrder();
         memberOrder.setOrderCode(sequenceDefineService.genCode("orderSeq", memberOrder.getId()));
         memberOrder.setApplicationID(member.getApplicationID());
@@ -83,6 +88,7 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
         memberOrder.setShopID(goodsShop.getShopID());
         memberOrder.setGoodsQTY(qty);
         memberOrder.setGoodsNumbers(1);
+        memberOrder.setDiscountRate(rate);
         memberOrder.setPriceStandTotal(NumberUtils.keepPrecision(price * qty, 2));
         memberOrder.setPriceTotal(NumberUtils.keepPrecision(price * qty * rate, 2));
         memberOrder.setPriceAfterDiscount(memberOrder.getPriceTotal());
@@ -106,7 +112,6 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
                 memberBonusDao.save(memberBonus);
             }
         }
-        memberOrder.setDiscountRate(rate);//折扣比例
         memberOrderDao.save(memberOrder);
 
         MemberOrderGoods memberOrderGoods = new MemberOrderGoods();
@@ -136,7 +141,14 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
     public String createMemberOrderFromCart(List<CartGoods> cartGoodsList, Member member, String contactName,
                                             String contactPhone, String address,
                                             String memberBonusID) {
-        double rate = 1;
+        double rate = 1d;
+        if (StringUtils.isNotBlank(member.getRankID())) {
+            Rank rank = rankDao.findOne(member.getRankID());
+            if (rank != null && rank.getDepositeRate() != null && rank.getDepositeRate() != 0) {
+                rate = rank.getDepositeRate().doubleValue();
+            }
+        }
+
         double priceStandTotal = 0d;
         double priceTotal = 0d;
         int qty = 0;
@@ -144,7 +156,6 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
         String companyID = null;
         String shopID = null;
         for (CartGoods cartGoods : cartGoodsList) {
-            rate = cartGoods.getDiscountRate();
             qty += cartGoods.getQty();
             priceStandTotal += cartGoods.getStandPriceTotal();
             priceTotal += cartGoods.getPriceTotal();
@@ -152,7 +163,6 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
             shopID = cartGoods.getShopID();
         }
         goodsNumbers = cartGoodsList.size();
-
 
         MemberOrder memberOrder = new MemberOrder();
         memberOrder.setOrderCode(sequenceDefineService.genCode("orderSeq", memberOrder.getId()));
@@ -162,9 +172,9 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
         memberOrder.setShopID(shopID);
         memberOrder.setGoodsQTY(qty);
         memberOrder.setGoodsNumbers(goodsNumbers);
-        memberOrder.setPriceStandTotal(NumberUtils.keepPrecision(priceStandTotal,2));
-        memberOrder.setPriceTotal(NumberUtils.keepPrecision(priceTotal,2));
-        memberOrder.setPriceAfterDiscount(NumberUtils.keepPrecision(priceTotal,2));//优惠后金额
+        memberOrder.setPriceStandTotal(NumberUtils.keepPrecision(priceStandTotal, 2));
+        memberOrder.setPriceTotal(NumberUtils.keepPrecision(priceTotal * rate, 2));
+        memberOrder.setPriceAfterDiscount(memberOrder.getPriceTotal());//优惠后金额
 
         if (StringUtils.isNotBlank(memberBonusID)) {
             MemberBonus memberBonus = memberBonusDao.findOne(memberBonusID);
@@ -197,8 +207,8 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
             memberOrderGoods.setDiscountRate(rate);
             memberOrderGoods.setPriceStand(cartGoods.getStandPrice());
             memberOrderGoods.setPriceStandTotal(cartGoods.getStandPriceTotal());
-            memberOrderGoods.setPriceNow(cartGoods.getPriceNow());
-            memberOrderGoods.setPriceTotal(cartGoods.getPriceTotal());
+            memberOrderGoods.setPriceNow(cartGoods.getPriceNow() * rate);
+            memberOrderGoods.setPriceTotal(cartGoods.getPriceTotal() * rate);
             memberOrderGoods.setObjectFeatureItemID1(cartGoods.getObjectFeatureItemID1());
             memberOrderGoods.setQTY(cartGoods.getQty());
             memberOrderGoods.setCreatedTime(new Timestamp(System.currentTimeMillis()));

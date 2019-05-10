@@ -61,8 +61,6 @@ public class ApiCartController extends ApiBaseController {
     @Autowired
     private KingBase kingBase;
     @Autowired
-    private MemberRankService memberRankService;
-    @Autowired
     private ObjectFeatureDataService objectFeatureDataService;
 
     @ApiOperation(value = "商品加入购物车", notes = "商品加入购物车")
@@ -147,11 +145,6 @@ public class ApiCartController extends ApiBaseController {
             cartGoods.setPriceNow(price);
             cartGoods.setShopID(goodsShop.getShopID());
             cartGoods.setCompanyID(goodsShop.getCompanyID());
-            double rate = memberRankService.getDepositeRateByMemberId(member.getId());
-            if (rate != 0d) {
-                cartGoods.setDiscountRate(rate);
-                cartGoods.setPriceNow(NumberUtils.keepPrecision(cartGoods.getPriceNow() * rate, 2));
-            }
             cartGoods.setPriceTotal(NumberUtils.keepPrecision(cartGoods.getPriceNow() * Integer.parseInt(qty), 2));
             cartGoodsService.save(cartGoods);
         }

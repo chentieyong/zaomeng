@@ -47,22 +47,18 @@ public class ApiReleaseController extends ApiBaseController {
     @Autowired
     private GoodsShopService goodsShopService;
     @Autowired
-    private MemberRankService memberRankService;
-    @Autowired
     private ArticleService articleService;
 
     @ApiOperation(value = "获取导航发布列表", notes = "获取导航发布列表")
     @ApiImplicitParams({
             @ApiImplicitParam(paramType = "query", name = "currentPage", value = "分页，页码从1开始", dataType = "int"),
             @ApiImplicitParam(paramType = "query", name = "pageNumber", value = "每一页大小", dataType = "int"),
-            @ApiImplicitParam(paramType = "query", name = "memberID", value = "会员id", dataType = "String"),
             @ApiImplicitParam(paramType = "query", name = "objectDefineID", value = "对象定义id", dataType = "String"),
             @ApiImplicitParam(paramType = "query", name = "navigatorID", value = "导航id", dataType = "String")})
     @RequestMapping(value = "/getNavigatorReleaseList")
     public MessagePacket getNavigatorReleaseList(HttpServletRequest request) {
         String navigatorID = request.getParameter("navigatorID");
         String objectDefineID = request.getParameter("objectDefineID");
-        String memberID = request.getParameter("memberID");
 
         if (StringUtils.isEmpty(navigatorID)) {
             return MessagePacket.newFail(MessageHeader.Code.navigatorIDIsNull, "navigatorID不能为空");
@@ -109,12 +105,6 @@ public class ApiReleaseController extends ApiBaseController {
                                 releaseGoodsShopListDto.setShowPrice(goodsShop.getRealPrice());
                                 releaseGoodsShopListDto.setStockNumber(goodsShop.getStockNumber());
                                 releaseGoodsShopListDto.setStockOut(goodsShop.getStockOut());
-                                if (StringUtils.isNotBlank(memberID)) {
-                                    double rate = memberRankService.getDepositeRateByMemberId(memberID);
-                                    if (rate != 0d) {
-                                        releaseGoodsShopListDto.setShowPrice(NumberUtils.keepPrecision(rate * goodsShop.getRealPrice(), 2));
-                                    }
-                                }
                                 goodsShopList.add(releaseGoodsShopListDto);
                             }
                         }

@@ -3,6 +3,7 @@ package com.kingpivot.api.controller.ApiGoodsShopController;
 import com.google.common.collect.Maps;
 import com.kingpivot.api.dto.goodsShop.GoodsShopDetailDto;
 import com.kingpivot.api.dto.goodsShop.GoodsShopListDto;
+import com.kingpivot.base.collect.service.CollectService;
 import com.kingpivot.base.config.Config;
 import com.kingpivot.base.goodsShop.model.GoodsShop;
 import com.kingpivot.base.goodsShop.service.GoodsShopService;
@@ -49,11 +50,11 @@ public class ApiGoodsShopController extends ApiBaseController {
     @Autowired
     private GoodsShopService goodsShopService;
     @Autowired
-    private MemberRankService memberRankService;
-    @Autowired
     private MemberService memberService;
     @Autowired
     private MemberSearchService memberSearchService;
+    @Autowired
+    private CollectService collectService;
 
     @ApiOperation(value = "获取商品列表", notes = "获取商品列表")
     @ApiImplicitParams({
@@ -94,14 +95,6 @@ public class ApiGoodsShopController extends ApiBaseController {
         List<GoodsShopListDto> list = null;
         if (rs != null && rs.getSize() != 0) {
             list = BeanMapper.mapList(rs.getContent(), GoodsShopListDto.class);
-            if (StringUtils.isNotBlank(memberID)) {
-                double rate = memberRankService.getDepositeRateByMemberId(memberID);
-                if (rate != 0d) {
-                    for (GoodsShopListDto goodsShopListDto : list) {
-                        goodsShopListDto.setShowPrice(NumberUtils.keepPrecision(rate * goodsShopListDto.getRealPrice(), 2));
-                    }
-                }
-            }
             page.setTotalSize((int) rs.getTotalElements());
         }
 
@@ -142,12 +135,11 @@ public class ApiGoodsShopController extends ApiBaseController {
 
         GoodsShopDetailDto goodsShopDetailDto = BeanMapper.map(goodsShop, GoodsShopDetailDto.class);
         if (StringUtils.isNotBlank(memberID)) {
-            double rate = memberRankService.getDepositeRateByMemberId(memberID);
-            if (rate != 0d) {
-                goodsShopDetailDto.setShowPrice(NumberUtils.keepPrecision(rate * goodsShopDetailDto.getRealPrice(), 2));
+            String collectID = collectService.getCollectByObjectIDAndMemberID(goodsShopID, memberID);
+            if (StringUtils.isNotBlank(collectID)) {
+                goodsShopDetailDto.setIsCollect(1);
             }
         }
-
         Map<String, Object> rsMap = Maps.newHashMap();
         rsMap.put("data", goodsShopDetailDto);
 

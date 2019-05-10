@@ -239,10 +239,6 @@ public class ApiCollectController extends ApiBaseController {
                                 collectGoodsShopListDto.setShowPrice(goodsShop.getRealPrice());
                                 collectGoodsShopListDto.setStockNumber(goodsShop.getStockNumber());
                                 collectGoodsShopListDto.setStockOut(goodsShop.getStockOut());
-                                double rate = memberRankService.getDepositeRateByMemberId(member.getId());
-                                if (rate != 0d) {
-                                    collectGoodsShopListDto.setShowPrice(NumberUtils.keepPrecision(rate * goodsShop.getRealPrice(), 2));
-                                }
                                 goodsShopList.add(collectGoodsShopListDto);
                             }
                         }
