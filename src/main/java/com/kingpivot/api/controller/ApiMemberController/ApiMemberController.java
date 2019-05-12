@@ -5,6 +5,7 @@ import com.kingpivot.api.dto.member.MemberLoginDto;
 import com.kingpivot.base.application.model.Application;
 import com.kingpivot.base.application.service.ApplicationService;
 import com.kingpivot.base.config.Config;
+import com.kingpivot.base.config.RedisKey;
 import com.kingpivot.base.config.UserAgent;
 import com.kingpivot.base.member.model.Member;
 import com.kingpivot.base.member.service.MemberService;
@@ -19,6 +20,7 @@ import com.kingpivot.base.smsWay.service.SmsWayService;
 import com.kingpivot.base.support.MemberLogDTO;
 import com.kingpivot.common.KingBase;
 import com.kingpivot.common.jms.SendMessageService;
+import com.kingpivot.common.jms.dto.memberLog.MemberLogRequestBase;
 import com.kingpivot.common.jms.dto.memberLogin.MemberLoginRequestBase;
 import com.kingpivot.common.util.Constants;
 import com.kingpivot.common.util.sms.RadomMsgAuthCodeUtil;
@@ -26,12 +28,14 @@ import com.kingpivot.common.utils.*;
 import com.kingpivot.protocol.ApiBaseController;
 import com.kingpivot.protocol.MessageHeader;
 import com.kingpivot.protocol.MessagePacket;
+import com.kingpivot.protocol.MessagePage;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -57,7 +61,9 @@ public class ApiMemberController extends ApiBaseController {
     @Autowired
     private ApplicationService applicationService;
     @Autowired
-    private StringRedisTemplate redisTemplate;
+    private StringRedisTemplate stringRedisTemplate;
+    @Autowired
+    private RedisTemplate redisTemplate;
     @Autowired
     private SmsWayService smsWayService;
     @Autowired
@@ -129,7 +135,7 @@ public class ApiMemberController extends ApiBaseController {
             return MessagePacket.newFail(MessageHeader.Code.vCodeIsNull, "验证码为空");
         }
 
-        String authCode = redisTemplate.opsForValue().get(String.format("%s_%s", CacheContant.REGISTER_AUTH_CODE, phone));
+        String authCode = stringRedisTemplate.opsForValue().get(String.format("%s_%s", CacheContant.REGISTER_AUTH_CODE, phone));
         if (StringUtils.isEmpty(authCode) || !vCode.equals(authCode)) {
             return MessagePacket.newFail(MessageHeader.Code.vCodeError, "验证码错误");
         }
@@ -167,7 +173,7 @@ public class ApiMemberController extends ApiBaseController {
 
         sendMemberLoginLog(request, member, true);
 
-        redisTemplate.delete(String.format("%s_%s", CacheContant.REGISTER_AUTH_CODE, phone));
+        stringRedisTemplate.delete(String.format("%s_%s", CacheContant.REGISTER_AUTH_CODE, phone));
 
         return MessagePacket.newSuccess(rsMap, "phoneRegister success!");
     }
@@ -226,14 +232,183 @@ public class ApiMemberController extends ApiBaseController {
         return MessagePacket.newSuccess(rsMap, "appLogin success!");
     }
 
+    @ApiOperation(value = "找回登录密码", notes = "找回登录密码")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query", name = "phone", value = "手机号", dataType = "String", required = true),
+            @ApiImplicitParam(paramType = "query", name = "siteID", value = "站点id", dataType = "String", required = true),
+            @ApiImplicitParam(paramType = "query", name = "vCode", value = "验证码", dataType = "String", required = true),
+            @ApiImplicitParam(paramType = "query", name = "password", value = "密码", dataType = "String", required = true)})
+    @RequestMapping(value = "/findLoginPassword")
+    public MessagePacket findLoginPassword(HttpServletRequest request) {
+        String phone = request.getParameter("phone");
+        String password = request.getParameter("password");
+        String vCode = request.getParameter("vCode");
+        String siteID = request.getParameter("siteID");
+
+        if (StringUtils.isEmpty(phone)) {
+            return MessagePacket.newFail(MessageHeader.Code.phoneIsNull, "手机号不能为空");
+        }
+
+        if (StringUtils.isEmpty(password)) {
+            return MessagePacket.newFail(MessageHeader.Code.passwordIsNull, "password为空");
+        }
+
+        if (StringUtils.isEmpty(vCode)) {
+            return MessagePacket.newFail(MessageHeader.Code.vCodeIsNull, "验证码为空");
+        }
+
+        if (StringUtils.isEmpty(siteID)) {
+            return MessagePacket.newFail(MessageHeader.Code.siteIdIsNull, "siteID为空");
+        }
+
+        Site site = siteService.findById(siteID);
+        if (site == null) {
+            return MessagePacket.newFail(MessageHeader.Code.siteIdError, "siteID不正确");
+        }
+
+        Member member = memberService.getMemberByPhoneAndApplicationId(phone, site.getApplicationID());
+
+        if (member == null) {
+            return MessagePacket.newFail(MessageHeader.Code.phoneIsError, "手机号不存在");
+        }
+
+        String authCode = stringRedisTemplate.opsForValue().get(String.format("%s_%s", CacheContant.FIND_LOGINPASSWORD_CODE, phone));
+        if (StringUtils.isEmpty(authCode) || !vCode.equals(authCode)) {
+            return MessagePacket.newFail(MessageHeader.Code.vCodeError, "验证码错误");
+        }
+
+        member.setLoginPassword(MD5.encodeMd5(String.format("%s%s", password, Config.ENCODE_KEY)));
+
+        memberService.save(member);
+
+        stringRedisTemplate.delete(String.format("%s_%s", CacheContant.FIND_LOGINPASSWORD_CODE, phone));
+
+        Map<String, Object> rsMap = Maps.newHashMap();
+        rsMap.put("data", TimeTest.getTimeStr());
+        return MessagePacket.newSuccess(rsMap, "findLoginPassword success!");
+    }
+
+    @ApiOperation(value = "修改会员信息", notes = "修改会员信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query", name = "sessionID", value = "登录标识", dataType = "String", required = false),
+            @ApiImplicitParam(paramType = "query", name = "name", value = "名称", dataType = "String", required = false),
+            @ApiImplicitParam(paramType = "query", name = "avatarURL", value = "头像", dataType = "String", required = false)})
+    @RequestMapping(value = "/updateMemberInfo")
+    public MessagePacket updateMemberInfo(HttpServletRequest request) {
+        String sessionID = request.getParameter("sessionID");
+        String name = request.getParameter("name");
+        String avatarURL = request.getParameter("avatarURL");
+        if (StringUtils.isEmpty(sessionID)) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        Member member = (Member) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBER_KEY.key, sessionID));
+        if (member == null) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        MemberLogDTO memberLogDTO = (MemberLogDTO) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBERLOG_KEY.key, sessionID));
+        if (memberLogDTO == null) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+
+        Member updateMember = memberService.findById(member.getId());
+        if (updateMember == null) {
+            return MessagePacket.newFail(MessageHeader.Code.memberIDIsNull, "会员不存在");
+        }
+        if (StringUtils.isNotBlank(name)) {
+            member.setName(name);
+            member.setShortName(name);
+        }
+        if (StringUtils.isNotBlank(avatarURL)) {
+            member.setAvatarURL(avatarURL);
+        }
+        memberService.save(updateMember);
+        putSession(request, updateMember);
+        String description = String.format("%s修改会员信息", member.getName());
+
+        UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));
+        MemberLogRequestBase base = MemberLogRequestBase.BALANCE()
+                .sessionID(sessionID)
+                .description(description)
+                .userAgent(userAgent == null ? null : userAgent.getBrowserType())
+                .operateType(Memberlog.MemberOperateType.UPDATEMEMBERINFO.getOname())
+                .build();
+
+        sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
+
+        Map<String, Object> rsMap = Maps.newHashMap();
+        rsMap.put("data", TimeTest.getTimeStr());
+        return MessagePacket.newSuccess(rsMap, "updateMemberInfo success!");
+    }
+
+    @ApiOperation(value = "修改登录密码", notes = "修改登录密码")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query", name = "sessionID", value = "登录标识", dataType = "String", required = false),
+            @ApiImplicitParam(paramType = "query", name = "newPassword", value = "新密码", dataType = "String", required = false),
+            @ApiImplicitParam(paramType = "query", name = "oldPassword", value = "老密码", dataType = "String", required = false)})
+    @RequestMapping(value = "/updateLoginPassword")
+    public MessagePacket updateLoginPassword(HttpServletRequest request) {
+        String sessionID = request.getParameter("sessionID");
+        String oldPassword = request.getParameter("oldPassword");
+        String newPassword = request.getParameter("newPassword");
+        if (StringUtils.isEmpty(sessionID)) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        Member member = (Member) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBER_KEY.key, sessionID));
+        if (member == null) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        MemberLogDTO memberLogDTO = (MemberLogDTO) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBERLOG_KEY.key, sessionID));
+        if (memberLogDTO == null) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        if(StringUtils.isEmpty(oldPassword)){
+            return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "请输入旧密码");
+        }
+        if(StringUtils.isEmpty(newPassword)){
+            return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "请输入新密码");
+        }
+        Member updateMember = memberService.findById(member.getId());
+        if (updateMember == null) {
+            return MessagePacket.newFail(MessageHeader.Code.memberIDIsNull, "会员不存在");
+        }
+        String oldPasswordMd5 = MD5.encodeMd5(String.format("%s%s", oldPassword, Config.ENCODE_KEY));
+        if(!oldPasswordMd5.equals(updateMember.getLoginPassword())){
+            return MessagePacket.newFail(MessageHeader.Code.passwordError, "旧密码不正确");
+        }
+        updateMember.setLoginPassword(MD5.encodeMd5(String.format("%s%s", newPassword, Config.ENCODE_KEY)));
+        memberService.save(updateMember);
+        putSession(request, updateMember);
+        String description = String.format("%s修改会员登录密码", member.getName());
+
+        UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));
+        MemberLogRequestBase base = MemberLogRequestBase.BALANCE()
+                .sessionID(sessionID)
+                .description(description)
+                .userAgent(userAgent == null ? null : userAgent.getBrowserType())
+                .operateType(Memberlog.MemberOperateType.UPDATELOGINPASSWORD.getOname())
+                .build();
+
+        sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
+
+        Map<String, Object> rsMap = Maps.newHashMap();
+        rsMap.put("data", TimeTest.getTimeStr());
+        return MessagePacket.newSuccess(rsMap, "updateLoginPassword success!");
+    }
+
+
     /**
      * 发送验证码
-     * sendType：0-注册
+     * sendType：0-注册,2-找回登录密码
      *
      * @param request
      * @return
      */
-    @RequestMapping("sendSmsCommon")
+    @ApiOperation(value = "发送验证码", notes = "发送验证码")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query", name = "phone", value = "手机号", dataType = "String", required = true),
+            @ApiImplicitParam(paramType = "query", name = "siteID", value = "站点id", dataType = "String", required = true),
+            @ApiImplicitParam(paramType = "query", name = "sendType", value = "发送类型", dataType = "String", required = true)})
+    @RequestMapping(value = "/sendSmsCommon")
     public MessagePacket sendSmsCommon(HttpServletRequest request) throws Exception {
         String phone = request.getParameter("phone");
         String siteID = request.getParameter("siteID");
@@ -264,6 +439,10 @@ public class ApiMemberController extends ApiBaseController {
                 }
                 sendTypeName = "注册";
                 templateValue = CacheContant.REGISTER_AUTH_CODE;
+                break;
+            case "1":
+                sendTypeName = "找回登录密码";
+                templateValue = CacheContant.FIND_LOGINPASSWORD_CODE;
                 break;
             default:
                 return MessagePacket.newFail(MessageHeader.Code.sendTypeError, "发送类型不正确!");

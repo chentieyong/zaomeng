@@ -146,6 +146,7 @@ public class MessageHeader implements Serializable {
         memberOrderGoodsIDIsError(10068),//订单商品id不正确
         bonusIDIsNull(10069),//红包id为空
         bonusIDIsError(10071),//红包id不正确
+        phoneIsError(10072),//手机号不存在
         ;
         public int code;
 

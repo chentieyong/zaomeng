@@ -11,5 +11,7 @@ public interface MemberService extends BaseService<Member, String> {
 
     String getMemberIdByPhoneAndApplicationId(String phone,String applicationID);
 
+    Member getMemberByPhoneAndApplicationId(String phone,String applicationId);
+
     String getMemberApplicationID(String memberID);
 }

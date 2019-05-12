@@ -6,4 +6,6 @@ package com.kingpivot.common.utils;
 public class CacheContant {
 
     public static final String REGISTER_AUTH_CODE = "REGISTER_AUTH_CODE";
+
+    public static final String FIND_LOGINPASSWORD_CODE = "FIND_LOGINPASSWORD_CODE";
 }
