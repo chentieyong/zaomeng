@@ -65,8 +65,8 @@ public class ApiGoodsShopController extends ApiBaseController {
     @RequestMapping(value = "/getGoodsShopList")
     public MessagePacket getGoodsShopList(HttpServletRequest request) {
         String goodsCategoryID = request.getParameter("goodsCategoryID");
-        String hotWords = request.getParameter("hotWords");
         String memberID = request.getParameter("memberID");
+        String keyWords = request.getParameter("keyWords");
 
         if (StringUtils.isEmpty(goodsCategoryID)) {
             return MessagePacket.newFail(MessageHeader.Code.goodsCategoryIDIsNull, "goodsCategoryID不能为空");
@@ -77,6 +77,9 @@ public class ApiGoodsShopController extends ApiBaseController {
         paramMap.put("isLock", Constants.ISLOCK_NO);
         if (StringUtils.isNotBlank(goodsCategoryID)) {
             paramMap.put("goodsCategoryID", goodsCategoryID);
+        }
+        if(StringUtils.isNotBlank(keyWords)){
+            paramMap.put("name:like", keyWords);
         }
         paramMap.put("publishStatus", 3);
 
@@ -98,11 +101,11 @@ public class ApiGoodsShopController extends ApiBaseController {
             page.setTotalSize((int) rs.getTotalElements());
         }
 
-        if (StringUtils.isNotBlank(hotWords) && StringUtils.isNotBlank(memberID)) {
+        if (StringUtils.isNotBlank(keyWords) && StringUtils.isNotBlank(memberID)) {
             MemberSearch memberSearch = new MemberSearch();
             memberSearch.setApplicationID(memberService.getMemberApplicationID(memberID));
             memberSearch.setMemberID(memberID);
-            memberSearch.setName(hotWords);
+            memberSearch.setName(keyWords);
             memberSearch.setObjectDefineID(Config.GOODSSHOP_OBJECTDEFINEID);
             memberSearch.setSearchTime(new Timestamp(System.currentTimeMillis()));
             memberSearchService.save(memberSearch);

@@ -315,11 +315,11 @@ public class ApiMemberController extends ApiBaseController {
             return MessagePacket.newFail(MessageHeader.Code.memberIDIsNull, "会员不存在");
         }
         if (StringUtils.isNotBlank(name)) {
-            member.setName(name);
-            member.setShortName(name);
+            updateMember.setName(name);
+            updateMember.setShortName(name);
         }
         if (StringUtils.isNotBlank(avatarURL)) {
-            member.setAvatarURL(avatarURL);
+            updateMember.setAvatarURL(avatarURL);
         }
         memberService.save(updateMember);
         putSession(request, updateMember);
