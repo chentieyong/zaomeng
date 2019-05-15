@@ -68,13 +68,10 @@ public class ApiGoodsShopController extends ApiBaseController {
         String memberID = request.getParameter("memberID");
         String keyWords = request.getParameter("keyWords");
 
-        if (StringUtils.isEmpty(goodsCategoryID)) {
-            return MessagePacket.newFail(MessageHeader.Code.goodsCategoryIDIsNull, "goodsCategoryID不能为空");
-        }
-
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("isValid", Constants.ISVALID_YES);
         paramMap.put("isLock", Constants.ISLOCK_NO);
+
         if (StringUtils.isNotBlank(goodsCategoryID)) {
             paramMap.put("goodsCategoryID", goodsCategoryID);
         }

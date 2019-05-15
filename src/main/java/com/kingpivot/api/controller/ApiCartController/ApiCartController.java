@@ -249,12 +249,10 @@ public class ApiCartController extends ApiBaseController {
             return MessagePacket.newFail(MessageHeader.Code.cartGoodsIDIsNull, "cartGoodsID不能为空");
         }
 
-        CartGoods cartGoods = cartGoodsService.findById(cartGoodsID);
-        if (cartGoods == null) {
-            return MessagePacket.newFail(MessageHeader.Code.cartGoodsIDIsNull, "cartGoodsID不正确");
+        String[] cartGoodsIDs = cartGoodsID.split(",");
+        for (int i = 0; i < cartGoodsIDs.length; i++) {
+            cartGoodsService.del(cartGoodsIDs[i]);
         }
-
-        cartGoodsService.del(cartGoods);
 
         String description = String.format("%s删除购物车商品", member.getName());
 
@@ -270,7 +268,6 @@ public class ApiCartController extends ApiBaseController {
 
         Map<String, Object> rsMap = Maps.newHashMap();
         rsMap.put("data", TimeTest.getNowDateFormat());
-        rsMap.put("qty", cartGoods.getQty());
 
         return MessagePacket.newSuccess(rsMap, "removeCartGoods success!");
     }

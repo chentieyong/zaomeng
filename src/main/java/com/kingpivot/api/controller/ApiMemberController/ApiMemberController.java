@@ -508,7 +508,7 @@ public class ApiMemberController extends ApiBaseController {
 
         if (StringUtils.isEmpty(msg)) {
             kingBase.addSms(sendTypeName, authCode, smsTemplate.getDescription().replaceAll("CODE", authCode), phone, smsWay.getId());
-            redisTemplate.opsForValue().set(String.format("%s_%s", templateValue, phone), authCode, smsWay.getIntervalMinute() * 60, TimeUnit.SECONDS);
+            stringRedisTemplate.opsForValue().set(String.format("%s_%s", templateValue, phone), authCode, smsWay.getIntervalMinute() * 60, TimeUnit.SECONDS);
         } else {
             return MessagePacket.newFail(MessageHeader.Code.illegalParameter, msg);
         }

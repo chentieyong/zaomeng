@@ -275,6 +275,7 @@ public class ApiMemberShopController extends ApiBaseController {
         memberShop.setContactPhone(contactPhone);
         memberShop.setContactIdCardBackImage(contactIdCardBackImage);
         memberShop.setContactIdCardFaceImage(contactIdCardFaceImage);
+        memberShop.setVerifyStatus(0);
         memberShopService.save(memberShop);
 
         String description = String.format("%s修改会员店铺", member.getName());
@@ -367,7 +368,7 @@ public class ApiMemberShopController extends ApiBaseController {
 
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("memberID", member.getId());
-        if(StringUtils.isNotBlank(verifyStatus)){
+        if (StringUtils.isNotBlank(verifyStatus)) {
             paramMap.put("verifyStatus", Integer.parseInt(verifyStatus));
         }
         paramMap.put("isValid", Constants.ISVALID_YES);
