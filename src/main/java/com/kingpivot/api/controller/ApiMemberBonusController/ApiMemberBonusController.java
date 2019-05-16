@@ -75,21 +75,15 @@ public class ApiMemberBonusController extends ApiBaseController {
         /**
          * 1订单id为空，开始时间大于当前，结束时间小于当前
          */
-        String sortType = request.getParameter("sortType");
+        String status = request.getParameter("status");
 
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("isValid", Constants.ISVALID_YES);
         paramMap.put("isLock", Constants.ISLOCK_NO);
         paramMap.put("memberID", member.getId());
         paramMap.put("status:ne", 0);
-        if (StringUtils.isNotBlank(sortType)) {
-            switch (sortType) {
-                case "1":
-                    paramMap.put("status", 1);
-                    paramMap.put("startDate:lte", TimeTest.strToDate(TimeTest.getNowDateFormat()));
-                    paramMap.put("endDate:gte", TimeTest.strToDate(TimeTest.getNowDateFormat()));
-                    break;
-            }
+        if (StringUtils.isNotBlank(status)) {
+            paramMap.put("status", Integer.parseInt(status));
         }
 
         List<Sort.Order> orders = new ArrayList<Sort.Order>();
