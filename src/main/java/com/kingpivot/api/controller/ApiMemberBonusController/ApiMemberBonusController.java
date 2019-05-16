@@ -36,10 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RequestMapping("/api")
 @RestController
@@ -83,12 +80,14 @@ public class ApiMemberBonusController extends ApiBaseController {
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("isValid", Constants.ISVALID_YES);
         paramMap.put("isLock", Constants.ISLOCK_NO);
+        paramMap.put("memberID", member.getId());
+        paramMap.put("status:ne", 0);
         if (StringUtils.isNotBlank(sortType)) {
             switch (sortType) {
                 case "1":
-                    paramMap.put("memberOrderID", null);
-                    paramMap.put("startDate:gte", new Timestamp(System.currentTimeMillis()));
-                    paramMap.put("endDate:lte", new Timestamp(System.currentTimeMillis()));
+                    paramMap.put("status", 1);
+                    paramMap.put("startDate:lte", TimeTest.strToDate(TimeTest.getNowDateFormat()));
+                    paramMap.put("endDate:gte", TimeTest.strToDate(TimeTest.getNowDateFormat()));
                     break;
             }
         }
@@ -104,18 +103,9 @@ public class ApiMemberBonusController extends ApiBaseController {
         Pageable pageable = new PageRequest(page.getStart(), page.getPageSize(), new Sort(orders));
 
         Page<MemberBonus> rs = memberBonusService.list(paramMap, pageable);
-        Timestamp nowTime = TimeTest.strToDate(TimeTest.getNowDateFormat());
         List<MyMemberBonusListDto> list = null;
         if (rs != null && rs.getSize() != 0) {
             list = BeanMapper.mapList(rs.getContent(), MyMemberBonusListDto.class);
-            for (MyMemberBonusListDto myMemberBonusListDto : list) {
-                if (myMemberBonusListDto.getUseTime() != null) {
-                    myMemberBonusListDto.setStatus(2);
-                } else if (myMemberBonusListDto.getEndDate() != null
-                        && nowTime.getTime() > myMemberBonusListDto.getEndDate().getTime()) {
-                    myMemberBonusListDto.setStatus(3);
-                }
-            }
             page.setTotalSize((int) rs.getTotalElements());
         }
 

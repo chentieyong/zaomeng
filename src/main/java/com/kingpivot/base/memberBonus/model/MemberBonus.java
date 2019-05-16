@@ -47,6 +47,9 @@ public class MemberBonus extends BaseModel<String> {
     @Column
     private String printCode;
 
+    @Column(name = "status",columnDefinition = "int default 0")
+    private int status = 0; //0未开始，1可用，2已使用，3过期
+
     @Override
     public String getId() {
         return id;
@@ -142,5 +145,13 @@ public class MemberBonus extends BaseModel<String> {
 
     public void setPrintCode(String printCode) {
         this.printCode = printCode;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 }
