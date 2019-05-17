@@ -97,7 +97,6 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
         memberOrder.setContactPhone(contactPhone);
         memberOrder.setAddress(address);
         memberOrder.setApplyTime(new Timestamp(System.currentTimeMillis()));
-        memberOrder.setCreatedTime(memberOrder.getApplyTime());
         String memberPaymentID = kingBase.addMemberPayment(member, Config.MEMBERORDER_OBJECTDEFINEID, memberOrder.getPriceAfterDiscount());
         memberOrder.setMemberPaymentID(memberPaymentID);
 
@@ -112,6 +111,8 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
                 memberBonusDao.save(memberBonus);
             }
         }
+        memberOrder.setCreatedTime(memberOrder.getApplyTime());
+        memberOrder.setModifiedTime(memberOrder.getApplyTime());
         memberOrderDao.save(memberOrder);
 
         MemberOrderGoods memberOrderGoods = new MemberOrderGoods();
@@ -196,6 +197,7 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
         memberOrder.setCreatedTime(memberOrder.getApplyTime());
         String memberPaymentID = kingBase.addMemberPayment(member, Config.MEMBERORDER_OBJECTDEFINEID, memberOrder.getPriceAfterDiscount());
         memberOrder.setMemberPaymentID(memberPaymentID);
+        memberOrder.setModifiedTime(memberOrder.getApplyTime());
         memberOrderDao.save(memberOrder);
 
         for (CartGoods cartGoods : cartGoodsList) {
