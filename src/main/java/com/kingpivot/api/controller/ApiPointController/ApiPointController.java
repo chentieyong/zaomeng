@@ -6,6 +6,8 @@ import com.kingpivot.base.config.RedisKey;
 import com.kingpivot.base.config.UserAgent;
 import com.kingpivot.base.member.model.Member;
 import com.kingpivot.base.memberlog.model.Memberlog;
+import com.kingpivot.base.memberstatistics.model.MemberStatistics;
+import com.kingpivot.base.memberstatistics.service.MemberStatisticsService;
 import com.kingpivot.base.point.model.Point;
 import com.kingpivot.base.point.service.PointService;
 import com.kingpivot.base.support.MemberLogDTO;
@@ -49,15 +51,19 @@ public class ApiPointController extends ApiBaseController {
     private RedisTemplate redisTemplate;
     @Autowired
     private PointService pointService;
+    @Autowired
+    private MemberStatisticsService memberStatisticsService;
 
     @ApiOperation(value = "获取我的积分列表", notes = "获取我的积分列表")
     @ApiImplicitParams({
             @ApiImplicitParam(paramType = "query", name = "sessionID", value = "登录标识", dataType = "String"),
+            @ApiImplicitParam(paramType = "query", name = "actionType", value = "获取方向", dataType = "int"),
             @ApiImplicitParam(paramType = "query", name = "currentPage", value = "分页，页码从1开始", dataType = "int"),
             @ApiImplicitParam(paramType = "query", name = "pageNumber", value = "每一页大小", dataType = "int")})
     @RequestMapping(value = "/getMyPointList")
     public MessagePacket getMyPointList(HttpServletRequest request) {
         String sessionID = request.getParameter("sessionID");
+        String actionType = request.getParameter("actionType");
         if (StringUtils.isEmpty(sessionID)) {
             return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
         }
@@ -74,6 +80,9 @@ public class ApiPointController extends ApiBaseController {
         paramMap.put("isValid", Constants.ISVALID_YES);
         paramMap.put("isLock", Constants.ISLOCK_NO);
         paramMap.put("memberID", member.getId());
+        if (StringUtils.isNotBlank(actionType)) {
+            paramMap.put("actionType", Integer.parseInt(actionType));
+        }
 
         List<Sort.Order> orders = new ArrayList<Sort.Order>();
         orders.add(new Sort.Order(Sort.Direction.DESC, "createdTime"));
@@ -108,6 +117,7 @@ public class ApiPointController extends ApiBaseController {
         Map<String, Object> rsMap = Maps.newHashMap();
         MessagePage messagePage = new MessagePage(page, list);
         rsMap.put("data", messagePage);
+        rsMap.put("point", memberStatisticsService.getMemberPoint(member.getId()));
         return MessagePacket.newSuccess(rsMap, "getMyPointList success!");
     }
 }

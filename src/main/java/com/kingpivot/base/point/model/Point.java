@@ -41,7 +41,7 @@ public class Point extends BaseModel<String> {
     private String action;//动作
 
     @Column(columnDefinition = "int default 0")
-    private int actionType = 0;//方向
+    private int actionType = 0;//方向 1获取，2消费
 
     @Column(columnDefinition = "int default 0")
     private int number = 0;//个数
