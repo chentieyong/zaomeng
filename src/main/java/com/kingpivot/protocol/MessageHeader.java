@@ -147,6 +147,7 @@ public class MessageHeader implements Serializable {
         bonusIDIsNull(10069),//红包id为空
         bonusIDIsError(10071),//红包id不正确
         phoneIsError(10072),//手机号不存在
+        codeIsNull(10073),//code为空
         ;
         public int code;
 
