@@ -435,7 +435,7 @@ public class ApiMemberOrderController extends ApiBaseController {
             return MessagePacket.newFail(MessageHeader.Code.memberOrderIDIsError, "memberOrderID不正确");
         }
         if (memberOrderGoods.getStatus() != 4) {
-            return MessagePacket.newFail(MessageHeader.Code.statusIsError, "状态正确");
+            return MessagePacket.newFail(MessageHeader.Code.statusIsError, "状态不正确");
         }
         memberOrderGoods.setStatus(2);
         memberOrderGoodsService.save(memberOrderGoods);
@@ -489,7 +489,7 @@ public class ApiMemberOrderController extends ApiBaseController {
             return MessagePacket.newFail(MessageHeader.Code.memberOrderIDIsError, "memberOrderID不正确");
         }
         if (memberOrder.getStatus() != 4) {
-            return MessagePacket.newFail(MessageHeader.Code.statusIsError, "状态正确");
+            return MessagePacket.newFail(MessageHeader.Code.statusIsError, "状态不正确");
         }
         memberOrder.setStatus(14);
         memberOrderService.save(memberOrder);
@@ -543,7 +543,7 @@ public class ApiMemberOrderController extends ApiBaseController {
             return MessagePacket.newFail(MessageHeader.Code.memberOrderIDIsError, "memberOrderID不正确");
         }
         if (memberOrder.getStatus() != 6) {
-            return MessagePacket.newFail(MessageHeader.Code.statusIsError, "状态正确");
+            return MessagePacket.newFail(MessageHeader.Code.statusIsError, "状态不正确");
         }
         memberOrder.setStatus(8);
         memberOrder.setGetGoodsTime(new Timestamp(System.currentTimeMillis()));
