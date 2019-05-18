@@ -19,4 +19,7 @@ public interface CartGoodsDao extends BaseDao<CartGoods, String> {
 
     @Query(value = "SELECT * FROM cartGoods WHERE cartID=?1 AND isSelected=1 AND isValid=1 AND isLock=0", nativeQuery = true)
     List<CartGoods> getCartGoodsListByCartID(String cartID);
+
+    @Query(value = "SELECT SUM(priceTotal) FROM cartGoods WHERE cartID=?1 AND isSelected=1 AND isLock=0 AND isValid=1",nativeQuery = true)
+    Double getPriceTotalByCartID(String cartID);
 }

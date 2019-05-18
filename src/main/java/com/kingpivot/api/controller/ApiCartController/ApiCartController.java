@@ -13,6 +13,8 @@ import com.kingpivot.base.member.model.Member;
 import com.kingpivot.base.memberRank.service.MemberRankService;
 import com.kingpivot.base.memberlog.model.Memberlog;
 import com.kingpivot.base.objectFeatureData.service.ObjectFeatureDataService;
+import com.kingpivot.base.rank.model.Rank;
+import com.kingpivot.base.rank.service.RankService;
 import com.kingpivot.base.support.MemberLogDTO;
 import com.kingpivot.common.KingBase;
 import com.kingpivot.common.jms.SendMessageService;
@@ -62,6 +64,8 @@ public class ApiCartController extends ApiBaseController {
     private KingBase kingBase;
     @Autowired
     private ObjectFeatureDataService objectFeatureDataService;
+    @Autowired
+    private RankService rankService;
 
     @ApiOperation(value = "商品加入购物车", notes = "商品加入购物车")
     @ApiImplicitParams({
@@ -163,6 +167,8 @@ public class ApiCartController extends ApiBaseController {
         Map<String, Object> rsMap = Maps.newHashMap();
         rsMap.put("data", TimeTest.getNowDateFormat());
         rsMap.put("qty", cartGoods.getQty());
+        double priceTotal = cartGoodsService.getPriceTotalByCartID(cartGoods.getCartID());
+        rsMap.put("priceTotal", NumberUtils.keepPrecision(priceTotal, 2));
 
         return MessagePacket.newSuccess(rsMap, "addGoodsShopToCart success!");
     }
@@ -221,6 +227,8 @@ public class ApiCartController extends ApiBaseController {
         Map<String, Object> rsMap = Maps.newHashMap();
         rsMap.put("data", TimeTest.getNowDateFormat());
         rsMap.put("qty", cartGoods.getQty());
+        double priceTotal = cartGoodsService.getPriceTotalByCartID(cartGoods.getCartID());
+        rsMap.put("priceTotal", NumberUtils.keepPrecision(priceTotal, 2));
 
         return MessagePacket.newSuccess(rsMap, "updateCartGoodsNumber success!");
     }
@@ -268,7 +276,13 @@ public class ApiCartController extends ApiBaseController {
 
         Map<String, Object> rsMap = Maps.newHashMap();
         rsMap.put("data", TimeTest.getNowDateFormat());
-
+        String cartID = cartService.getCartIdByMemberID(member.getId());
+        if (StringUtils.isNotBlank(cartID)) {
+            double priceTotal = cartGoodsService.getPriceTotalByCartID(cartID);
+            rsMap.put("priceTotal", NumberUtils.keepPrecision(priceTotal, 2));
+        } else {
+            rsMap.put("priceTotal", 0.00d);
+        }
         return MessagePacket.newSuccess(rsMap, "removeCartGoods success!");
     }
 
@@ -325,6 +339,8 @@ public class ApiCartController extends ApiBaseController {
 
         Map<String, Object> rsMap = Maps.newHashMap();
         rsMap.put("data", TimeTest.getNowDateFormat());
+        double priceTotal = cartGoodsService.getPriceTotalByCartID(cartGoods.getCartID());
+        rsMap.put("priceTotal", NumberUtils.keepPrecision(priceTotal, 2));
 
         return MessagePacket.newSuccess(rsMap, "selectCartGoods success!");
     }
@@ -396,6 +412,17 @@ public class ApiCartController extends ApiBaseController {
         Map<String, Object> rsMap = Maps.newHashMap();
         MessagePage messagePage = new MessagePage(page, list);
         rsMap.put("data", messagePage);
+        double priceTotal = cartGoodsService.getPriceTotalByCartID(cartID);
+        rsMap.put("priceTotal", NumberUtils.keepPrecision(priceTotal, 2));
+        double priceAfterDiscount = priceTotal;
+        if (StringUtils.isNotBlank(member.getRankID())) {
+            Rank rank = rankService.findById(member.getRankID());
+            if (rank != null && rank.getDepositeRate() != null && rank.getDepositeRate() != 0) {
+                priceAfterDiscount = priceTotal * rank.getDepositeRate().doubleValue();
+            }
+        }
+        rsMap.put("priceAfterDiscount", NumberUtils.keepPrecision(priceAfterDiscount, 2));
+        rsMap.put("discountPrice", NumberUtils.keepPrecision(priceTotal - priceAfterDiscount, 2));
         return MessagePacket.newSuccess(rsMap, "getCartGoodsList success!");
     }
 }

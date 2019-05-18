@@ -30,4 +30,13 @@ public class CartGoodsServiceImpl extends BaseServiceImpl<CartGoods, String> imp
     public List<CartGoods> getCartGoodsListByCartID(String cartID) {
         return cartGoodsDao.getCartGoodsListByCartID(cartID);
     }
+
+    @Override
+    public Double getPriceTotalByCartID(String cartID) {
+        Double val = cartGoodsDao.getPriceTotalByCartID(cartID);
+        if (val == null) {
+            return 0d;
+        }
+        return val.doubleValue();
+    }
 }

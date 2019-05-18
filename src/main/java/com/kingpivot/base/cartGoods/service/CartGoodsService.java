@@ -12,4 +12,6 @@ public interface CartGoodsService extends BaseService<CartGoods, String> {
     CartGoods getCartGoodsByCartIDAndObjectFeatureItemID(String cartID, String goodsShopID, String objectFeatureItemID1);
 
     List<CartGoods> getCartGoodsListByCartID(String cartID);
+
+    Double getPriceTotalByCartID(String cartID);
 }
