@@ -222,15 +222,6 @@ public class ApiMemberShopController extends ApiBaseController {
             return MessagePacket.newFail(MessageHeader.Code.nameIsNull, "name不能为空");
         }
 
-        if (StringUtils.isEmpty(address)) {
-            return MessagePacket.newFail(MessageHeader.Code.addressIsNull, "address不能为空");
-        }
-
-        String id = memberShopService.getIdByAddress(address);
-        if (StringUtils.isNotBlank(id)) {
-            return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "已申请");
-        }
-
         if (StringUtils.isEmpty(shopCategoryID)) {
             return MessagePacket.newFail(MessageHeader.Code.shopCategoryIDIsNull, "shopCategoryID不能为空");
         }
@@ -270,7 +261,13 @@ public class ApiMemberShopController extends ApiBaseController {
         memberShop.setShopCategoryID(shopCategoryID);
         memberShop.setShopFaceImage(shopFaceImage);
         memberShop.setBusinessImage(businessImage);
-        memberShop.setAddress(address);
+        if (StringUtils.isNotBlank(address) && !address.equals(memberShop.getAddress())) {
+            String id = memberShopService.getIdByAddress(address);
+            if (StringUtils.isNotBlank(id)) {
+                return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "已申请");
+            }
+            memberShop.setAddress(address);
+        }
         memberShop.setContact(contact);
         memberShop.setContactPhone(contactPhone);
         memberShop.setContactIdCardBackImage(contactIdCardBackImage);
