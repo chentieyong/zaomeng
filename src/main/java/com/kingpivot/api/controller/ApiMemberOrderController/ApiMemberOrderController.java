@@ -243,6 +243,7 @@ public class ApiMemberOrderController extends ApiBaseController {
         paramMap.put("memberID", member.getId());
         paramMap.put("isValid", Constants.ISVALID_YES);
         paramMap.put("isLock", Constants.ISLOCK_NO);
+        paramMap.put("status:ne", 2);
         String status = request.getParameter("status");
         if (StringUtils.isNotBlank(status)) {
             paramMap.put("status", Integer.parseInt(status));
