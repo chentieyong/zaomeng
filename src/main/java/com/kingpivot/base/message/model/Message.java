@@ -45,6 +45,9 @@ public class Message extends BaseModel<String> {
     @Column()
     private Timestamp readTime;//阅读时间
 
+    @Column(name = "isRead", columnDefinition = "int default 0")
+    private int isRead = 0; //是否锁定 0未读，1已读
+
     @Override
     public String getId() {
         return id;
@@ -132,5 +135,13 @@ public class Message extends BaseModel<String> {
 
     public void setReadTime(Timestamp readTime) {
         this.readTime = readTime;
+    }
+
+    public int getIsRead() {
+        return isRead;
+    }
+
+    public void setIsRead(int isRead) {
+        this.isRead = isRead;
     }
 }

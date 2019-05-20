@@ -13,11 +13,15 @@ import javax.annotation.Resource;
 public class MessageServiceImpl extends BaseServiceImpl<Message, String> implements MessageService {
 
     @Resource(name = "messageDao")
-    private MessageDao MessageDao;
+    private MessageDao messageDao;
 
     @Override
     public BaseDao<Message, String> getDAO() {
-        return this.MessageDao;
+        return this.messageDao;
     }
 
+    @Override
+    public int getNoReadMessageNum(String memberID) {
+        return messageDao.getNoReadMessageNum(memberID);
+    }
 }

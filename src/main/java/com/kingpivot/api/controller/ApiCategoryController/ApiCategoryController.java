@@ -73,6 +73,7 @@ public class ApiCategoryController extends ApiBaseController {
     @RequestMapping(value = "/getNodeCategoryList")
     public MessagePacket getNodeCategoryList(HttpServletRequest request) {
         String rootID = request.getParameter("rootID");
+        String memberID = request.getParameter("memberID");
         String objectDefineID = request.getParameter("objectDefineID");
         if (StringUtils.isEmpty(rootID)) {
             return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "rootID不能为空");
@@ -100,7 +101,7 @@ public class ApiCategoryController extends ApiBaseController {
         if (rs != null && rs.getSize() != 0) {
             page.setTotalSize((int) rs.getTotalElements());
             list = BeanMapper.mapList(rs.getContent(), NodeCategoryListDto.class);
-            if (StringUtils.isNotBlank(objectDefineID)) {
+            if (StringUtils.isNotBlank(objectDefineID) && StringUtils.isNotBlank(memberID)) {
                 switch (objectDefineID) {
                     case Config.MESSAGE_OBJECTDEFINEID:
                         List<ApiCategoryMessageDto> messageList = null;
@@ -116,9 +117,11 @@ public class ApiCategoryController extends ApiBaseController {
                             releaseOrders.add(new Sort.Order(Sort.Direction.DESC, "createdTime"));
 
                             messageParamMap = new HashMap<>();
+                            messageParamMap.put("receiverID", memberID);
+                            messageParamMap.put("isRead", 0);
+                            messageParamMap.put("messageType", nodeCategoryListDto.getId());
                             messageParamMap.put("isValid", Constants.ISVALID_YES);
                             messageParamMap.put("isLock", Constants.ISLOCK_NO);
-                            messageParamMap.put("messageType", nodeCategoryListDto.getId());
 
                             messagePage = ApiPageUtil.makePage(1, 1);
 

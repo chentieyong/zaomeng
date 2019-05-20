@@ -2,6 +2,7 @@ package com.kingpivot.api.controller.ApiMemberController;
 
 import com.google.common.collect.Maps;
 import com.kingpivot.api.dto.member.MemberLoginDto;
+import com.kingpivot.api.dto.memberstatistics.MemberStatisticsInfoDto;
 import com.kingpivot.base.application.model.Application;
 import com.kingpivot.base.application.service.ApplicationService;
 import com.kingpivot.base.config.Config;
@@ -10,6 +11,8 @@ import com.kingpivot.base.config.UserAgent;
 import com.kingpivot.base.member.model.Member;
 import com.kingpivot.base.member.service.MemberService;
 import com.kingpivot.base.memberlog.model.Memberlog;
+import com.kingpivot.base.memberstatistics.model.MemberStatistics;
+import com.kingpivot.base.memberstatistics.service.MemberStatisticsService;
 import com.kingpivot.base.site.model.Site;
 import com.kingpivot.base.site.service.SiteService;
 import com.kingpivot.base.sms.service.SMSService;
@@ -72,6 +75,8 @@ public class ApiMemberController extends ApiBaseController {
     private KingBase kingBase;
     @Autowired
     private SmsTemplateService smsTemplateService;
+    @Autowired
+    private MemberStatisticsService memberStatisticsService;
 
     @ApiOperation(value = "会员登录", notes = "会员登录")
     @ApiImplicitParams({
@@ -361,10 +366,10 @@ public class ApiMemberController extends ApiBaseController {
         if (memberLogDTO == null) {
             return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
         }
-        if(StringUtils.isEmpty(oldPassword)){
+        if (StringUtils.isEmpty(oldPassword)) {
             return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "请输入旧密码");
         }
-        if(StringUtils.isEmpty(newPassword)){
+        if (StringUtils.isEmpty(newPassword)) {
             return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "请输入新密码");
         }
         Member updateMember = memberService.findById(member.getId());
@@ -372,7 +377,7 @@ public class ApiMemberController extends ApiBaseController {
             return MessagePacket.newFail(MessageHeader.Code.memberIDIsNull, "会员不存在");
         }
         String oldPasswordMd5 = MD5.encodeMd5(String.format("%s%s", oldPassword, Config.ENCODE_KEY));
-        if(!oldPasswordMd5.equals(updateMember.getLoginPassword())){
+        if (!oldPasswordMd5.equals(updateMember.getLoginPassword())) {
             return MessagePacket.newFail(MessageHeader.Code.passwordError, "旧密码不正确");
         }
         updateMember.setLoginPassword(MD5.encodeMd5(String.format("%s%s", newPassword, Config.ENCODE_KEY)));
@@ -516,6 +521,86 @@ public class ApiMemberController extends ApiBaseController {
         Map<String, Object> rsMap = Maps.newHashMap();
         rsMap.put("data", authCode);
         return MessagePacket.newSuccess(rsMap, "sendSmsCommon success!");
+    }
+
+    @ApiOperation(value = "获取会员信息", notes = "获取会员信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query", name = "sessionID", value = "登录标识", dataType = "String", required = false)})
+    @RequestMapping(value = "/getMemberInfo")
+    public MessagePacket getMemberInfo(HttpServletRequest request) {
+        String sessionID = request.getParameter("sessionID");
+        if (StringUtils.isEmpty(sessionID)) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        Member member = (Member) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBER_KEY.key, sessionID));
+        if (member == null) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        MemberLogDTO memberLogDTO = (MemberLogDTO) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBERLOG_KEY.key, sessionID));
+        if (memberLogDTO == null) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+
+        Member updateMember = memberService.findById(member.getId());
+        if (updateMember == null) {
+            return MessagePacket.newFail(MessageHeader.Code.memberIDIsNull, "会员不存在");
+        }
+
+        Map<String, Object> rsMap = Maps.newHashMap();
+        rsMap.put("data", BeanMapper.map(updateMember, MemberLoginDto.class));
+
+        String description = String.format("%s获取会员信息", member.getName());
+
+        UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));
+        MemberLogRequestBase base = MemberLogRequestBase.BALANCE()
+                .sessionID(sessionID)
+                .description(description)
+                .userAgent(userAgent == null ? null : userAgent.getBrowserType())
+                .operateType(Memberlog.MemberOperateType.GETMEMBERINFO.getOname())
+                .build();
+
+        sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
+        return MessagePacket.newSuccess(rsMap, "getMemberInfo success!");
+    }
+
+    @ApiOperation(value = "获取会员统计信息", notes = "获取会员统计信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query", name = "sessionID", value = "登录标识", dataType = "String", required = false)})
+    @RequestMapping(value = "/getMemberStatisticsInfo")
+    public MessagePacket getMemberStatisticsInfo(HttpServletRequest request) {
+        String sessionID = request.getParameter("sessionID");
+        if (StringUtils.isEmpty(sessionID)) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        Member member = (Member) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBER_KEY.key, sessionID));
+        if (member == null) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        MemberLogDTO memberLogDTO = (MemberLogDTO) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBERLOG_KEY.key, sessionID));
+        if (memberLogDTO == null) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+
+        MemberStatistics memberStatistics = memberStatisticsService.getByMemberId(member.getId());
+        if (memberStatistics == null) {
+            return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "会员统计信息不存在，请联系管理员");
+        }
+
+        Map<String, Object> rsMap = Maps.newHashMap();
+        rsMap.put("data", BeanMapper.map(memberStatistics, MemberStatisticsInfoDto.class));
+
+        String description = String.format("%s获取会员统计信息", member.getName());
+
+        UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));
+        MemberLogRequestBase base = MemberLogRequestBase.BALANCE()
+                .sessionID(sessionID)
+                .description(description)
+                .userAgent(userAgent == null ? null : userAgent.getBrowserType())
+                .operateType(Memberlog.MemberOperateType.GETMEMBERSTATISTICS.getOname())
+                .build();
+
+        sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
+        return MessagePacket.newSuccess(rsMap, "getMemberStatisticsInfo success!");
     }
 
     //发送会员登录日志
