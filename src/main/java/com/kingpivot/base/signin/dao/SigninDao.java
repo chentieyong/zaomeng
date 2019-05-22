@@ -17,4 +17,9 @@ public interface SigninDao extends BaseDao<Signin, String> {
             "AND DATE_FORMAT(createdTime,'%Y-%m-%d')=DATE_FORMAT(NOW(),'%Y-%m-%d')\n" +
             "AND isValid=1 AND isLock=0 limit 1",nativeQuery = true)
     String getTodaySigninID(String memberID);
+
+    @Query(value = "SELECT * FROM signin WHERE memberID=?1 \n" +
+            "AND DATE_FORMAT(createdTime,'%Y-%m-%d')=DATE_FORMAT(NOW(),'%Y-%m-%d')\n" +
+            "AND isValid=1 AND isLock=0 limit 1",nativeQuery = true)
+    Signin getTodaySignin(String memberID);
 }

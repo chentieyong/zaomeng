@@ -5,4 +5,6 @@ import com.kingpivot.common.service.BaseService;
 
 public interface SigninService extends BaseService<Signin, String> {
     String getTodaySigninID(String memberID);
+
+    Signin getTodaySignin(String memberID);
 }

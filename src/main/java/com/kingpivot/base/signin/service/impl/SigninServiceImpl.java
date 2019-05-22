@@ -24,4 +24,9 @@ public class SigninServiceImpl extends BaseServiceImpl<Signin, String> implement
     public String getTodaySigninID(String memberID) {
         return signinDao.getTodaySigninID(memberID);
     }
+
+    @Override
+    public Signin getTodaySignin(String memberID) {
+        return signinDao.getTodaySignin(memberID);
+    }
 }

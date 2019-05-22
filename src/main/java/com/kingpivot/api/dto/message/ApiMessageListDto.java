@@ -5,12 +5,21 @@ import com.kingpivot.common.utils.TimeTest;
 import java.sql.Timestamp;
 
 public class ApiMessageListDto {
+    private String id;
     private String name;//名称
     private String description;
     private Timestamp sendDate;//发送时间
     private String sendDateStr;//发送时间Str
     private Timestamp readTime;//阅读时间
     private String readTimeStr;//阅读时间Str
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;

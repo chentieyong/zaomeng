@@ -1,6 +1,7 @@
 package com.kingpivot.api.controller.ApiSignInController;
 
 import com.google.common.collect.Maps;
+import com.kingpivot.api.dto.signin.MemberSignInInitDto;
 import com.kingpivot.api.dto.signin.SigninListDto;
 import com.kingpivot.base.config.RedisKey;
 import com.kingpivot.base.config.UserAgent;
@@ -158,5 +159,48 @@ public class ApiSignInController extends ApiBaseController {
         MessagePage messagePage = new MessagePage(page, list);
         rsMap.put("data", messagePage);
         return MessagePacket.newSuccess(rsMap, "getSignInList success!");
+    }
+
+    @ApiOperation(value = "会员签到初始化", notes = "会员签到初始化")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query", name = "sessionID", value = "登录标识", dataType = "String")})
+    @RequestMapping(value = "/memberSignInInit")
+    public MessagePacket memberSignInInit(HttpServletRequest request) {
+        String sessionID = request.getParameter("sessionID");
+        if (StringUtils.isEmpty(sessionID)) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        Member member = (Member) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBER_KEY.key, sessionID));
+        if (member == null) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        MemberLogDTO memberLogDTO = (MemberLogDTO) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBERLOG_KEY.key, sessionID));
+        if (memberLogDTO == null) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+
+        MemberSignInInitDto memberSignInInitDto = new MemberSignInInitDto();
+        Signin signin = signinService.getTodaySignin(member.getId());
+        if (signin != null) {
+            memberSignInInitDto = BeanMapper.map(signin, MemberSignInInitDto.class);
+        } else {
+            memberSignInInitDto.setMemberID(member.getId());
+        }
+
+        String description = String.format("%s会员签到初始化", member.getName());
+
+        UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));
+        MemberLogRequestBase base = MemberLogRequestBase.BALANCE()
+                .sessionID(sessionID)
+                .description(description)
+                .userAgent(userAgent == null ? null : userAgent.getBrowserType())
+                .operateType(Memberlog.MemberOperateType.MEMBERSIGNININIT.getOname())
+                .build();
+
+        sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
+
+        Map<String, Object> rsMap = Maps.newHashMap();
+        rsMap.put("data", memberSignInInitDto);
+        return MessagePacket.newSuccess(rsMap, "memberSignInInit success!");
     }
 }
