@@ -41,6 +41,7 @@ public class MemberOrderListDto {
     private String contactName;//联系人
     private String contactPhone;//联系电话
     private String address;//地址
+    private Double bonusAmount = 0.0d;//红包价格
     private List<MemberOrderListGoodsListDto> goodsList;
 
     public String getId() {
@@ -321,5 +322,13 @@ public class MemberOrderListDto {
 
     public void setSendTimeStr(String sendTimeStr) {
         this.sendTimeStr = sendTimeStr;
+    }
+
+    public Double getBonusAmount() {
+        return bonusAmount;
+    }
+
+    public void setBonusAmount(Double bonusAmount) {
+        this.bonusAmount = bonusAmount;
     }
 }

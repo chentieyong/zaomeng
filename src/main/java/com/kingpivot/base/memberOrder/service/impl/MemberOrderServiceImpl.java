@@ -209,8 +209,8 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
             memberOrderGoods.setDiscountRate(rate);
             memberOrderGoods.setPriceStand(cartGoods.getStandPrice());
             memberOrderGoods.setPriceStandTotal(cartGoods.getStandPriceTotal());
-            memberOrderGoods.setPriceNow(cartGoods.getPriceNow() * rate);
-            memberOrderGoods.setPriceTotal(cartGoods.getPriceTotal() * rate);
+            memberOrderGoods.setPriceNow(NumberUtils.keepPrecision(cartGoods.getPriceNow() * rate,2));
+            memberOrderGoods.setPriceTotal(NumberUtils.keepPrecision(cartGoods.getPriceTotal() * rate,2));
             memberOrderGoods.setObjectFeatureItemID1(cartGoods.getObjectFeatureItemID1());
             memberOrderGoods.setQTY(cartGoods.getQty());
             memberOrderGoods.setCreatedTime(new Timestamp(System.currentTimeMillis()));

@@ -14,6 +14,7 @@ import com.kingpivot.common.util.TreeInfoDTO;
 import com.kingpivot.common.utils.ApiPageUtil;
 import com.kingpivot.common.utils.BeanMapper;
 import com.kingpivot.common.utils.TPage;
+import com.kingpivot.common.utils.TimeTest;
 import com.kingpivot.protocol.ApiBaseController;
 import com.kingpivot.protocol.MessageHeader;
 import com.kingpivot.protocol.MessagePacket;
@@ -123,7 +124,7 @@ public class ApiCategoryController extends ApiBaseController {
                             messageParamMap.put("isValid", Constants.ISVALID_YES);
                             messageParamMap.put("isLock", Constants.ISLOCK_NO);
 
-                            messagePage = ApiPageUtil.makePage(1, 1);
+                            messagePage = ApiPageUtil.makePage("1", "1");
 
                             messagePageable = new PageRequest(messagePage.getStart(), messagePage.getPageSize(), new Sort(releaseOrders));
 
@@ -131,7 +132,9 @@ public class ApiCategoryController extends ApiBaseController {
 
                             for (Message message : messageRs.getContent()) {
                                 categoryMessageDto = new ApiCategoryMessageDto();
+                                categoryMessageDto.setName(message.getName());
                                 categoryMessageDto.setDescription(message.getDescription());
+                                categoryMessageDto.setSendDate(TimeTest.toDateFormat(message.getSendDate()));
                                 messageList.add(categoryMessageDto);
                             }
                             nodeCategoryListDto.setMessageList(messageList);
