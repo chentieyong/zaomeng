@@ -19,4 +19,7 @@ public interface MemberBonusDao extends BaseDao<MemberBonus, String> {
     @Query(value = "UPDATE memberbonus SET memberOrderID=NULL,useTime=NULL WHERE memberOrderID=?1 AND isValid=1 AND isLock=0", nativeQuery = true)
     @Modifying
     void initMemberBonusByMemberOrderID(String memberOrderID);
+
+    @Query(value = "SELECT COUNT(id) FROM memberbonus WHERE `status`=?1 AND memberID=?2 AND isValid=1 AND isLock=0", nativeQuery = true)
+    int getMemberBonusNum(int status, String memberID);
 }

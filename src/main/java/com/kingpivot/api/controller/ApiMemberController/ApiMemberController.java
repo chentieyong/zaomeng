@@ -10,6 +10,7 @@ import com.kingpivot.base.config.RedisKey;
 import com.kingpivot.base.config.UserAgent;
 import com.kingpivot.base.member.model.Member;
 import com.kingpivot.base.member.service.MemberService;
+import com.kingpivot.base.memberBonus.service.MemberBonusService;
 import com.kingpivot.base.memberlog.model.Memberlog;
 import com.kingpivot.base.memberstatistics.model.MemberStatistics;
 import com.kingpivot.base.memberstatistics.service.MemberStatisticsService;
@@ -77,6 +78,8 @@ public class ApiMemberController extends ApiBaseController {
     private SmsTemplateService smsTemplateService;
     @Autowired
     private MemberStatisticsService memberStatisticsService;
+    @Autowired
+    private MemberBonusService memberBonusService;
 
     @ApiOperation(value = "会员登录", notes = "会员登录")
     @ApiImplicitParams({
@@ -586,8 +589,11 @@ public class ApiMemberController extends ApiBaseController {
             return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "会员统计信息不存在，请联系管理员");
         }
 
+        MemberStatisticsInfoDto data = BeanMapper.map(memberStatistics, MemberStatisticsInfoDto.class);
+        data.setMemberBonusNum(memberBonusService.getMemberBonusNum(1, member.getId()));
+
         Map<String, Object> rsMap = Maps.newHashMap();
-        rsMap.put("data", BeanMapper.map(memberStatistics, MemberStatisticsInfoDto.class));
+        rsMap.put("data", data);
 
         String description = String.format("%s获取会员统计信息", member.getName());
 

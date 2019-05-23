@@ -10,6 +10,7 @@ public class MemberStatisticsInfoDto {
     private Integer pointTotal = 0;//累计积分
     private Double cashBalance = 0d;//现金余额"
     private Double cashTotalRecharge = 0d;//累计充值"
+    private int memberBonusNum;
 
     public String getId() {
         return id;
@@ -81,5 +82,13 @@ public class MemberStatisticsInfoDto {
 
     public void setCashTotalRecharge(Double cashTotalRecharge) {
         this.cashTotalRecharge = cashTotalRecharge;
+    }
+
+    public int getMemberBonusNum() {
+        return memberBonusNum;
+    }
+
+    public void setMemberBonusNum(int memberBonusNum) {
+        this.memberBonusNum = memberBonusNum;
     }
 }
