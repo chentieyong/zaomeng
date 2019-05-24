@@ -90,6 +90,9 @@ public class MemberOrderListGoodsListDto {
 
     public void setObjectFeatureItem1(ObjectFeatureItem objectFeatureItem1) {
         this.objectFeatureItem1 = objectFeatureItem1;
+        if(objectFeatureItem1!=null){
+            this.objectFeatureItemName1 = objectFeatureItem1.getName();
+        }
     }
 
     public Double getPriceStand() {
