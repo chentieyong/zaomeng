@@ -6,6 +6,8 @@ import com.kingpivot.api.dto.memberOrderGoodsReturn.MemberOrderGoodsReturnListDt
 import com.kingpivot.base.config.RedisKey;
 import com.kingpivot.base.config.UserAgent;
 import com.kingpivot.base.member.model.Member;
+import com.kingpivot.base.memberOrder.model.MemberOrder;
+import com.kingpivot.base.memberOrder.service.MemberOrderService;
 import com.kingpivot.base.memberOrderGoods.model.MemberOrderGoods;
 import com.kingpivot.base.memberOrderGoods.service.MemberOrderGoodsService;
 import com.kingpivot.base.memberOrderReturnGoods.model.MemberOrderGoodsReturn;
@@ -54,6 +56,8 @@ public class ApiMemberOrderGoodsReturnController extends ApiBaseController {
     private MemberOrderGoodsReturnService memberOrderGoodsReturnService;
     @Autowired
     private MemberOrderGoodsService memberOrderGoodsService;
+    @Autowired
+    private MemberOrderService memberOrderService;
 
     /**
      * 申请订单商品退货
@@ -94,7 +98,17 @@ public class ApiMemberOrderGoodsReturnController extends ApiBaseController {
         if (memberOrderGoods.getStatus() != 4) {
             return MessagePacket.newFail(MessageHeader.Code.statusIsError, "状态不正确");
         }
-        memberOrderGoodsReturnService.memberOrderGoodsReturn(memberOrderGoods, member, description);
+        if (StringUtils.isEmpty(memberOrderGoods.getMemberOrderID())) {
+            return MessagePacket.newFail(MessageHeader.Code.memberOrderIDIsNull, "订单id为空");
+        }
+        MemberOrder memberOrder = memberOrderService.findById(memberOrderGoods.getMemberOrderID());
+        if (memberOrder == null) {
+            return MessagePacket.newFail(MessageHeader.Code.memberOrderIDIsError, "订单不存在");
+        }
+        if (StringUtils.isEmpty(memberOrder.getPaywayID())) {
+            return MessagePacket.newFail(MessageHeader.Code.passwordIsNull, "支付机构不存在，请联系管理员");
+        }
+        memberOrderGoodsReturnService.memberOrderGoodsReturn(memberOrderGoods, member, memberOrder, description);
 
         String des = String.format("%s申请订单商品退货", member.getName());
         UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));

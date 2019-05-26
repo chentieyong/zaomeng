@@ -22,6 +22,8 @@ public class MemberOrderGoodsReturn extends BaseModel<String> {
     @Column(length = 36)
     private String memberOrderGoodsID;//会员订单商品ID
     @Column(length = 36)
+    private String paywayID;//支付机构id
+    @Column(length = 36)
     private String memberID;//会员ID
     @Column(length = 36)
     private String applicationID;//应用ID
@@ -74,6 +76,14 @@ public class MemberOrderGoodsReturn extends BaseModel<String> {
 
     public void setMemberOrderGoodsID(String memberOrderGoodsID) {
         this.memberOrderGoodsID = memberOrderGoodsID;
+    }
+
+    public String getPaywayID() {
+        return paywayID;
+    }
+
+    public void setPaywayID(String paywayID) {
+        this.paywayID = paywayID;
     }
 
     public String getMemberID() {

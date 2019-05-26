@@ -1,6 +1,7 @@
 package com.kingpivot.base.memberOrderReturnGoods.service.impl;
 
 import com.kingpivot.base.member.model.Member;
+import com.kingpivot.base.memberOrder.model.MemberOrder;
 import com.kingpivot.base.memberOrderGoods.dao.MemberOrderGoodsDao;
 import com.kingpivot.base.memberOrderGoods.model.MemberOrderGoods;
 import com.kingpivot.base.memberOrderReturnGoods.dao.MemberOrderGoodsReturnDao;
@@ -33,7 +34,7 @@ public class MemberOrderGoodsReturnServiceImpl extends BaseServiceImpl<MemberOrd
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void memberOrderGoodsReturn(MemberOrderGoods memberOrderGoods, Member member, String description) {
+    public void memberOrderGoodsReturn(MemberOrderGoods memberOrderGoods, Member member, MemberOrder memberOrder, String description) {
         memberOrderGoods.setStatus(2);
         memberOrderGoods.setModifiedTime(new Timestamp(System.currentTimeMillis()));
         memberOrderGoodsDao.save(memberOrderGoods);
@@ -50,6 +51,7 @@ public class MemberOrderGoodsReturnServiceImpl extends BaseServiceImpl<MemberOrd
             memberOrderGoodsReturn.setObjectFeatureItemID1(memberOrderGoods.getObjectFeatureItemID1());
         }
         memberOrderGoodsReturn.setQty(memberOrderGoods.getQTY());
+        memberOrderGoodsReturn.setPaywayID(memberOrder.getPaywayID());
         memberOrderGoodsReturn.setPriceTotalReturn(memberOrderGoods.getPriceTotalReturn());
         memberOrderGoodsReturn.setCreatedTime(memberOrderGoodsReturn.getApplyTime());
         memberOrderGoodsReturnDao.save(memberOrderGoodsReturn);
