@@ -403,62 +403,9 @@ public class ApiMemberOrderController extends ApiBaseController {
         return MessagePacket.newSuccess(rsMap, "cancelMemberOrder success!");
     }
 
-    /**
-     * 申请订单商品退货
-     *
-     * @param request
-     * @return
-     */
-    @ApiOperation(value = "申请订单商品退货", notes = "申请订单商品退货")
-    @ApiImplicitParams({
-            @ApiImplicitParam(paramType = "query", name = "sessionID", value = "登录标识", dataType = "String"),
-            @ApiImplicitParam(paramType = "query", name = "memberOrderGoodsID", value = "会员订单商品id", dataType = "String")})
-    @RequestMapping(value = "/applyReturnMemberOrderGoods")
-    public MessagePacket applyReturnMemberOrderGoods(HttpServletRequest request) {
-        String sessionID = request.getParameter("sessionID");
-        String memberOrderGoodsID = request.getParameter("memberOrderGoodsID");
-        if (StringUtils.isEmpty(sessionID)) {
-            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
-        }
-        Member member = (Member) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBER_KEY.key, sessionID));
-        if (member == null) {
-            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
-        }
-        MemberLogDTO memberLogDTO = (MemberLogDTO) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBERLOG_KEY.key, sessionID));
-        if (memberLogDTO == null) {
-            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
-        }
-        if (StringUtils.isEmpty(memberOrderGoodsID)) {
-            return MessagePacket.newFail(MessageHeader.Code.memberOrderGoodsIDIsNull, "memberOrderGoodsID不能为空");
-        }
-        MemberOrderGoods memberOrderGoods = memberOrderGoodsService.findById(memberOrderGoodsID);
-        if (memberOrderGoods == null) {
-            return MessagePacket.newFail(MessageHeader.Code.memberOrderIDIsError, "memberOrderID不正确");
-        }
-        if (memberOrderGoods.getStatus() != 4) {
-            return MessagePacket.newFail(MessageHeader.Code.statusIsError, "状态不正确");
-        }
-        memberOrderGoods.setStatus(2);
-        memberOrderGoodsService.save(memberOrderGoods);
-
-        String description = String.format("%s申请订单商品退货", member.getName());
-        UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));
-        MemberLogRequestBase base = MemberLogRequestBase.BALANCE()
-                .sessionID(sessionID)
-                .description(description)
-                .userAgent(userAgent == null ? null : userAgent.getBrowserType())
-                .operateType(Memberlog.MemberOperateType.APPLYRETURNMEMBERORDERGOODS.getOname())
-                .build();
-        sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
-
-        Map<String, Object> rsMap = Maps.newHashMap();
-        rsMap.put("data", TimeTest.toDateTimeFormat(new Timestamp(System.currentTimeMillis())));
-
-        return MessagePacket.newSuccess(rsMap, "applyReturnMemberOrderGoods success!");
-    }
 
     /**
-     * 申请订单商品退货
+     * 申请订单退单
      *
      * @param request
      * @return

@@ -138,6 +138,7 @@ public class ApiGoodsShopController extends ApiBaseController {
             String collectID = collectService.getCollectByObjectIDAndMemberID(goodsShopID, memberID);
             if (StringUtils.isNotBlank(collectID)) {
                 goodsShopDetailDto.setIsCollect(1);
+                goodsShopDetailDto.setCollectID(collectID);
             }
         }
         Map<String, Object> rsMap = Maps.newHashMap();

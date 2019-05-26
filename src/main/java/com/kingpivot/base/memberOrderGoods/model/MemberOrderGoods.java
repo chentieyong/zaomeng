@@ -63,7 +63,7 @@ public class MemberOrderGoods extends BaseModel<String> {
     @Column(name = "isReturn", columnDefinition = "int default 0")
     private Integer isReturn = 0;//是否支持退货
     @Column(name = "status", columnDefinition = "int default 1")
-    private Integer status = 1;//状态，1新，2申请退货，3已退货，4已付款，5已发货
+    private Integer status = 1;//状态，1新，2申请退货，3已退货，4已付款
 
     @Override
     public String getId() {
