@@ -96,7 +96,7 @@ public class ApiThirdNotifyController extends ApiBaseController {
                         memberOrderGoodsService.save(memberOrderGoods);
                     }
                     //发送支付成功消息队列
-                    sendMessageService.sendZmPaySuccessMessage(memberOrder.getMemberID());
+                    sendMessageService.sendZmPaySuccessMessage(memberOrder.getId());
                 }
                 //支付成功
                 resXml = "<xml>" + "<return_code><![CDATA[SUCCESS]]></return_code>"
@@ -154,7 +154,7 @@ public class ApiThirdNotifyController extends ApiBaseController {
                         memberOrderGoodsService.save(memberOrderGoods);
                     }
                     //发送支付成功消息队列
-                    sendMessageService.sendZmPaySuccessMessage(memberOrder.getMemberID());
+                    sendMessageService.sendZmPaySuccessMessage(memberOrder.getId());
                 }
 
                 return "success";
