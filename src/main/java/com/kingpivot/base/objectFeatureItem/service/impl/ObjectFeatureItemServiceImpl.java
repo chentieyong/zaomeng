@@ -32,4 +32,9 @@ public class ObjectFeatureItemServiceImpl extends BaseServiceImpl<ObjectFeatureI
     public Object[] getFeatureItemList(String objectID, String featureDefineID) {
         return objectFeatureItemDao.getFeatureItemList(objectID, featureDefineID);
     }
+
+    @Override
+    public Object getDefaultFeatureItem(String objectID) {
+        return objectFeatureItemDao.getDefaultFeatureItem(objectID);
+    }
 }

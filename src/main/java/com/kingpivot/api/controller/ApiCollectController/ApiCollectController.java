@@ -12,6 +12,8 @@ import com.kingpivot.base.goodsShop.service.GoodsShopService;
 import com.kingpivot.base.member.model.Member;
 import com.kingpivot.base.memberRank.service.MemberRankService;
 import com.kingpivot.base.memberlog.model.Memberlog;
+import com.kingpivot.base.objectFeatureData.service.ObjectFeatureDataService;
+import com.kingpivot.base.objectFeatureItem.service.ObjectFeatureItemService;
 import com.kingpivot.base.support.MemberLogDTO;
 import com.kingpivot.common.jms.SendMessageService;
 import com.kingpivot.common.jms.dto.memberLog.MemberLogRequestBase;
@@ -54,9 +56,11 @@ public class ApiCollectController extends ApiBaseController {
     @Autowired
     private GoodsShopService goodsShopService;
     @Autowired
-    private MemberRankService memberRankService;
-    @Autowired
     private CollectService collectService;
+    @Autowired
+    private ObjectFeatureItemService objectFeatureItemService;
+    @Autowired
+    private ObjectFeatureDataService objectFeatureDataService;
 
     @ApiOperation(value = "加入收藏", notes = "加入收藏")
     @ApiImplicitParams({
@@ -239,6 +243,17 @@ public class ApiCollectController extends ApiBaseController {
                                 collectGoodsShopListDto.setShowPrice(goodsShop.getRealPrice());
                                 collectGoodsShopListDto.setStockNumber(goodsShop.getStockNumber());
                                 collectGoodsShopListDto.setStockOut(goodsShop.getStockOut());
+                                collectGoodsShopListDto.setUnitDescription(goodsShop.getUnitDescription());
+
+                                Object itemOjb = objectFeatureItemService.getDefaultFeatureItem(goodsShop.getId());
+                                if (itemOjb != null) {
+                                    Object[] obj = (Object[]) itemOjb;
+                                    if (obj != null) {
+                                        collectGoodsShopListDto.setUnitDescription((String) obj[0]);
+                                        collectGoodsShopListDto.setObjectFeatureItemID1((String) obj[1]);
+                                        collectGoodsShopListDto.setShowPrice(objectFeatureDataService.getObjectFetureData(goodsShop.getId(), (String) obj[1]));
+                                    }
+                                }
                                 goodsShopList.add(collectGoodsShopListDto);
                             }
                         }

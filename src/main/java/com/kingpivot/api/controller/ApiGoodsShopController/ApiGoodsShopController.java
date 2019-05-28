@@ -13,6 +13,8 @@ import com.kingpivot.base.member.service.MemberService;
 import com.kingpivot.base.memberRank.service.MemberRankService;
 import com.kingpivot.base.memberSearch.model.MemberSearch;
 import com.kingpivot.base.memberSearch.service.MemberSearchService;
+import com.kingpivot.base.objectFeatureData.service.ObjectFeatureDataService;
+import com.kingpivot.base.objectFeatureItem.service.ObjectFeatureItemService;
 import com.kingpivot.common.jms.SendMessageService;
 import com.kingpivot.common.util.Constants;
 import com.kingpivot.common.utils.ApiPageUtil;
@@ -55,6 +57,10 @@ public class ApiGoodsShopController extends ApiBaseController {
     private MemberSearchService memberSearchService;
     @Autowired
     private CollectService collectService;
+    @Autowired
+    private ObjectFeatureItemService objectFeatureItemService;
+    @Autowired
+    private ObjectFeatureDataService objectFeatureDataService;
 
     @ApiOperation(value = "获取商品列表", notes = "获取商品列表")
     @ApiImplicitParams({
@@ -75,7 +81,7 @@ public class ApiGoodsShopController extends ApiBaseController {
         if (StringUtils.isNotBlank(goodsCategoryID)) {
             paramMap.put("goodsCategoryID", goodsCategoryID);
         }
-        if(StringUtils.isNotBlank(keyWords)){
+        if (StringUtils.isNotBlank(keyWords)) {
             paramMap.put("name:like", keyWords);
         }
         paramMap.put("publishStatus", 3);
@@ -95,6 +101,17 @@ public class ApiGoodsShopController extends ApiBaseController {
         List<GoodsShopListDto> list = null;
         if (rs != null && rs.getSize() != 0) {
             list = BeanMapper.mapList(rs.getContent(), GoodsShopListDto.class);
+            for (GoodsShopListDto goodsShop : list) {
+                Object itemOjb = objectFeatureItemService.getDefaultFeatureItem(goodsShop.getId());
+                if (itemOjb != null) {
+                    Object[] obj = (Object[]) itemOjb;
+                    if (obj != null) {
+                        goodsShop.setUnitDescription((String) obj[0]);
+                        goodsShop.setObjectFeatureItemID1((String) obj[1]);
+                        goodsShop.setRealPrice(objectFeatureDataService.getObjectFetureData(goodsShop.getId(), (String) obj[1]));
+                    }
+                }
+            }
             page.setTotalSize((int) rs.getTotalElements());
         }
 

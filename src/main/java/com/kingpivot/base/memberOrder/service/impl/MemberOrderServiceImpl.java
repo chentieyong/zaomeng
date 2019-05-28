@@ -63,12 +63,9 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
                                     String memberBonusID) {
         double price = 0d;
         if (StringUtils.isNotBlank(objectFeatureItemID1)) {
-            Object[] objectFeatureDataDto = objectFeatureDataDao.getObjectFetureData(goodsShop.getId(), objectFeatureItemID1);
-            if (objectFeatureDataDto != null && objectFeatureDataDto.length != 0) {
-                Double val = (Double) objectFeatureDataDto[0];
-                if (val != null && val != 0) {
-                    price = val;
-                }
+            double val = objectFeatureDataDao.getObjectFetureData(goodsShop.getId(), objectFeatureItemID1);
+            if (val != 0) {
+                price = val;
             }
         }
 
@@ -209,8 +206,8 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
             memberOrderGoods.setDiscountRate(rate);
             memberOrderGoods.setPriceStand(cartGoods.getStandPrice());
             memberOrderGoods.setPriceStandTotal(cartGoods.getStandPriceTotal());
-            memberOrderGoods.setPriceNow(NumberUtils.keepPrecision(cartGoods.getPriceNow() * rate,2));
-            memberOrderGoods.setPriceTotal(NumberUtils.keepPrecision(cartGoods.getPriceTotal() * rate,2));
+            memberOrderGoods.setPriceNow(NumberUtils.keepPrecision(cartGoods.getPriceNow() * rate, 2));
+            memberOrderGoods.setPriceTotal(NumberUtils.keepPrecision(cartGoods.getPriceTotal() * rate, 2));
             memberOrderGoods.setObjectFeatureItemID1(cartGoods.getObjectFeatureItemID1());
             memberOrderGoods.setQTY(cartGoods.getQty());
             memberOrderGoods.setCreatedTime(new Timestamp(System.currentTimeMillis()));

@@ -7,6 +7,8 @@ public class ReleaseGoodsShopListDto {
     private double showPrice = 0.0d;//显示价格
     private Float stockNumber = 0.00f;//当前库存
     private Float stockOut = 0.00f;//销售总数
+    private String unitDescription;
+    private String objectFeatureItemID1;
 
     public String getObjectID() {
         return objectID;
@@ -54,5 +56,21 @@ public class ReleaseGoodsShopListDto {
 
     public void setStockOut(Float stockOut) {
         this.stockOut = stockOut;
+    }
+
+    public String getUnitDescription() {
+        return unitDescription;
+    }
+
+    public void setUnitDescription(String unitDescription) {
+        this.unitDescription = unitDescription;
+    }
+
+    public String getObjectFeatureItemID1() {
+        return objectFeatureItemID1;
+    }
+
+    public void setObjectFeatureItemID1(String objectFeatureItemID1) {
+        this.objectFeatureItemID1 = objectFeatureItemID1;
     }
 }

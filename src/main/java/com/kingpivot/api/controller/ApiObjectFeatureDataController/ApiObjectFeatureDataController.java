@@ -33,16 +33,16 @@ public class ApiObjectFeatureDataController extends ApiBaseController {
     public MessagePacket getObjectFeatureData(HttpServletRequest request) {
         String objectID = request.getParameter("objectID");
         String objectFeatureItemID1 = request.getParameter("objectFeatureItemID1");
-        if(StringUtils.isEmpty(objectID)){
+        if (StringUtils.isEmpty(objectID)) {
             return MessagePacket.newFail(MessageHeader.Code.objectIdIsNull, "objectID不能为空");
         }
         if (StringUtils.isEmpty(objectFeatureItemID1)) {
             return MessagePacket.newFail(MessageHeader.Code.objectFeatureItemID1IsNull, "objectFeatureItemID1不能为空");
         }
-        Object[] objectFeatureDataDto = objectFeatureDataService.getObjectFetureData(objectID, objectFeatureItemID1);
+        double val = objectFeatureDataService.getObjectFetureData(objectID, objectFeatureItemID1);
         ApiObjectFeatureDataDto apiObjectFeatureDataDto = new ApiObjectFeatureDataDto();
-        if(objectFeatureDataDto!=null&&objectFeatureDataDto.length!=0){
-            apiObjectFeatureDataDto.setShowPrice((Double) objectFeatureDataDto[0]);
+        if (val != 0) {
+            apiObjectFeatureDataDto.setShowPrice(val);
         }
         Map<String, Object> rsMap = Maps.newHashMap();
         rsMap.put("data", apiObjectFeatureDataDto);

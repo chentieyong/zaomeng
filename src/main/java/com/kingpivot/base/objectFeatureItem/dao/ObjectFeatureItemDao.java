@@ -19,4 +19,7 @@ public interface ObjectFeatureItemDao extends BaseDao<ObjectFeatureItem, String>
 
     @Query(value = "SELECT name,id,listImage,faceImage FROM objectFeatureItem WHERE objectID=?1 AND isValid=1 AND isLock=0 AND featureDefineID=?2", nativeQuery = true)
     Object[] getFeatureItemList(String objectID, String featureDefineID);
+
+    @Query(value = "SELECT `name`,id FROM objectFeatureItem WHERE objectID=?1 AND isValid=1 AND isLock=0 LIMIT 1", nativeQuery = true)
+    Object getDefaultFeatureItem(String objectID);
 }

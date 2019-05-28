@@ -5,5 +5,5 @@ import com.kingpivot.common.service.BaseService;
 
 public interface ObjectFeatureDataService extends BaseService<ObjectFeatureData, String> {
 
-    Object[] getObjectFetureData(String objectID,String objectFeatureItemID1);
+    double getObjectFetureData(String objectID,String objectFeatureItemID1);
 }

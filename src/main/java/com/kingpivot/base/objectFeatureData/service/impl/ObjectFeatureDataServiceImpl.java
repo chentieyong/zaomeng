@@ -25,7 +25,11 @@ public class ObjectFeatureDataServiceImpl extends BaseServiceImpl<ObjectFeatureD
     }
 
     @Override
-    public Object[] getObjectFetureData(String objectID, String objectFeatureItemID1) {
-        return objectFeatureDataDao.getObjectFetureData(objectID, objectFeatureItemID1);
+    public double getObjectFetureData(String objectID, String objectFeatureItemID1) {
+        Double val = objectFeatureDataDao.getObjectFetureData(objectID, objectFeatureItemID1);
+        if (val == null) {
+            return 0;
+        }
+        return val.doubleValue();
     }
 }

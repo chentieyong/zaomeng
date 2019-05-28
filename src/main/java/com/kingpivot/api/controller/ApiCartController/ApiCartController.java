@@ -119,12 +119,9 @@ public class ApiCartController extends ApiBaseController {
         double price = goodsShop.getRealPrice();
 
         if (StringUtils.isNotBlank(objectFeatureItemID1)) {
-            Object[] objectFeatureDataDto = objectFeatureDataService.getObjectFetureData(goodsShopID, objectFeatureItemID1);
-            if (objectFeatureDataDto != null && objectFeatureDataDto.length != 0) {
-                Double val = (Double) objectFeatureDataDto[0];
-                if (val != null && val != 0) {
-                    price = val;
-                }
+            double val = objectFeatureDataService.getObjectFetureData(goodsShopID, objectFeatureItemID1);
+            if (val != 0) {
+                price = val;
             }
         }
 

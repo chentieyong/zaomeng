@@ -10,4 +10,6 @@ public interface ObjectFeatureItemService extends BaseService<ObjectFeatureItem,
     Object[] getFeatureItemDefineList(String objectID);
 
     Object[] getFeatureItemList(String objectID, String featureDefineID);
+
+    Object getDefaultFeatureItem(String objectID);
 }
