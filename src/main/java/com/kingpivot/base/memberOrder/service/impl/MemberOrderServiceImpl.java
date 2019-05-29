@@ -215,7 +215,7 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
             memberOrderGoods.setPriceReturn(memberOrderGoods.getPriceNow());//退款金额
             if (memberOrder.getBonusAmount() != null && memberOrder.getBonusAmount() != 0) {
                 double priceTotalReturn = memberOrderGoods.getPriceTotal() / priceTotal * memberOrder.getBonusAmount();
-                memberOrderGoods.setPriceTotalReturn(NumberUtils.keepPrecision(memberOrderGoods.getPriceReturn() -
+                memberOrderGoods.setPriceTotalReturn(NumberUtils.keepPrecision(memberOrderGoods.getPriceTotalReturn() -
                         priceTotalReturn, 2));
                 memberOrderGoods.setPriceReturn(NumberUtils.keepPrecision(memberOrderGoods.getPriceTotal() /
                         memberOrderGoods.getQTY(), 2));
