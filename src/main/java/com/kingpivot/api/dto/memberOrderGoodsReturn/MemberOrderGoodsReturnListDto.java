@@ -10,6 +10,7 @@ import java.sql.Timestamp;
 public class MemberOrderGoodsReturnListDto {
     private String id;
     private String memo;
+    private String description;//退款说明
     private String returnCode;//退货单号
     private String goodsShopName;
     private String littleImage;//小图
@@ -38,6 +39,14 @@ public class MemberOrderGoodsReturnListDto {
 
     public void setMemo(String memo) {
         this.memo = memo;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getReturnCode() {
