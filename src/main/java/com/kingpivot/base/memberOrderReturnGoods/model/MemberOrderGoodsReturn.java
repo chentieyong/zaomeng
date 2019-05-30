@@ -52,6 +52,8 @@ public class MemberOrderGoodsReturn extends BaseModel<String> {
     private Integer qty = 0;//退货数量
     @Column(name = "status", columnDefinition = "int default 1")
     private Integer status = 1;//状态，1新，2已退货，3已拒绝
+    @Column(length = 100)
+    private String memo;//审核说明
 
     @Override
     public String getId() {
@@ -188,5 +190,13 @@ public class MemberOrderGoodsReturn extends BaseModel<String> {
 
     public void setQty(Integer qty) {
         this.qty = qty;
+    }
+
+    public String getMemo() {
+        return memo;
+    }
+
+    public void setMemo(String memo) {
+        this.memo = memo;
     }
 }

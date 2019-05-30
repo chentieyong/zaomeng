@@ -40,6 +40,7 @@ public class MemberOrderGoodsReturnServiceImpl extends BaseServiceImpl<MemberOrd
         memberOrderGoodsDao.save(memberOrderGoods);
         MemberOrderGoodsReturn memberOrderGoodsReturn = new MemberOrderGoodsReturn();
         memberOrderGoodsReturn.setName(String.format("%s申请退货", memberOrderGoods.getName()));
+        memberOrderGoodsReturn.setMemo("您的退款已申请成功，待客服审核中。");
         memberOrderGoodsReturn.setMemberOrderGoodsID(memberOrderGoods.getId());
         memberOrderGoodsReturn.setMemberID(member.getId());
         memberOrderGoodsReturn.setApplicationID(member.getApplicationID());
