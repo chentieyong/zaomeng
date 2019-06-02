@@ -97,20 +97,24 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
         String memberPaymentID = kingBase.addMemberPayment(member, Config.MEMBERORDER_OBJECTDEFINEID, memberOrder.getPriceAfterDiscount());
         memberOrder.setMemberPaymentID(memberPaymentID);
 
+        MemberBonus memberBonus = null;
         if (StringUtils.isNotBlank(memberBonusID)) {
-            MemberBonus memberBonus = memberBonusDao.findOne(memberBonusID);
+            memberBonus = memberBonusDao.findOne(memberBonusID);
             if (memberBonus != null) {
                 memberOrder.setBonusAmount(memberBonus.getAmount());//红包金额
                 memberOrder.setPriceAfterDiscount(NumberUtils.keepPrecision(memberOrder.getPriceAfterDiscount() - memberBonus.getAmount(), 2));//优惠后金额
-
-                memberBonus.setUseTime(new Timestamp(System.currentTimeMillis()));
-                memberBonus.setMemberOrderID(memberOrder.getId());
-                memberBonusDao.save(memberBonus);
             }
         }
         memberOrder.setCreatedTime(memberOrder.getApplyTime());
         memberOrder.setModifiedTime(memberOrder.getApplyTime());
         memberOrderDao.save(memberOrder);
+
+        if (memberBonus != null) {
+            memberBonus.setStatus(2);
+            memberBonus.setUseTime(new Timestamp(System.currentTimeMillis()));
+            memberBonus.setMemberOrderID(memberOrder.getId());
+            memberBonusDao.save(memberBonus);
+        }
 
         MemberOrderGoods memberOrderGoods = new MemberOrderGoods();
         memberOrderGoods.setGoodsShopID(goodsShop.getId());
@@ -174,15 +178,12 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
         memberOrder.setPriceTotal(NumberUtils.keepPrecision(priceTotal * rate, 2));
         memberOrder.setPriceAfterDiscount(memberOrder.getPriceTotal());//优惠后金额
 
+        MemberBonus memberBonus = null;
         if (StringUtils.isNotBlank(memberBonusID)) {
-            MemberBonus memberBonus = memberBonusDao.findOne(memberBonusID);
+            memberBonus = memberBonusDao.findOne(memberBonusID);
             if (memberBonus != null) {
                 memberOrder.setBonusAmount(memberBonus.getAmount());//红包金额
                 memberOrder.setPriceAfterDiscount(NumberUtils.keepPrecision(memberOrder.getPriceAfterDiscount() - memberBonus.getAmount(), 2));//优惠后金额
-
-                memberBonus.setUseTime(new Timestamp(System.currentTimeMillis()));
-                memberBonus.setMemberOrderID(memberOrder.getId());
-                memberBonusDao.save(memberBonus);
             }
         }
         memberOrder.setDiscountRate(rate);//折扣比例
@@ -196,6 +197,13 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
         memberOrder.setMemberPaymentID(memberPaymentID);
         memberOrder.setModifiedTime(memberOrder.getApplyTime());
         memberOrderDao.save(memberOrder);
+
+        if (memberBonus != null) {
+            memberBonus.setStatus(2);
+            memberBonus.setUseTime(new Timestamp(System.currentTimeMillis()));
+            memberBonus.setMemberOrderID(memberOrder.getId());
+            memberBonusDao.save(memberBonus);
+        }
 
         for (CartGoods cartGoods : cartGoodsList) {
             MemberOrderGoods memberOrderGoods = new MemberOrderGoods();
