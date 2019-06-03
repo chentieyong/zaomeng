@@ -18,4 +18,9 @@ public class MemberSearchServiceImpl extends BaseServiceImpl<MemberSearch, Strin
     public BaseDao<MemberSearch, String> getDAO() {
         return this.memberSearchDao;
     }
+
+    @Override
+    public void deleteMemberSearch(String memberID) {
+        memberSearchDao.deleteMemberSearch(memberID);
+    }
 }

@@ -8,6 +8,7 @@ import com.kingpivot.common.util.Constants;
 import com.kingpivot.common.utils.ApiPageUtil;
 import com.kingpivot.common.utils.BeanMapper;
 import com.kingpivot.common.utils.TPage;
+import com.kingpivot.common.utils.TimeTest;
 import com.kingpivot.protocol.ApiBaseController;
 import com.kingpivot.protocol.MessageHeader;
 import com.kingpivot.protocol.MessagePacket;
@@ -57,7 +58,7 @@ public class ApiMemberSearchController extends ApiBaseController {
         paramMap.put("memberID", memberID);
 
         List<Sort.Order> orders = new ArrayList<Sort.Order>();
-        orders.add(new Sort.Order(Sort.Direction.ASC, "createdTime"));
+        orders.add(new Sort.Order(Sort.Direction.DESC, "createdTime"));
 
         Object currentPage = request.getParameter("currentPage");
         Object pageNumber = request.getParameter("pageNumber");
@@ -78,5 +79,23 @@ public class ApiMemberSearchController extends ApiBaseController {
         rsMap.put("data", messagePage);
 
         return MessagePacket.newSuccess(rsMap, "getMemberSearchList success!");
+    }
+
+    @ApiOperation(value = "清空会员搜索", notes = "清空会员搜索")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query", name = "memberID", value = "会员id", dataType = "String")})
+    @RequestMapping(value = "/deleteMemberSearch")
+    public MessagePacket deleteMemberSearch(HttpServletRequest request) {
+        String memberID = request.getParameter("memberID");
+        if (StringUtils.isEmpty(memberID)) {
+            return MessagePacket.newFail(MessageHeader.Code.memberIDIsNull, "memberID不能为空");
+        }
+
+        memberSearchService.deleteMemberSearch(memberID);
+
+        Map<String, Object> rsMap = Maps.newHashMap();
+        rsMap.put("data", TimeTest.getTimeStr());
+        return MessagePacket.newSuccess(rsMap, "deleteMemberSearch success!");
+
     }
 }

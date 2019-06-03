@@ -14,6 +14,8 @@ import com.kingpivot.base.memberBonus.service.MemberBonusService;
 import com.kingpivot.base.memberlog.model.Memberlog;
 import com.kingpivot.base.memberstatistics.model.MemberStatistics;
 import com.kingpivot.base.memberstatistics.service.MemberStatisticsService;
+import com.kingpivot.base.rank.model.Rank;
+import com.kingpivot.base.rank.service.RankService;
 import com.kingpivot.base.site.model.Site;
 import com.kingpivot.base.site.service.SiteService;
 import com.kingpivot.base.sms.service.SMSService;
@@ -80,6 +82,8 @@ public class ApiMemberController extends ApiBaseController {
     private MemberStatisticsService memberStatisticsService;
     @Autowired
     private MemberBonusService memberBonusService;
+    @Autowired
+    private RankService rankService;
 
     @ApiOperation(value = "会员登录", notes = "会员登录")
     @ApiImplicitParams({
@@ -584,6 +588,11 @@ public class ApiMemberController extends ApiBaseController {
             return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
         }
 
+        Member newMember = memberService.findById(member.getId());
+        if (newMember == null) {
+            return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "会员统计信息不存在，请联系管理员");
+        }
+
         MemberStatistics memberStatistics = memberStatisticsService.getByMemberId(member.getId());
         if (memberStatistics == null) {
             return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "会员统计信息不存在，请联系管理员");
@@ -591,6 +600,13 @@ public class ApiMemberController extends ApiBaseController {
 
         MemberStatisticsInfoDto data = BeanMapper.map(memberStatistics, MemberStatisticsInfoDto.class);
         data.setMemberBonusNum(memberBonusService.getMemberBonusNum(1, member.getId()));
+        if (StringUtils.isNotBlank(newMember.getRankID())) {
+            Rank rank = rankService.findById(newMember.getRankID());
+            if (rank != null) {
+                data.setRankName(rank.getName());
+                data.setRankUrl(rank.getFaceImage());
+            }
+        }
 
         Map<String, Object> rsMap = Maps.newHashMap();
         rsMap.put("data", data);

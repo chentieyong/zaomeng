@@ -11,6 +11,8 @@ public class MemberStatisticsInfoDto {
     private Double cashBalance = 0d;//现金余额"
     private Double cashTotalRecharge = 0d;//累计充值"
     private int memberBonusNum;
+    private String rankName;
+    private String rankUrl;
 
     public String getId() {
         return id;
@@ -90,5 +92,21 @@ public class MemberStatisticsInfoDto {
 
     public void setMemberBonusNum(int memberBonusNum) {
         this.memberBonusNum = memberBonusNum;
+    }
+
+    public String getRankName() {
+        return rankName;
+    }
+
+    public void setRankName(String rankName) {
+        this.rankName = rankName;
+    }
+
+    public String getRankUrl() {
+        return rankUrl;
+    }
+
+    public void setRankUrl(String rankUrl) {
+        this.rankUrl = rankUrl;
     }
 }
