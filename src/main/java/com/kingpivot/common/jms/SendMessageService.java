@@ -7,5 +7,5 @@ public interface SendMessageService {
 
     void sendZmPaySuccessMessage(String msg);
 
-    void sendZmGetMemberBonusMessage(String msg);
+    void getMemberBonusMessage(String msg);
 }

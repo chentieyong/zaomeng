@@ -21,8 +21,8 @@ public class ActiveMQConfig {
     @Value("${zmPaySuccessQueueName}")
     private String zmPaySuccessQueueName;
 
-    @Value("${zmGetMemberBonusQueueName}")
-    private String zmGetMemberBonusQueueName;
+    @Value("${getMemberBonusQueueName}")
+    private String getMemberBonusQueueName;
 
     @Value("${spring.activemq.user}")
     private String usrName;
@@ -49,8 +49,8 @@ public class ActiveMQConfig {
     }
 
     @Bean
-    public Queue zmGetMemberBonusQueueName() {
-        return new ActiveMQQueue(zmGetMemberBonusQueueName);
+    public Queue getMemberBonusQueueName() {
+        return new ActiveMQQueue(getMemberBonusQueueName);
     }
 
     @Bean

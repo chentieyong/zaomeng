@@ -151,7 +151,7 @@ public class ApiBonusDefineController extends ApiBaseController {
         /**
          * 发送队列生成红包
          */
-        sendMessageService.sendZmGetMemberBonusMessage(JacksonHelper.toJson(new GetMemberBonusDto(member.getId(), bonusDefineID)));
+        sendMessageService.getMemberBonusMessage(JacksonHelper.toJson(new GetMemberBonusDto(member.getId(), bonusDefineID)));
 
         String description = String.format("%s会员领红包", member.getName());
 
