@@ -98,6 +98,9 @@ public class ApiMessageController extends ApiBaseController {
         if (rs != null && rs.getSize() != 0) {
             list = BeanMapper.mapList(rs.getContent(), ApiMessageListDto.class);
             page.setTotalSize((int) rs.getTotalElements());
+
+            //阅读所有消息
+            messageService.readAllMessage(member.getId(), messageType);
         }
 
         String description = String.format("%s获取我的消息列表", member.getName());

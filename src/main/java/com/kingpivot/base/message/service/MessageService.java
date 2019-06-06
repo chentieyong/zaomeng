@@ -6,4 +6,5 @@ import com.kingpivot.common.service.BaseService;
 public interface MessageService extends BaseService<Message, String> {
     int getNoReadMessageNum(String memberID);
 
+    void readAllMessage(String receiverID, String messageType);
 }

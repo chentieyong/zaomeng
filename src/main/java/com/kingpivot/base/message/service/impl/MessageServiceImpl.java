@@ -24,4 +24,9 @@ public class MessageServiceImpl extends BaseServiceImpl<Message, String> impleme
     public int getNoReadMessageNum(String memberID) {
         return messageDao.getNoReadMessageNum(memberID);
     }
+
+    @Override
+    public void readAllMessage(String receiverID, String messageType) {
+        messageDao.readAllMessage(receiverID, messageType);
+    }
 }
