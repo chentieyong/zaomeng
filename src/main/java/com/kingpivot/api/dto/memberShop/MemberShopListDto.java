@@ -1,6 +1,8 @@
 package com.kingpivot.api.dto.memberShop;
 
+import com.kingpivot.base.category.model.Category;
 import com.kingpivot.common.utils.TimeTest;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.sql.Timestamp;
 
@@ -8,6 +10,9 @@ public class MemberShopListDto {
     private String id;//主键
     private String memberID;
     private String shopCategoryID;
+    private String shopCategoryName;
+    @JsonIgnore
+    private Category shopCategory;
     private String applicationID;
     private String name;//名称
     private Integer shopType = 0;//店铺类型: 0= 实体店铺,1= 个人微店,2=个人网店,3=O2O店铺
@@ -46,6 +51,25 @@ public class MemberShopListDto {
 
     public void setShopCategoryID(String shopCategoryID) {
         this.shopCategoryID = shopCategoryID;
+    }
+
+    public String getShopCategoryName() {
+        return shopCategoryName;
+    }
+
+    public void setShopCategoryName(String shopCategoryName) {
+        this.shopCategoryName = shopCategoryName;
+    }
+
+    public Category getShopCategory() {
+        return shopCategory;
+    }
+
+    public void setShopCategory(Category shopCategory) {
+        this.shopCategory = shopCategory;
+        if (shopCategory != null) {
+            this.shopCategoryName = shopCategory.getName();
+        }
     }
 
     public String getApplicationID() {
@@ -158,7 +182,7 @@ public class MemberShopListDto {
 
     public void setVerifyDate(Timestamp verifyDate) {
         this.verifyDate = verifyDate;
-        if(verifyDate!=null){
+        if (verifyDate != null) {
             this.verifyDateStr = TimeTest.toDateTimeFormat(verifyDate);
         }
     }

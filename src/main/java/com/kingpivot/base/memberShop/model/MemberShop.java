@@ -1,5 +1,6 @@
 package com.kingpivot.base.memberShop.model;
 
+import com.kingpivot.base.category.model.Category;
 import com.kingpivot.base.member.model.Member;
 import com.kingpivot.common.model.BaseModel;
 import org.hibernate.annotations.GenericGenerator;
@@ -18,6 +19,9 @@ public class MemberShop extends BaseModel<String> {
     private String memberID;
     @Column(length = 36)
     private String shopCategoryID;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "shopCategoryID", insertable = false, updatable = false)  //不能保存和修改
+    private Category shopCategory;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "memberID", insertable = false, updatable = false)  //不能保存和修改
     private Member member;
@@ -71,6 +75,14 @@ public class MemberShop extends BaseModel<String> {
 
     public void setShopCategoryID(String shopCategoryID) {
         this.shopCategoryID = shopCategoryID;
+    }
+
+    public Category getShopCategory() {
+        return shopCategory;
+    }
+
+    public void setShopCategory(Category shopCategory) {
+        this.shopCategory = shopCategory;
     }
 
     public String getApplicationID() {
