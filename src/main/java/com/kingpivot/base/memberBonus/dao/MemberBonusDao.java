@@ -16,7 +16,7 @@ import javax.persistence.Table;
 public interface MemberBonusDao extends BaseDao<MemberBonus, String> {
 
     @Transactional
-    @Query(value = "UPDATE memberbonus SET memberOrderID=NULL,useTime=NULL WHERE memberOrderID=?1 AND isValid=1 AND isLock=0", nativeQuery = true)
+    @Query(value = "UPDATE memberbonus SET memberOrderID=NULL,useTime=NULL,`status`=1 WHERE memberOrderID=?1 AND isValid=1 AND isLock=0", nativeQuery = true)
     @Modifying
     void initMemberBonusByMemberOrderID(String memberOrderID);
 

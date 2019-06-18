@@ -1,6 +1,6 @@
 package com.kingpivot.api.dto.release;
 
-public class ReleaseGoodsShopListDto {
+public class ReleaseGoodsShopListDto implements Comparable<ReleaseGoodsShopListDto> {
     private String objectID;
     private String objectName;
     private String listImage;
@@ -72,5 +72,16 @@ public class ReleaseGoodsShopListDto {
 
     public void setObjectFeatureItemID1(String objectFeatureItemID1) {
         this.objectFeatureItemID1 = objectFeatureItemID1;
+    }
+
+    @Override
+    public int compareTo(ReleaseGoodsShopListDto o) {
+        if (this.getStockOut() > o.getStockOut()) {
+            return -1;
+        } else if (this.stockOut < o.getStockOut()) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
 }

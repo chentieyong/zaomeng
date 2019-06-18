@@ -35,10 +35,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RequestMapping("/api")
 @RestController
@@ -129,6 +126,7 @@ public class ApiReleaseController extends ApiBaseController {
                             }
                         }
                     }
+                    Collections.sort(goodsShopList);
                     messagePage = new MessagePage(page, goodsShopList);
                     break;
                 case Config.ARTICLE_OBJECTDEFINEID://文章

@@ -99,8 +99,9 @@ public class ApiThirdNotifyController extends ApiBaseController {
                         memberOrderGoods.setStatus(4);
                         memberOrderGoodsService.save(memberOrderGoods);
 
+                        GoodsShop goodsShop = null;
                         if (memberOrderGoods.getGoodsShop() != null) {
-                            GoodsShop goodsShop = memberOrderGoods.getGoodsShop();
+                            goodsShop = memberOrderGoods.getGoodsShop();
                             goodsShop.setStockOut(goodsShop.getStockOut() == null ? memberOrderGoods.getQTY() : memberOrderGoods.getQTY() + goodsShop.getStockOut());
                             goodsShop.setStockNumber(goodsShop.getStockNumber() == null ? 0 : goodsShop.getStockNumber() - memberOrderGoods.getQTY());
                             goodsShopService.save(goodsShop);
@@ -163,6 +164,14 @@ public class ApiThirdNotifyController extends ApiBaseController {
                     for (MemberOrderGoods memberOrderGoods : memberOrderGoodsList) {
                         memberOrderGoods.setStatus(4);
                         memberOrderGoodsService.save(memberOrderGoods);
+
+                        GoodsShop goodsShop = null;
+                        if (memberOrderGoods.getGoodsShop() != null) {
+                            goodsShop = memberOrderGoods.getGoodsShop();
+                            goodsShop.setStockOut(goodsShop.getStockOut() == null ? memberOrderGoods.getQTY() : memberOrderGoods.getQTY() + goodsShop.getStockOut());
+                            goodsShop.setStockNumber(goodsShop.getStockNumber() == null ? 0 : goodsShop.getStockNumber() - memberOrderGoods.getQTY());
+                            goodsShopService.save(goodsShop);
+                        }
                     }
                     //发送支付成功消息队列
                     sendMessageService.sendZmPaySuccessMessage(memberOrder.getId());
