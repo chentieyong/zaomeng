@@ -88,7 +88,7 @@ public class ApiReleaseController extends ApiBaseController {
 
         TPage page = ApiPageUtil.makePage(currentPage, pageNumber);
 
-        Pageable pageable = new PageRequest(page.getStart(), page.getPageSize(), new Sort(orders));
+        Pageable pageable = new PageRequest(page.getOffset(), page.getPageSize(), new Sort(orders));
 
         Page<Release> rs = releaseService.list(paramMap, pageable);
         Map<String, Object> rsMap = Maps.newHashMap();
@@ -104,25 +104,27 @@ public class ApiReleaseController extends ApiBaseController {
                         if (StringUtils.isNotBlank(release.getObjectID())) {
                             goodsShop = goodsShopService.findById(release.getObjectID());
                             if (goodsShop != null) {
-                                releaseGoodsShopListDto = new ReleaseGoodsShopListDto();
-                                releaseGoodsShopListDto.setObjectID(goodsShop.getId());
-                                releaseGoodsShopListDto.setObjectName(goodsShop.getName());
-                                releaseGoodsShopListDto.setListImage(goodsShop.getLittleImage());
-                                releaseGoodsShopListDto.setShowPrice(goodsShop.getRealPrice());
-                                releaseGoodsShopListDto.setStockNumber(goodsShop.getStockNumber());
-                                releaseGoodsShopListDto.setStockOut(goodsShop.getStockOut());
-                                releaseGoodsShopListDto.setUnitDescription(goodsShop.getUnitDescription());
+                                if (goodsShop.getPublishStatus() != null && goodsShop.getPublishStatus().intValue() == 3) {
+                                    releaseGoodsShopListDto = new ReleaseGoodsShopListDto();
+                                    releaseGoodsShopListDto.setObjectID(goodsShop.getId());
+                                    releaseGoodsShopListDto.setObjectName(goodsShop.getName());
+                                    releaseGoodsShopListDto.setListImage(goodsShop.getLittleImage());
+                                    releaseGoodsShopListDto.setShowPrice(goodsShop.getRealPrice());
+                                    releaseGoodsShopListDto.setStockNumber(goodsShop.getStockNumber());
+                                    releaseGoodsShopListDto.setStockOut(goodsShop.getStockOut());
+                                    releaseGoodsShopListDto.setUnitDescription(goodsShop.getUnitDescription());
 
-                                Object itemOjb = objectFeatureItemService.getDefaultFeatureItem(goodsShop.getId());
-                                if (itemOjb != null) {
-                                    Object[] obj = (Object[]) itemOjb;
-                                    if (obj != null) {
-                                        releaseGoodsShopListDto.setUnitDescription((String) obj[0]);
-                                        releaseGoodsShopListDto.setObjectFeatureItemID1((String) obj[1]);
-                                        releaseGoodsShopListDto.setShowPrice(objectFeatureDataService.getObjectFetureData(goodsShop.getId(), (String) obj[1]));
+                                    Object itemOjb = objectFeatureItemService.getDefaultFeatureItem(goodsShop.getId());
+                                    if (itemOjb != null) {
+                                        Object[] obj = (Object[]) itemOjb;
+                                        if (obj != null) {
+                                            releaseGoodsShopListDto.setUnitDescription((String) obj[0]);
+                                            releaseGoodsShopListDto.setObjectFeatureItemID1((String) obj[1]);
+                                            releaseGoodsShopListDto.setShowPrice(objectFeatureDataService.getObjectFetureData(goodsShop.getId(), (String) obj[1]));
+                                        }
                                     }
+                                    goodsShopList.add(releaseGoodsShopListDto);
                                 }
-                                goodsShopList.add(releaseGoodsShopListDto);
                             }
                         }
                     }

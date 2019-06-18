@@ -85,7 +85,7 @@ public class ApiBonusDefineController extends ApiBaseController {
 
         TPage page = ApiPageUtil.makePage(currentPage, pageNumber);
 
-        Pageable pageable = new PageRequest(page.getStart(), page.getPageSize(), new Sort(orders));
+        Pageable pageable = new PageRequest(page.getOffset(), page.getPageSize(), new Sort(orders));
 
         Page<BonusDefine> rs = bonusDefineService.list(paramMap, pageable);
         List<CanGetBonusDefineListDto> list = null;

@@ -384,7 +384,7 @@ public class ApiCartController extends ApiBaseController {
 
         TPage page = ApiPageUtil.makePage(currentPage, pageNumber);
 
-        Pageable pageable = new PageRequest(page.getStart(), page.getPageSize(), new Sort(orders));
+        Pageable pageable = new PageRequest(page.getOffset(), page.getPageSize(), new Sort(orders));
 
         Page<CartGoods> rs = cartGoodsService.list(paramMap, pageable);
 

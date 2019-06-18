@@ -19,6 +19,7 @@ public class ApiPageUtil {
         //构造分页条件对象
         TPage page = new TPage(currentPage, pageNumber);
         page.setCurrentPage(currentPage);
+        page.setOffset(currentPage-1);
         page.setPageSize(pageNumber);
         return page;
     }

@@ -61,7 +61,7 @@ public class ApiFocusController extends ApiBaseController {
 
         TPage page = ApiPageUtil.makePage(currentPage, pageNumber);
 
-        Pageable pageable = new PageRequest(page.getStart(), page.getPageSize(), new Sort(orders));
+        Pageable pageable = new PageRequest(page.getOffset(), page.getPageSize(), new Sort(orders));
 
         Page<FocusPicture> rs = focusPictureService.list(paramMap, pageable);
 

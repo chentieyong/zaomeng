@@ -65,7 +65,7 @@ public class ApiMemberSearchController extends ApiBaseController {
 
         TPage page = ApiPageUtil.makePage(currentPage, pageNumber);
 
-        Pageable pageable = new PageRequest(page.getStart(), page.getPageSize(), new Sort(orders));
+        Pageable pageable = new PageRequest(page.getOffset(), page.getPageSize(), new Sort(orders));
 
         Page<MemberSearch> rs = memberSearchService.list(paramMap, pageable);
 

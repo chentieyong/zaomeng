@@ -18,6 +18,8 @@ public class TPage implements Serializable {
 
     private int totalSize; //总条数
 
+    private int offset = 0;
+
     public static final TPage _DEFAULT = new TPage(0, PAGESIZE_DEFAULT);
 
     public TPage() {
@@ -47,6 +49,14 @@ public class TPage implements Serializable {
             currentPage = CURRENTPAGE_DEFAULT;
         }
         this.currentPage = currentPage;
+    }
+
+    public int getOffset() {
+        return offset;
+    }
+
+    public void setOffset(int offset) {
+        this.offset = offset;
     }
 
     public int getTotalSize() {
