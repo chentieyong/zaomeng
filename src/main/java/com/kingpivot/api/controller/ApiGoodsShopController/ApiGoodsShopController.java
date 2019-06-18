@@ -85,6 +85,7 @@ public class ApiGoodsShopController extends ApiBaseController {
             paramMap.put("name:like", keyWords);
         }
         paramMap.put("publishStatus", 3);
+        paramMap.put("stockNumber:gt", 0);
 
         List<Sort.Order> orders = new ArrayList<Sort.Order>();
         orders.add(new Sort.Order(Sort.Direction.ASC, "orderSeq"));

@@ -139,7 +139,8 @@ public class ApiNavigatorController extends ApiBaseController {
                                 for (Release release : releaseRs.getContent()) {
                                     goodsShop = goodsShopService.findById(release.getObjectID());
                                     if (goodsShop != null) {
-                                        if (goodsShop.getPublishStatus() != null && goodsShop.getPublishStatus().intValue() == 3) {
+                                        if (goodsShop.getPublishStatus() != null && goodsShop.getPublishStatus().intValue() == 3
+                                                && goodsShop.getStockNumber() != null && goodsShop.getStockNumber() > 0) {
                                             releaseGoodsShopListDto = new ReleaseGoodsShopListDto();
                                             releaseGoodsShopListDto.setObjectID(goodsShop.getId());
                                             releaseGoodsShopListDto.setObjectName(goodsShop.getName());
