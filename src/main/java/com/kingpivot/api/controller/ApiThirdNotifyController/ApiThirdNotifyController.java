@@ -1,7 +1,5 @@
 package com.kingpivot.api.controller.ApiThirdNotifyController;
 
-import com.kingpivot.base.goodsShop.model.GoodsShop;
-import com.kingpivot.base.goodsShop.service.GoodsShopService;
 import com.kingpivot.base.memberOrder.model.MemberOrder;
 import com.kingpivot.base.memberOrder.service.MemberOrderService;
 import com.kingpivot.base.memberOrderGoods.model.MemberOrderGoods;
@@ -19,7 +17,6 @@ import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
@@ -42,8 +39,6 @@ public class ApiThirdNotifyController extends ApiBaseController {
     private MemberOrderGoodsService memberOrderGoodsService;
     @Resource
     private SendMessageService sendMessageService;
-    @Autowired
-    private GoodsShopService goodsShopService;
 
     @ApiOperation(value = "微信订单支付回调", notes = "微信订单支付回调")
     @RequestMapping("/weiXinPayMemberOrderNotify")
@@ -98,14 +93,6 @@ public class ApiThirdNotifyController extends ApiBaseController {
                     for (MemberOrderGoods memberOrderGoods : memberOrderGoodsList) {
                         memberOrderGoods.setStatus(4);
                         memberOrderGoodsService.save(memberOrderGoods);
-
-                        GoodsShop goodsShop = null;
-                        if (memberOrderGoods.getGoodsShop() != null) {
-                            goodsShop = memberOrderGoods.getGoodsShop();
-                            goodsShop.setStockOut(memberOrderGoods.getQTY() + goodsShop.getStockOut());
-                            goodsShop.setStockNumber(goodsShop.getStockNumber() - memberOrderGoods.getQTY());
-                            goodsShopService.save(goodsShop);
-                        }
                     }
                     //发送支付成功消息队列
                     sendMessageService.sendZmPaySuccessMessage(memberOrder.getId());
@@ -164,14 +151,6 @@ public class ApiThirdNotifyController extends ApiBaseController {
                     for (MemberOrderGoods memberOrderGoods : memberOrderGoodsList) {
                         memberOrderGoods.setStatus(4);
                         memberOrderGoodsService.save(memberOrderGoods);
-
-                        GoodsShop goodsShop = null;
-                        if (memberOrderGoods.getGoodsShop() != null) {
-                            goodsShop = memberOrderGoods.getGoodsShop();
-                            goodsShop.setStockOut(memberOrderGoods.getQTY() + goodsShop.getStockOut());
-                            goodsShop.setStockNumber(goodsShop.getStockNumber() - memberOrderGoods.getQTY());
-                            goodsShopService.save(goodsShop);
-                        }
                     }
                     //发送支付成功消息队列
                     sendMessageService.sendZmPaySuccessMessage(memberOrder.getId());

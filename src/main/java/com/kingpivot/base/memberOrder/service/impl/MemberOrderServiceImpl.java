@@ -3,6 +3,7 @@ package com.kingpivot.base.memberOrder.service.impl;
 import com.kingpivot.base.cartGoods.dao.CartGoodsDao;
 import com.kingpivot.base.cartGoods.model.CartGoods;
 import com.kingpivot.base.config.Config;
+import com.kingpivot.base.goodsShop.dao.GoodsShopDao;
 import com.kingpivot.base.goodsShop.model.GoodsShop;
 import com.kingpivot.base.member.model.Member;
 import com.kingpivot.base.memberBonus.dao.MemberBonusDao;
@@ -50,6 +51,8 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
     private ObjectFeatureDataDao objectFeatureDataDao;
     @Autowired
     private RankDao rankDao;
+    @Autowired
+    private GoodsShopDao goodsShopDao;
 
     @Override
     public BaseDao<MemberOrder, String> getDAO() {
@@ -135,6 +138,11 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
         memberOrderGoods.setIsReturn(goodsShop.getIsReturn());
         memberOrderGoods.setCreatedTime(new Timestamp(System.currentTimeMillis()));
         memberOrderGoodsService.save(memberOrderGoods);
+
+        goodsShop.setStockOut(qty + goodsShop.getStockOut());
+        goodsShop.setStockNumber(goodsShop.getStockNumber() - qty);
+        goodsShopDao.save(goodsShop);
+
         return memberPaymentID;
     }
 
@@ -204,7 +212,7 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
             memberBonus.setMemberOrderID(memberOrder.getId());
             memberBonusDao.save(memberBonus);
         }
-
+        GoodsShop goodsShop = null;
         for (CartGoods cartGoods : cartGoodsList) {
             MemberOrderGoods memberOrderGoods = new MemberOrderGoods();
             memberOrderGoods.setGoodsShopID(cartGoods.getGoodsShopID());
@@ -230,6 +238,13 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
             }
             memberOrderGoods.setIsReturn(cartGoods.getGoodsShop().getIsReturn());
             memberOrderGoodsService.save(memberOrderGoods);
+
+            if (cartGoods.getGoodsShop() != null) {
+                goodsShop = cartGoods.getGoodsShop();
+                goodsShop.setStockOut(cartGoods.getQty() + goodsShop.getStockOut());
+                goodsShop.setStockNumber(goodsShop.getStockNumber() - cartGoods.getQty());
+                goodsShopDao.save(goodsShop);
+            }
 
             cartGoods.setIsValid(0);
             cartGoods.setModifiedTime(new Timestamp(System.currentTimeMillis()));

@@ -387,6 +387,18 @@ public class ApiMemberOrderController extends ApiBaseController {
         //红包还原
         memberBonusService.initMemberBonusByMemberOrderID(memberOrderID);
 
+        //商品数据库存还原
+        GoodsShop goodsShop = null;
+        List<MemberOrderGoods> memberOrderGoodsList = memberOrderGoodsService.getMemberOrderGoodsByMemberOrderID(memberOrderID);
+        for (MemberOrderGoods memberOrderGoods : memberOrderGoodsList) {
+            if (memberOrderGoods.getGoodsShop() != null) {
+                goodsShop = memberOrderGoods.getGoodsShop();
+                goodsShop.setStockOut(goodsShop.getStockOut() - memberOrderGoods.getQTY());
+                goodsShop.setStockNumber(goodsShop.getStockNumber() + memberOrderGoods.getQTY());
+                goodsShopService.save(goodsShop);
+            }
+        }
+
         String description = String.format("%s取消订单", member.getName());
         UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));
         MemberLogRequestBase base = MemberLogRequestBase.BALANCE()
