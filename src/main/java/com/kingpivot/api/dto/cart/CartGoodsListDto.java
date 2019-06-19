@@ -172,4 +172,20 @@ public class CartGoodsListDto {
     public void setName(String name) {
         this.name = name;
     }
+
+    public int getStockNumber() {
+        return stockNumber;
+    }
+
+    public void setStockNumber(int stockNumber) {
+        this.stockNumber = stockNumber;
+    }
+
+    public int getStockOut() {
+        return stockOut;
+    }
+
+    public void setStockOut(int stockOut) {
+        this.stockOut = stockOut;
+    }
 }
