@@ -102,7 +102,7 @@ public class ApiReleaseController extends ApiBaseController {
                             goodsShop = goodsShopService.findById(release.getObjectID());
                             if (goodsShop != null) {
                                 if (goodsShop.getPublishStatus() != null && goodsShop.getPublishStatus().intValue() == 3
-                                        && goodsShop.getStockNumber() != null && goodsShop.getStockNumber() > 0) {
+                                        && goodsShop.getStockNumber() > 0) {
                                     releaseGoodsShopListDto = new ReleaseGoodsShopListDto();
                                     releaseGoodsShopListDto.setObjectID(goodsShop.getId());
                                     releaseGoodsShopListDto.setObjectName(goodsShop.getName());

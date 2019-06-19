@@ -11,8 +11,8 @@ public class GoodsShopListDto {
     private Double standPrice = 0.00d;//标准价格
     private String priceUnit;//价格单位
     private Double realPrice = 0.0d;//销售价格
-    private Float stockNumber = 0.00f;//当前库存
-    private Float stockOut = 0.00f;//销售总数
+    private int stockNumber = 0;//当前库存
+    private int stockOut = 0;//销售总数
     private Double showPrice = 0.0d;//显示价格
     private String unitDescription;
     private String objectFeatureItemID1;
@@ -98,19 +98,19 @@ public class GoodsShopListDto {
         this.showPrice = realPrice;
     }
 
-    public Float getStockNumber() {
+    public int getStockNumber() {
         return stockNumber;
     }
 
-    public void setStockNumber(Float stockNumber) {
+    public void setStockNumber(int stockNumber) {
         this.stockNumber = stockNumber;
     }
 
-    public Float getStockOut() {
+    public int getStockOut() {
         return stockOut;
     }
 
-    public void setStockOut(Float stockOut) {
+    public void setStockOut(int stockOut) {
         this.stockOut = stockOut;
     }
 

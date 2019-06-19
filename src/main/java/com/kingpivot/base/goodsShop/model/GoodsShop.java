@@ -54,11 +54,11 @@ public class GoodsShop extends BaseModel<String> {
     @Column()
     private Double pointPayMax = 0.00d;//最大积分抵扣金额
     @Column()
-    private Float stockNumber = 0.00f;//当前库存
+    private int stockNumber = 0;//当前库存
     @Column()
     private Float stockIN = 0.00f;//进货总数
     @Column()
-    private Float stockOut = 0.00f;//销售总数
+    private int stockOut = 0;//销售总数
     @Column()
     private Float stockReturn = 0.00f;//退货总数
     @Column(length = 20)
@@ -223,12 +223,20 @@ public class GoodsShop extends BaseModel<String> {
         this.pointPayMax = pointPayMax;
     }
 
-    public Float getStockNumber() {
+    public int getStockNumber() {
         return stockNumber;
     }
 
-    public void setStockNumber(Float stockNumber) {
+    public void setStockNumber(int stockNumber) {
         this.stockNumber = stockNumber;
+    }
+
+    public int getStockOut() {
+        return stockOut;
+    }
+
+    public void setStockOut(int stockOut) {
+        this.stockOut = stockOut;
     }
 
     public Float getStockIN() {
@@ -237,14 +245,6 @@ public class GoodsShop extends BaseModel<String> {
 
     public void setStockIN(Float stockIN) {
         this.stockIN = stockIN;
-    }
-
-    public Float getStockOut() {
-        return stockOut;
-    }
-
-    public void setStockOut(Float stockOut) {
-        this.stockOut = stockOut;
     }
 
     public Float getStockReturn() {

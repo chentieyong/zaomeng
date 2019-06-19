@@ -102,8 +102,8 @@ public class ApiThirdNotifyController extends ApiBaseController {
                         GoodsShop goodsShop = null;
                         if (memberOrderGoods.getGoodsShop() != null) {
                             goodsShop = memberOrderGoods.getGoodsShop();
-                            goodsShop.setStockOut(goodsShop.getStockOut() == null ? memberOrderGoods.getQTY() : memberOrderGoods.getQTY() + goodsShop.getStockOut());
-                            goodsShop.setStockNumber(goodsShop.getStockNumber() == null ? 0 : goodsShop.getStockNumber() - memberOrderGoods.getQTY());
+                            goodsShop.setStockOut(memberOrderGoods.getQTY() + goodsShop.getStockOut());
+                            goodsShop.setStockNumber(goodsShop.getStockNumber() - memberOrderGoods.getQTY());
                             goodsShopService.save(goodsShop);
                         }
                     }
@@ -168,8 +168,8 @@ public class ApiThirdNotifyController extends ApiBaseController {
                         GoodsShop goodsShop = null;
                         if (memberOrderGoods.getGoodsShop() != null) {
                             goodsShop = memberOrderGoods.getGoodsShop();
-                            goodsShop.setStockOut(goodsShop.getStockOut() == null ? memberOrderGoods.getQTY() : memberOrderGoods.getQTY() + goodsShop.getStockOut());
-                            goodsShop.setStockNumber(goodsShop.getStockNumber() == null ? 0 : goodsShop.getStockNumber() - memberOrderGoods.getQTY());
+                            goodsShop.setStockOut(memberOrderGoods.getQTY() + goodsShop.getStockOut());
+                            goodsShop.setStockNumber(goodsShop.getStockNumber() - memberOrderGoods.getQTY());
                             goodsShopService.save(goodsShop);
                         }
                     }

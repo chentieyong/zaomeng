@@ -15,6 +15,10 @@ public class CartGoodsListDto {
 
     private String goodsShopID;//商品店铺ID
 
+    private int stockNumber = 0;//当前库存
+
+    private int stockOut = 0;//销售总数
+
     private Double standPrice = 0.00d;//标准价格
 
     private double discountRate = 0.00d;//折扣比例
@@ -148,6 +152,8 @@ public class CartGoodsListDto {
         this.goodsShop = goodsShop;
         if (goodsShop != null) {
             this.littleImage = goodsShop.getLittleImage();
+            this.stockNumber = goodsShop.getStockNumber();
+            this.stockOut = goodsShop.getStockOut();
         }
     }
 

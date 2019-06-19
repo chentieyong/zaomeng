@@ -5,8 +5,8 @@ public class ReleaseGoodsShopListDto implements Comparable<ReleaseGoodsShopListD
     private String objectName;
     private String listImage;
     private double showPrice = 0.0d;//显示价格
-    private Float stockNumber = 0.00f;//当前库存
-    private Float stockOut = 0.00f;//销售总数
+    private int stockNumber = 0;//当前库存
+    private int stockOut = 0;//销售总数
     private String unitDescription;
     private String objectFeatureItemID1;
 
@@ -42,19 +42,19 @@ public class ReleaseGoodsShopListDto implements Comparable<ReleaseGoodsShopListD
         this.showPrice = showPrice;
     }
 
-    public Float getStockNumber() {
+    public int getStockNumber() {
         return stockNumber;
     }
 
-    public void setStockNumber(Float stockNumber) {
+    public void setStockNumber(int stockNumber) {
         this.stockNumber = stockNumber;
     }
 
-    public Float getStockOut() {
+    public int getStockOut() {
         return stockOut;
     }
 
-    public void setStockOut(Float stockOut) {
+    public void setStockOut(int stockOut) {
         this.stockOut = stockOut;
     }
 
