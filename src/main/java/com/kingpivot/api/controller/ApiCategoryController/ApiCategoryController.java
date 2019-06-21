@@ -126,7 +126,7 @@ public class ApiCategoryController extends ApiBaseController {
 
                             messagePage = ApiPageUtil.makePage("1", "1");
 
-                            messagePageable = new PageRequest(messagePage.getStart(), messagePage.getPageSize(), new Sort(releaseOrders));
+                            messagePageable = new PageRequest(messagePage.getOffset(), messagePage.getPageSize(), new Sort(releaseOrders));
 
                             messageRs = messageService.list(messageParamMap, messagePageable);
 

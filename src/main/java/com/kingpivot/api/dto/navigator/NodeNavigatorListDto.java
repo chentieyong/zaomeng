@@ -1,5 +1,6 @@
 package com.kingpivot.api.dto.navigator;
 
+import com.kingpivot.api.dto.release.ReleaseArticleListDto;
 import com.kingpivot.api.dto.release.ReleaseGoodsShopListDto;
 
 import java.util.List;
@@ -7,11 +8,14 @@ import java.util.List;
 public class NodeNavigatorListDto {
     private String id;
     private String name;
+    private String description;
     private String largeIcon = "";
     private Long orderSeq;
     private String parentID;
     private String samllIcon = "";
+    private String functionUrl;
     private List<ReleaseGoodsShopListDto> goodsList;
+    private List<ReleaseArticleListDto> articleList;
 
     public String getId() {
         return id;
@@ -61,11 +65,35 @@ public class NodeNavigatorListDto {
         this.samllIcon = samllIcon;
     }
 
+    public String getFunctionUrl() {
+        return functionUrl;
+    }
+
+    public void setFunctionUrl(String functionUrl) {
+        this.functionUrl = functionUrl;
+    }
+
     public List<ReleaseGoodsShopListDto> getGoodsList() {
         return goodsList;
     }
 
     public void setGoodsList(List<ReleaseGoodsShopListDto> goodsList) {
         this.goodsList = goodsList;
+    }
+
+    public List<ReleaseArticleListDto> getArticleList() {
+        return articleList;
+    }
+
+    public void setArticleList(List<ReleaseArticleListDto> articleList) {
+        this.articleList = articleList;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

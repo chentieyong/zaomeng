@@ -1,5 +1,9 @@
 package com.kingpivot.api.dto.release;
 
+import com.kingpivot.common.utils.TimeTest;
+
+import java.sql.Timestamp;
+
 public class ReleaseArticleListDto {
     private String id;//主键
 
@@ -14,6 +18,11 @@ public class ReleaseArticleListDto {
     private String listImage;//列表图
 
     private String faceImage;//压题图
+
+    private Timestamp createdTime;//创建时间
+
+    private String createdTimeStr;//创建时间
+
 
     public String getId() {
         return id;
@@ -69,5 +78,22 @@ public class ReleaseArticleListDto {
 
     public void setFaceImage(String faceImage) {
         this.faceImage = faceImage;
+    }
+
+    public Timestamp getCreatedTime() {
+        return createdTime;
+    }
+
+    public void setCreatedTime(Timestamp createdTime) {
+        this.createdTime = createdTime;
+        this.createdTimeStr = TimeTest.toDateFormatMM(createdTime);
+    }
+
+    public String getCreatedTimeStr() {
+        return createdTimeStr;
+    }
+
+    public void setCreatedTimeStr(String createdTimeStr) {
+        this.createdTimeStr = createdTimeStr;
     }
 }

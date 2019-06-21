@@ -2,7 +2,10 @@ package com.kingpivot.api.controller.ApiNavigatorController;
 
 import com.google.common.collect.Maps;
 import com.kingpivot.api.dto.navigator.NodeNavigatorListDto;
+import com.kingpivot.api.dto.release.ReleaseArticleListDto;
 import com.kingpivot.api.dto.release.ReleaseGoodsShopListDto;
+import com.kingpivot.base.article.model.Article;
+import com.kingpivot.base.article.service.ArticleService;
 import com.kingpivot.base.config.Config;
 import com.kingpivot.base.goodsShop.model.GoodsShop;
 import com.kingpivot.base.goodsShop.service.GoodsShopService;
@@ -54,6 +57,8 @@ public class ApiNavigatorController extends ApiBaseController {
     private ObjectFeatureItemService objectFeatureItemService;
     @Autowired
     private ObjectFeatureDataService objectFeatureDataService;
+    @Autowired
+    private ArticleService articleService;
 
     @ApiOperation(value = "获取导航列表", notes = "获取导航列表")
     @ApiImplicitParams({
@@ -123,13 +128,14 @@ public class ApiNavigatorController extends ApiBaseController {
                             releaseOrders.add(new Sort.Order(Sort.Direction.ASC, "orderSeq"));
 
                             releaseParamMap = new HashMap<>();
+                            releaseParamMap.put("navigatorID", nodeNavigatorListDto.getId());
+                            releaseParamMap.put("objectDefineID", Config.GOODSSHOP_OBJECTDEFINEID);
                             releaseParamMap.put("isValid", Constants.ISVALID_YES);
                             releaseParamMap.put("isLock", Constants.ISLOCK_NO);
-                            releaseParamMap.put("navigatorID", nodeNavigatorListDto.getId());
 
                             releasePage = ApiPageUtil.makePage(null, null);
 
-                            releasePageable = new PageRequest(releasePage.getStart(), releasePage.getPageSize(), new Sort(releaseOrders));
+                            releasePageable = new PageRequest(releasePage.getOffset(), releasePage.getPageSize(), new Sort(releaseOrders));
 
                             releaseRs = releaseService.list(releaseParamMap, releasePageable);
                             if (StringUtils.isNotBlank(nodeNavigatorListDto.getId())) {
@@ -162,6 +168,49 @@ public class ApiNavigatorController extends ApiBaseController {
                                 }
                                 Collections.sort(goodsShopList);
                                 nodeNavigatorListDto.setGoodsList(goodsShopList);
+                            }
+                        }
+                        break;
+                    case Config.ARTICLE_OBJECTDEFINEID://文章
+                        List<ReleaseArticleListDto> articleListDtoList = null;
+                        ReleaseArticleListDto releaseArticleListDto = null;
+                        Article article = null;
+                        Map<String, Object> articleReleaseParamMap = null;
+                        TPage articleReleasePage = null;
+                        Pageable articleReleasePageable = null;
+                        Page<Release> articleReleaseRs = null;
+                        for (NodeNavigatorListDto nodeNavigatorListDto : list) {
+                            articleListDtoList = new ArrayList<>();
+                            List<Sort.Order> releaseOrders = new ArrayList<Sort.Order>();
+                            releaseOrders.add(new Sort.Order(Sort.Direction.ASC, "orderSeq"));
+
+                            articleReleaseParamMap = new HashMap<>();
+                            articleReleaseParamMap.put("navigatorID", nodeNavigatorListDto.getId());
+                            articleReleaseParamMap.put("objectDefineID", Config.ARTICLE_OBJECTDEFINEID);
+                            articleReleaseParamMap.put("isValid", Constants.ISVALID_YES);
+                            articleReleaseParamMap.put("isLock", Constants.ISLOCK_NO);
+
+                            articleReleasePage = ApiPageUtil.makePage(null, null);
+
+                            articleReleasePageable = new PageRequest(articleReleasePage.getOffset(), articleReleasePage.getPageSize(), new Sort(releaseOrders));
+
+                            articleReleaseRs = releaseService.list(articleReleaseParamMap, articleReleasePageable);
+                            if (StringUtils.isNotBlank(nodeNavigatorListDto.getId())) {
+                                for (Release release : articleReleaseRs.getContent()) {
+                                    article = articleService.findById(release.getObjectID());
+                                    if (article != null) {
+                                        releaseArticleListDto = new ReleaseArticleListDto();
+                                        releaseArticleListDto.setId(article.getId());
+                                        releaseArticleListDto.setTitle(article.getTitle());
+                                        releaseArticleListDto.setSubTitle(article.getSubTitle());
+                                        releaseArticleListDto.setFaceImage(article.getFaceImage());
+                                        releaseArticleListDto.setListImage(article.getListImage());
+                                        releaseArticleListDto.setDescription(article.getDescription());
+                                        releaseArticleListDto.setAuthor(article.getAuthor());
+                                        articleListDtoList.add(releaseArticleListDto);
+                                    }
+                                }
+                                nodeNavigatorListDto.setArticleList(articleListDtoList);
                             }
                         }
                         break;
