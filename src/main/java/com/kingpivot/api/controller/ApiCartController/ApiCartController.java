@@ -371,27 +371,20 @@ public class ApiCartController extends ApiBaseController {
         if (StringUtils.isEmpty(cartID)) {
             cartID = kingBase.insertCart(member);
         }
-        paramMap.put("cartID", cartID);
-        if (StringUtils.isNotBlank(isSelect)) {
-            paramMap.put("isSelect", Integer.parseInt(isSelect));
+        if (StringUtils.isEmpty(isSelect)) {
+            isSelect = "-1";
         }
 
-        List<Sort.Order> orders = new ArrayList<Sort.Order>();
-        orders.add(new Sort.Order(Sort.Direction.DESC, "createdTime"));
 
-        Object currentPage = request.getParameter("currentPage");
-        Object pageNumber = request.getParameter("pageNumber");
+        TPage page = ApiPageUtil.makePage(null, null);
 
-        TPage page = ApiPageUtil.makePage(currentPage, pageNumber);
 
-        Pageable pageable = new PageRequest(page.getOffset(), page.getPageSize(), new Sort(orders));
-
-        Page<CartGoods> rs = cartGoodsService.list(paramMap, pageable);
+        List<CartGoods> cartGoodsList = cartGoodsService.getCartGoodsListByCartID(cartID, Integer.parseInt(isSelect));
 
         List<CartGoodsListDto> list = null;
-        if (rs != null && rs.getSize() != 0) {
-            list = BeanMapper.mapList(rs.getContent(), CartGoodsListDto.class);
-            page.setTotalSize((int) rs.getTotalElements());
+        if (cartGoodsList != null && cartGoodsList.size() != 0) {
+            list = BeanMapper.mapList(cartGoodsList, CartGoodsListDto.class);
+            page.setTotalSize(cartGoodsList.size());
         }
 
         String description = String.format("%s获取购物车商品", member.getName());

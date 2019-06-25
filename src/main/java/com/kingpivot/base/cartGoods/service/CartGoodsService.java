@@ -11,7 +11,7 @@ import java.util.List;
 public interface CartGoodsService extends BaseService<CartGoods, String> {
     CartGoods getCartGoodsByCartIDAndObjectFeatureItemID(String cartID, String goodsShopID, String objectFeatureItemID1);
 
-    List<CartGoods> getCartGoodsListByCartID(String cartID);
+    List<CartGoods> getCartGoodsListByCartID(String cartID,int isSelect);
 
     Double getPriceTotalByCartID(String cartID);
 }

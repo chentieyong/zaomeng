@@ -191,7 +191,7 @@ public class ApiMemberOrderController extends ApiBaseController {
             return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "购物车为空");
         }
 
-        List<CartGoods> cartGoodsList = cartGoodsService.getCartGoodsListByCartID(cartID);
+        List<CartGoods> cartGoodsList = cartGoodsService.getCartGoodsListByCartID(cartID, 1);
         if (cartGoodsList.isEmpty()) {
             return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "购物车为空");
         }
