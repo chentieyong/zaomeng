@@ -196,7 +196,7 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
         }
         memberOrder.setDiscountRate(rate);//折扣比例
 
-        memberOrder.setContactName(contactPhone);
+        memberOrder.setContactName(contactName);
         memberOrder.setContactPhone(contactPhone);
         memberOrder.setAddress(address);
         memberOrder.setApplyTime(new Timestamp(System.currentTimeMillis()));

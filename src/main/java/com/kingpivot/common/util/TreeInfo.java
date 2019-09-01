@@ -23,6 +23,8 @@ public class TreeInfo implements Serializable, Comparator<TreeInfo> {
 
     private Integer isLeaf;//0-parent,1-child
 
+    private String functionUrl;
+
     private List nodes = new ArrayList();
 
     public TreeInfo() {
@@ -98,6 +100,14 @@ public class TreeInfo implements Serializable, Comparator<TreeInfo> {
 
     public void setNodes(List nodes) {
         this.nodes = nodes;
+    }
+
+    public String getFunctionUrl() {
+        return functionUrl;
+    }
+
+    public void setFunctionUrl(String functionUrl) {
+        this.functionUrl = functionUrl;
     }
 
     @Override

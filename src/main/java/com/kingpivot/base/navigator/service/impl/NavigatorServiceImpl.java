@@ -47,6 +47,7 @@ public class NavigatorServiceImpl extends BaseServiceImpl<Navigator, String> imp
                 treeInfo.setOrderSeq(orderSeq.intValue());
             }
             treeInfo.setIsLeaf((Integer) obj[7]);
+            treeInfo.setFunctionUrl((String) obj[8]);
             treeInfoList.add(treeInfo);
         }
         if (!treeInfoList.isEmpty()) {

@@ -18,6 +18,7 @@ public class GoodsShopDetailDto {
     private Double showPrice = 0.0d;//显示价格
     private int isCollect = 0;//0未收藏，1已收藏
     private String collectID;
+    private String unitDescription;
 
     public String getId() {
         return id;
@@ -153,5 +154,13 @@ public class GoodsShopDetailDto {
 
     public void setCollectID(String collectID) {
         this.collectID = collectID;
+    }
+
+    public String getUnitDescription() {
+        return unitDescription;
+    }
+
+    public void setUnitDescription(String unitDescription) {
+        this.unitDescription = unitDescription;
     }
 }

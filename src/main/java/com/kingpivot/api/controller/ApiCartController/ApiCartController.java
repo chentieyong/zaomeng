@@ -385,6 +385,9 @@ public class ApiCartController extends ApiBaseController {
         if (cartGoodsList != null && cartGoodsList.size() != 0) {
             list = BeanMapper.mapList(cartGoodsList, CartGoodsListDto.class);
             page.setTotalSize(cartGoodsList.size());
+        }else{
+            list = new ArrayList<>();
+            page.setTotalSize(0);
         }
 
         String description = String.format("%s获取购物车商品", member.getName());

@@ -14,7 +14,7 @@ import javax.persistence.Table;
 public interface NavigatorDao extends BaseDao<Navigator, String> {
 
     @Query(value = "SELECT node.id id,node.parentID pId,node.name name,node.samllIcon smallIcon,\n" +
-            "     node.largeIcon largeIcon,node.depth depth,node.orderSeq,node.isLeaf\n" +
+            "     node.largeIcon largeIcon,node.depth depth,node.orderSeq,node.isLeaf,node.functionUrl \n" +
             "     FROM navigator node,navigator parent WHERE parent.id = ?1\n" +
             "     AND parent.isValid = '1' AND node.isValid = '1'\n" +
             "     AND node.depth <= parent.depth+?2 ORDER BY node.orderSeq ASC", nativeQuery = true)
