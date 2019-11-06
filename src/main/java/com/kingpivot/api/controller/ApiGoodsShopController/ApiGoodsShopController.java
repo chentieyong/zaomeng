@@ -71,6 +71,7 @@ public class ApiGoodsShopController extends ApiBaseController {
     @RequestMapping(value = "/getGoodsShopList")
     public MessagePacket getGoodsShopList(HttpServletRequest request) {
         String goodsCategoryID = request.getParameter("goodsCategoryID");
+        String shopID = request.getParameter("shopID");
         String memberID = request.getParameter("memberID");
         String keyWords = request.getParameter("keyWords");
 
@@ -80,6 +81,9 @@ public class ApiGoodsShopController extends ApiBaseController {
 
         if (StringUtils.isNotBlank(goodsCategoryID)) {
             paramMap.put("goodsCategoryID", goodsCategoryID);
+        }
+        if (StringUtils.isNotBlank(shopID)) {
+            paramMap.put("shopID", shopID);
         }
         if (StringUtils.isNotBlank(keyWords)) {
             paramMap.put("name:like", keyWords);

@@ -78,7 +78,7 @@ public class ApiReleaseController extends ApiBaseController {
         paramMap.put("objectDefineID", objectDefineID);
 
         List<Sort.Order> orders = new ArrayList<Sort.Order>();
-        orders.add(new Sort.Order(Sort.Direction.ASC, "orderSeq"));
+        orders.add(new Sort.Order(Sort.Direction.DESC, "createdTime"));
 
         Object currentPage = request.getParameter("currentPage");
         Object pageNumber = request.getParameter("pageNumber");

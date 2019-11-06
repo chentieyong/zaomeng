@@ -86,7 +86,7 @@ public class ReleaseArticleListDto {
 
     public void setCreatedTime(Timestamp createdTime) {
         this.createdTime = createdTime;
-        this.createdTimeStr = TimeTest.toDateFormatMM(createdTime);
+        this.createdTimeStr = TimeTest.toDateFormat(createdTime);
     }
 
     public String getCreatedTimeStr() {
