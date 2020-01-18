@@ -1,6 +1,6 @@
 package com.kingpivot.api.dto.weixin;
 
-import com.xiamen.utils.JacksonHelper;
+import com.kingpivot.common.utils.JacksonHelper;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
