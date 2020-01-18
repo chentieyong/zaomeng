@@ -557,7 +557,7 @@ public class ApiMemberController extends ApiBaseController {
         Map<String, Object> rsMap = Maps.newHashMap();
         rsMap.put("data", BeanMapper.map(member, MemberLoginDto.class));
 
-        if (member != null) {
+        if (StringUtils.isNotBlank(sessionID)) {
             String description = String.format("%s获取会员信息", member.getName());
 
             UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));

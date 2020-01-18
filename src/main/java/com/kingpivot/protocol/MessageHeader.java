@@ -152,6 +152,9 @@ public class MessageHeader implements Serializable {
         messageIdIsError(10075),//消息id不正确
         memberOrderGoodsReturnIDIsNull(10076),//会员订单商品退货id为空
         memberOrderGoodsReturnIDIsError(10077),//会员订单商品退货id不正确
+        weixinurlIsEmpty(10078),
+        publicNoIsEmpty(10079),
+        publicNoIsError(10080),
         ;
         public int code;
 
