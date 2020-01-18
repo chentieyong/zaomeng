@@ -536,37 +536,39 @@ public class ApiMemberController extends ApiBaseController {
     @RequestMapping(value = "/getMemberInfo")
     public MessagePacket getMemberInfo(HttpServletRequest request) {
         String sessionID = request.getParameter("sessionID");
-        if (StringUtils.isEmpty(sessionID)) {
+        String memberID = request.getParameter("memberID");
+        if (StringUtils.isEmpty(sessionID) && StringUtils.isEmpty(memberID)) {
             return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
         }
-        Member member = (Member) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBER_KEY.key, sessionID));
-        if (member == null) {
-            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
-        }
-        MemberLogDTO memberLogDTO = (MemberLogDTO) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBERLOG_KEY.key, sessionID));
-        if (memberLogDTO == null) {
-            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        Member member = null;
+        if (StringUtils.isNotBlank(sessionID)) {
+            member = (Member) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBER_KEY.key, sessionID));
+            if (member == null) {
+                return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+            }
+            memberID = member.getId();
         }
 
-        Member updateMember = memberService.findById(member.getId());
-        if (updateMember == null) {
+        member = memberService.findById(memberID);
+        if (member == null) {
             return MessagePacket.newFail(MessageHeader.Code.memberIDIsNull, "会员不存在");
         }
 
         Map<String, Object> rsMap = Maps.newHashMap();
-        rsMap.put("data", BeanMapper.map(updateMember, MemberLoginDto.class));
+        rsMap.put("data", BeanMapper.map(member, MemberLoginDto.class));
 
-        String description = String.format("%s获取会员信息", member.getName());
+        if (member != null) {
+            String description = String.format("%s获取会员信息", member.getName());
 
-        UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));
-        MemberLogRequestBase base = MemberLogRequestBase.BALANCE()
-                .sessionID(sessionID)
-                .description(description)
-                .userAgent(userAgent == null ? null : userAgent.getBrowserType())
-                .operateType(Memberlog.MemberOperateType.GETMEMBERINFO.getOname())
-                .build();
-
-        sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
+            UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));
+            MemberLogRequestBase base = MemberLogRequestBase.BALANCE()
+                    .sessionID(sessionID)
+                    .description(description)
+                    .userAgent(userAgent == null ? null : userAgent.getBrowserType())
+                    .operateType(Memberlog.MemberOperateType.GETMEMBERINFO.getOname())
+                    .build();
+            sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
+        }
         return MessagePacket.newSuccess(rsMap, "getMemberInfo success!");
     }
 
