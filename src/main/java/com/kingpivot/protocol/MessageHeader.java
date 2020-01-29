@@ -157,6 +157,8 @@ public class MessageHeader implements Serializable {
         publicNoIsError(10080),
         storyIdIsNull(10081),//故事id为空
         storyIdIsError(10082),//故事不存在
+        praiseIDIsNull(10083),//赞id为空
+        praiseIDIsError(10084),//赞不存在
         ;
         public int code;
 

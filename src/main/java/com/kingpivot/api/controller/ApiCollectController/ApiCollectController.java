@@ -84,15 +84,14 @@ public class ApiCollectController extends ApiBaseController {
         }
 
         String objectID = request.getParameter("objectID");
+        if (StringUtils.isEmpty(objectID)) {
+            return MessagePacket.newFail(MessageHeader.Code.objectIdIsNull, "objectID不能为空");
+        }
 
         String collectID = collectService.getCollectByObjectIDAndMemberID(objectID, member.getId());
 
         if (StringUtils.isNotBlank(collectID)) {
             return MessagePacket.newFail(MessageHeader.Code.memberIsCollect, "会员已收藏");
-        }
-
-        if (StringUtils.isEmpty(objectID)) {
-            return MessagePacket.newFail(MessageHeader.Code.objectIdIsNull, "objectID不能为空");
         }
         String objectName = request.getParameter("objectName");
         if (StringUtils.isEmpty(objectName)) {
@@ -112,14 +111,14 @@ public class ApiCollectController extends ApiBaseController {
         collect.setObjectName(objectName);
         collectService.save(collect);
 
-        String description = String.format("%s店铺商品加入购物车", member.getName());
+        String description = String.format("%s收藏%s", member.getName(), objectName);
 
         UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));
         MemberLogRequestBase base = MemberLogRequestBase.BALANCE()
                 .sessionID(sessionID)
                 .description(description)
                 .userAgent(userAgent == null ? null : userAgent.getBrowserType())
-                .operateType(Memberlog.MemberOperateType.ADDGOODSSHOPTOCART.getOname())
+                .operateType(Memberlog.MemberOperateType.ADDCOLLECT.getOname())
                 .build();
 
         sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
@@ -174,7 +173,7 @@ public class ApiCollectController extends ApiBaseController {
         sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
 
         Map<String, Object> rsMap = Maps.newHashMap();
-        rsMap.put("data", TimeTest.getNowDateFormat());
+        rsMap.put("data", TimeTest.getTimeStr());
 
         return MessagePacket.newSuccess(rsMap, "removeCollect success!");
     }

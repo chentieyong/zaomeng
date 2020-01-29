@@ -19,4 +19,9 @@ public class PraiseServiceImpl extends BaseServiceImpl<Praise, String> implement
     public BaseDao<Praise, String> getDAO() {
         return this.praiseDao;
     }
+
+    @Override
+    public String getPraiseByObjectIDAndMemberID(String objectID, String memberID) {
+        return praiseDao.getPraiseByObjectIDAndMemberID(objectID, memberID);
+    }
 }
