@@ -8,4 +8,6 @@ public interface SendMessageService {
     void sendZmPaySuccessMessage(String msg);
 
     void getMemberBonusMessage(String msg);
+
+    void sendAddAttachmentMessage(String msg);
 }

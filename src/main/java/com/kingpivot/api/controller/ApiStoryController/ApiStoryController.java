@@ -1,6 +1,7 @@
 package com.kingpivot.api.controller.ApiStoryController;
 
 import com.google.common.collect.Maps;
+import com.kingpivot.base.config.Config;
 import com.kingpivot.base.config.RedisKey;
 import com.kingpivot.base.config.UserAgent;
 import com.kingpivot.base.member.model.Member;
@@ -9,6 +10,7 @@ import com.kingpivot.base.story.model.Story;
 import com.kingpivot.base.story.service.StoryService;
 import com.kingpivot.base.support.MemberLogDTO;
 import com.kingpivot.common.jms.SendMessageService;
+import com.kingpivot.common.jms.dto.attachment.AddAttachmentDto;
 import com.kingpivot.common.jms.dto.memberLog.MemberLogRequestBase;
 import com.kingpivot.common.utils.JacksonHelper;
 import com.kingpivot.common.utils.TimeTest;
@@ -69,6 +71,7 @@ public class ApiStoryController extends ApiBaseController {
         }
         String isPublish = request.getParameter("isPublish");
         String faceImage = request.getParameter("faceImage");
+        String urls = request.getParameter("urls");
 
         Story story = new Story();
         story.setApplicationID(member.getApplicationID());
@@ -81,8 +84,20 @@ public class ApiStoryController extends ApiBaseController {
             story.setFaceImage(faceImage);
         }
         storyService.save(story);
-        String description = String.format("%s提交一个故事", member.getName());
 
+        if (StringUtils.isNotBlank(urls)) {
+            //新增附件图
+            sendMessageService.sendAddAttachmentMessage(new AddAttachmentDto.Builder()
+                    .objectID(story.getId())
+                    .objectDefineID(Config.STORY_OBJECTDEFINEID)
+                    .objectName(story.getName())
+                    .fileType(1)
+                    .showType(1)
+                    .urls(urls)
+                    .build().toString());
+        }
+
+        String description = String.format("%s提交一个故事", member.getName());
         UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));
         MemberLogRequestBase base = MemberLogRequestBase.BALANCE()
                 .sessionID(sessionID)
@@ -142,8 +157,8 @@ public class ApiStoryController extends ApiBaseController {
             story.setFaceImage(faceImage);
         }
         storyService.save(story);
-        String description = String.format("%s修改一个故事", member.getName());
 
+        String description = String.format("%s修改一个故事", member.getName());
         UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));
         MemberLogRequestBase base = MemberLogRequestBase.BALANCE()
                 .sessionID(sessionID)

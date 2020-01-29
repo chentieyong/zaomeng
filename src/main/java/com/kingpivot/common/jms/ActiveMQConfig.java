@@ -24,6 +24,9 @@ public class ActiveMQConfig {
     @Value("${getMemberBonusQueueName}")
     private String getMemberBonusQueueName;
 
+    @Value("${addAttachmentMessage}")
+    private String addAttachmentMessage;
+
     @Value("${spring.activemq.user}")
     private String usrName;
 
@@ -51,6 +54,11 @@ public class ActiveMQConfig {
     @Bean
     public Queue getMemberBonusQueueName() {
         return new ActiveMQQueue(getMemberBonusQueueName);
+    }
+
+    @Bean
+    public Queue addAttachmentMessage() {
+        return new ActiveMQQueue(addAttachmentMessage);
     }
 
     @Bean
