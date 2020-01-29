@@ -155,6 +155,8 @@ public class MessageHeader implements Serializable {
         weixinurlIsEmpty(10078),
         publicNoIsEmpty(10079),
         publicNoIsError(10080),
+        storyIdIsNull(10081),//故事id为空
+        storyIdIsError(10082),//故事不存在
         ;
         public int code;
 
