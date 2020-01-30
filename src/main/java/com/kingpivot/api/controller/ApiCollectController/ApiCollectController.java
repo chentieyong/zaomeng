@@ -2,6 +2,9 @@ package com.kingpivot.api.controller.ApiCollectController;
 
 import com.google.common.collect.Maps;
 import com.kingpivot.api.dto.collect.CollectGoodsShopListDto;
+import com.kingpivot.api.dto.collect.CollectListDto;
+import com.kingpivot.api.dto.collect.ObjectCollectDto;
+import com.kingpivot.api.dto.goodsShop.GoodsShopListDto;
 import com.kingpivot.base.collect.model.Collect;
 import com.kingpivot.base.collect.service.CollectService;
 import com.kingpivot.base.config.Config;
@@ -178,7 +181,7 @@ public class ApiCollectController extends ApiBaseController {
         return MessagePacket.newSuccess(rsMap, "removeCollect success!");
     }
 
-    @ApiOperation(value = "获取收藏列表", notes = "获取收藏列表")
+    @ApiOperation(value = "获取会员收藏列表", notes = "获取会员收藏列表")
     @ApiImplicitParams({
             @ApiImplicitParam(paramType = "query", name = "sessionID", value = "登录标识", dataType = "String"),
             @ApiImplicitParam(paramType = "query", name = "objectDefineID", value = "对象定义id", dataType = "String"),
@@ -186,8 +189,6 @@ public class ApiCollectController extends ApiBaseController {
             @ApiImplicitParam(paramType = "query", name = "pageNumber", value = "每一页大小", dataType = "int")})
     @RequestMapping(value = "/getCollectList")
     public MessagePacket getCollectList(HttpServletRequest request) {
-        String objectDefineID = request.getParameter("objectDefineID");
-
         String sessionID = request.getParameter("sessionID");
         if (StringUtils.isEmpty(sessionID)) {
             return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
@@ -200,16 +201,14 @@ public class ApiCollectController extends ApiBaseController {
         if (memberLogDTO == null) {
             return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
         }
-
-        if (StringUtils.isEmpty(objectDefineID)) {
-            return MessagePacket.newFail(MessageHeader.Code.objectDefineIDIsNull, "objectDefineID不能为空");
-        }
-
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("isValid", Constants.ISVALID_YES);
         paramMap.put("isLock", Constants.ISLOCK_NO);
         paramMap.put("memberID", member.getId());
-        paramMap.put("objectDefineID", objectDefineID);
+        String objectDefineID = request.getParameter("objectDefineID");
+        if (StringUtils.isNotBlank(objectDefineID)) {
+            paramMap.put("objectDefineID", objectDefineID);
+        }
 
         List<Sort.Order> orders = new ArrayList<Sort.Order>();
         orders.add(new Sort.Order(Sort.Direction.DESC, "createdTime"));
@@ -261,14 +260,18 @@ public class ApiCollectController extends ApiBaseController {
                     messagePage = new MessagePage(page, goodsShopList);
                     break;
                 default:
-                    page.setTotalSize(0);
-                    messagePage = new MessagePage(page, new ArrayList());
+                    page.setTotalSize((int) rs.getTotalElements());
+                    List<CollectListDto> list = BeanMapper.mapList(rs.getContent(), CollectListDto.class);
+                    messagePage = new MessagePage(page, list);
                     break;
             }
+        } else {
+            page.setTotalSize(0);
+            messagePage = new MessagePage(page, new ArrayList());
         }
         rsMap.put("data", messagePage);
 
-        String description = String.format("%s获取收藏列表", member.getName());
+        String description = String.format("%s获取会员收藏列表", member.getName());
 
         UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));
         MemberLogRequestBase base = MemberLogRequestBase.BALANCE()
@@ -281,5 +284,46 @@ public class ApiCollectController extends ApiBaseController {
         sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
 
         return MessagePacket.newSuccess(rsMap, "getCollectList success!");
+    }
+
+    @ApiOperation(value = "获取对象收藏列表", notes = "获取对象收藏列表")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query", name = "sessionID", value = "登录标识", dataType = "String"),
+            @ApiImplicitParam(paramType = "query", name = "objectID", value = "对象id", dataType = "String"),
+            @ApiImplicitParam(paramType = "query", name = "currentPage", value = "分页，页码从1开始", dataType = "int"),
+            @ApiImplicitParam(paramType = "query", name = "pageNumber", value = "每一页大小", dataType = "int")})
+    @RequestMapping(value = "/getObjectCollectList")
+    public MessagePacket getObjectCollectList(HttpServletRequest request) {
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("isValid", Constants.ISVALID_YES);
+        paramMap.put("isLock", Constants.ISLOCK_NO);
+        String objectID = request.getParameter("objectID");
+        if (StringUtils.isEmpty(objectID)) {
+            return MessagePacket.newFail(MessageHeader.Code.objectIdIsNull, "对象id不能为空");
+        }
+        paramMap.put("objectID", objectID);
+        List<Sort.Order> orders = new ArrayList<Sort.Order>();
+        orders.add(new Sort.Order(Sort.Direction.DESC, "createdTime"));
+
+        Object currentPage = request.getParameter("currentPage");
+        Object pageNumber = request.getParameter("pageNumber");
+
+        TPage page = ApiPageUtil.makePage(currentPage, pageNumber);
+
+        Pageable pageable = new PageRequest(page.getOffset(), page.getPageSize(), new Sort(orders));
+
+        Page<Collect> rs = collectService.list(paramMap, pageable);
+        Map<String, Object> rsMap = Maps.newHashMap();
+        MessagePage messagePage = null;
+        if (rs != null && rs.getSize() != 0) {
+            page.setTotalSize((int) rs.getTotalElements());
+            List<ObjectCollectDto> list = BeanMapper.mapList(rs.getContent(), ObjectCollectDto.class);
+            messagePage = new MessagePage(page, list);
+        } else {
+            page.setTotalSize(0);
+            messagePage = new MessagePage(page, new ArrayList());
+        }
+        rsMap.put("data", messagePage);
+        return MessagePacket.newSuccess(rsMap, "getObjectCollectList success!");
     }
 }

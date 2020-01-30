@@ -1,5 +1,6 @@
 package com.kingpivot.base.praise.model;
 
+import com.kingpivot.base.member.model.Member;
 import com.kingpivot.common.model.BaseModel;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -25,6 +26,9 @@ public class Praise extends BaseModel<String> {
 
     @Column(length = 36)
     private String memberID;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "memberID", insertable = false, updatable = false)  //不能保存和修改
+    private Member member;
 
     @Column(length = 36)
     private String objectDefineID;//对象定义ID
@@ -87,5 +91,13 @@ public class Praise extends BaseModel<String> {
 
     public void setApplicationID(String applicationID) {
         this.applicationID = applicationID;
+    }
+
+    public Member getMember() {
+        return member;
+    }
+
+    public void setMember(Member member) {
+        this.member = member;
     }
 }

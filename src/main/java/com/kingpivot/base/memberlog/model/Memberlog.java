@@ -110,7 +110,8 @@ public class Memberlog extends BaseModel<String> {
         ,APPLYRETURNMEMBERORDER("申请订单退单"),GETMEMBERRANKINFO("获取会员等级信息"),GETMEMBERINFO("获取会员信息"),READONEMESSAGE("阅读一个消息"),
         GETNOREADMESSAGENUM("获取未阅读消息数量"),GETMEMBERSTATISTICS("获取会员统计信息"),MEMBERSIGNININIT("会员签到初始化"),SUBMITONESTORY("提交一个故事")
         ,GETMEMBERORDERGOODSRETURNLIST("获取会员订单商品退货列表"),GETMEMBERORDERGOODSRETURNDETAIL("获取会员订单商品退货详情"),UPDATEONESTORY("修改一个故事")
-        ,DELETEONESTORY("删除一个故事"),ADDCOLLECT("加入收藏"),ADDPRAISE("加入赞"),REMOVEPRAISE("删除赞");
+        ,DELETEONESTORY("删除一个故事"),ADDCOLLECT("加入收藏"),ADDPRAISE("加入赞"),REMOVEPRAISE("删除赞"),GETPRAISELIST("获取会员赞列表")
+        ,GETOBJECTPRAISELIST("获取对象赞列表");
         private String oname;
 
         MemberOperateType(String oname) {
