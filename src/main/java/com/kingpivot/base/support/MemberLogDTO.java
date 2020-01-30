@@ -67,27 +67,10 @@ public class MemberLogDTO implements Serializable {
         this.memberId = memberId;
     }
 
-    public MemberLogDTO(String siteId, String appId, String deviceId, String memberId) {
+    public MemberLogDTO(String siteId, String appId, String memberId, String companyId) {
         this.siteId = siteId;
         this.appId = appId;
-        this.deviceId = deviceId;
         this.memberId = memberId;
-    }
-
-    public MemberLogDTO(String siteId, String appId, String deviceId, String memberId, String locationId) {
-        this.siteId = siteId;
-        this.appId = appId;
-        this.deviceId = deviceId;
-        this.memberId = memberId;
-        this.locationId = locationId;
-    }
-
-    public MemberLogDTO(String siteId, String appId, String deviceId, String memberId, String locationId, String companyId) {
-        this.siteId = siteId;
-        this.appId = appId;
-        this.deviceId = deviceId;
-        this.memberId = memberId;
-        this.locationId = locationId;
         this.companyId = companyId;
     }
 

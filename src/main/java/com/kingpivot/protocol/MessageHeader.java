@@ -159,6 +159,7 @@ public class MessageHeader implements Serializable {
         storyIdIsError(10082),//故事不存在
         praiseIDIsNull(10083),//赞id为空
         praiseIDIsError(10084),//赞不存在
+        weixinFormID(10085),//获取openid异常，请联系管理员
         ;
         public int code;
 

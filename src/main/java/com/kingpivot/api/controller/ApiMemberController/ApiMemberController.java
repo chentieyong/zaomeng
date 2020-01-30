@@ -98,8 +98,10 @@ public class ApiMemberController extends ApiBaseController {
             return MessagePacket.newFail(MessageHeader.Code.loginTypeIsNull, "loginType不能为空");
         }
         switch (loginType) {
-            case "1":
+            case "1"://账号密码登录
                 return loginNameLogin(request);
+            case "2"://微信code登录
+                return weixinCodeLogin(request);
             default:
                 return MessagePacket.newFail(MessageHeader.Code.loginTypeIsError, "loginType不正确");
         }
@@ -177,7 +179,7 @@ public class ApiMemberController extends ApiBaseController {
         rsMap.put("sessionID", request.getSession().getId());
 
         MemberLogDTO memberLogDTO = new MemberLogDTO(site.getId(), member.getApplicationID(),
-                null, member.getId(), null, member.getCompanyID());
+                member.getId(), member.getCompanyID());
 
         putSession(request, member);
 
@@ -233,13 +235,80 @@ public class ApiMemberController extends ApiBaseController {
         rsMap.put("sessionID", request.getSession().getId());
 
         MemberLogDTO memberLogDTO = new MemberLogDTO(site.getId(), member.getApplicationID(),
-                null, member.getId(), null, member.getCompanyID());
+                member.getId(), member.getCompanyID());
 
         putSession(request, member);
 
         putMemberLogSession(request, memberLogDTO);
 
         sendMemberLoginLog(request, member, false);
+
+        return MessagePacket.newSuccess(rsMap, "appLogin success!");
+    }
+
+    /**
+     * 微信code登录
+     *
+     * @param request
+     * @return
+     */
+    public MessagePacket weixinCodeLogin(HttpServletRequest request) {
+        String name = request.getParameter("name");
+        String code = request.getParameter("code");
+        String siteID = request.getParameter("siteID");
+        String avatarUrl = request.getParameter("avatarUrl");
+        String recommandID = request.getParameter("recommandID");
+
+        if (StringUtils.isEmpty(code)) {
+            return MessagePacket.newFail(MessageHeader.Code.codeIsNull, "code为空");
+        }
+        if (StringUtils.isEmpty(siteID)) {
+            return MessagePacket.newFail(MessageHeader.Code.siteIdIsNull, "siteID为空");
+        }
+        Site site = siteService.findById(siteID);
+        if (site == null) {
+            return MessagePacket.newFail(MessageHeader.Code.siteIdError, "siteID不正确");
+        }
+        boolean isNew = false;//是否新会员
+        Member member = this.memberService.getMemberByWeixinCodeAndAppId(code, site.getApplicationID());
+        if (member == null) {
+            isNew = true;
+            member = new Member();
+            member.setLoginName(name);
+            member.setName(name);
+            member.setShortName(name);
+            member.setCompanyID(site.getCompanyID());
+            member.setSiteID(site.getId());
+            member.setApplicationID(site.getApplicationID());
+            if (StringUtils.isNotBlank(recommandID)) {
+                member.setRecommandID(recommandID);
+            }
+            String reCode = this.memberService.getCurRecommandCode(site.getApplicationID());
+            if (StringUtils.isNotEmpty(reCode)) {
+                member.setRecommandCode(NumberUtils.strFormat3(String.valueOf(Integer.valueOf(reCode) + 1)));
+            } else {
+                member.setRecommandCode("00001");
+            }
+            member.setWeixinToken(code);
+            member.setAvatarURL(avatarUrl);
+            memberService.save(member);
+        } else {
+            if (member.getIsLock() == Constants.ISLOCK_YES) {
+                return MessagePacket.newFail(MessageHeader.Code.memberIsLock, "会员被锁定");
+            }
+        }
+        Map<String, Object> rsMap = Maps.newHashMap();
+        rsMap.put("memberID", member.getId());
+        rsMap.put("sessionID", request.getSession().getId());
+
+        MemberLogDTO memberLogDTO = new MemberLogDTO(site.getId(), member.getApplicationID(), member.getId()
+                , member.getCompanyID());
+
+        putSession(request, member);
+
+        putMemberLogSession(request, memberLogDTO);
+
+        sendMemberLoginLog(request, member, isNew);
 
         return MessagePacket.newSuccess(rsMap, "appLogin success!");
     }

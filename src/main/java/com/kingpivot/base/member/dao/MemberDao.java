@@ -28,4 +28,7 @@ public interface MemberDao extends BaseDao<Member, String> {
 
     @Query(value = "SELECT applicationID FROM member WHERE id=?1 AND isValid=1 AND isLock=0 LIMIT 1", nativeQuery = true)
     String getMemberApplicationID(String memberID);
+
+    @Query(value = "SELECT * FROM member WHERE weixinToken=?1 and applicationID=?2 AND isValid=1 AND isLock=0 LIMIT 1", nativeQuery = true)
+    Member getMemberByWeixinCodeAndAppId(String code, String applicationID);
 }

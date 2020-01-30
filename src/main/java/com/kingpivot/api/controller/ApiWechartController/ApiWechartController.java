@@ -1,10 +1,7 @@
 package com.kingpivot.api.controller.ApiWechartController;
 
 import com.google.common.collect.Maps;
-import com.kingpivot.api.dto.weixin.WeiXinJS;
-import com.kingpivot.api.dto.weixin.WeiXinJSUtils;
-import com.kingpivot.api.dto.weixin.WeiXinToken;
-import com.kingpivot.api.dto.weixin.WeiXinUtils;
+import com.kingpivot.api.dto.weixin.*;
 import com.kingpivot.base.wechart.model.Wechart;
 import com.kingpivot.base.wechart.service.WechartService;
 import com.kingpivot.common.util.JsonUtil;
@@ -16,12 +13,14 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
 import java.util.Map;
 
 @RequestMapping("/api")
@@ -78,5 +77,41 @@ public class ApiWechartController extends ApiBaseController {
         configMap.put("jsApiList", JsonUtil.writeValueAsString(WeiXinJSUtils.getJSApiList()));
         configMap.put("ticket", ticket);
         return MessagePacket.newSuccess(configMap, "getWeixinConfig success");
+    }
+
+    /**
+     * 小程序获取微信openoid
+     *
+     * @param request
+     * @return
+     */
+    @ApiOperation(value = "小程序获取微信openoid", notes = "小程序获取微信openoid")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query", name = "publicNo", value = "公众号id", dataType = "String", required = true),
+            @ApiImplicitParam(paramType = "query", name = "js_code", value = "code", dataType = "String", required = true),
+    })
+    @RequestMapping(value = "/getWeiXinAppOpenId")
+    public MessagePacket getWeiXinAppOpenId(HttpServletRequest request) throws Exception {
+        String publicNo = request.getParameter("publicNo");
+        String js_code = request.getParameter("js_code");
+        Wechart wechart = wechartService.getWechartByPublicNo(publicNo);
+        if (wechart == null) {
+            return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "微信记录不存在");
+        }
+        Map<String, String> param = new HashMap<>();
+        param.put("appid", wechart.getAPPid());
+        param.put("secret", wechart.getAPPsecret());
+        param.put("js_code", js_code);
+        param.put("grant_type", "authorization_code");
+        String info = HttpUtil.doGet(WeiXinUrlConstants.GET_WEIXINAPPCODE_URL, param);
+        Map<String, Object> rsMap = Maps.newHashMap();
+        if (StringUtils.hasText(info)) {
+            JSONObject jsonObject = JSONObject.fromObject(info);
+            rsMap.put("openID", jsonObject.get("openid"));
+        } else {
+            System.out.println("error:" + info);
+            return MessagePacket.newFail(MessageHeader.Code.weixinFormID, "获取openid异常，请联系管理员");
+        }
+        return MessagePacket.newSuccess(rsMap, "getWeiXinAppOpenId success");
     }
 }
