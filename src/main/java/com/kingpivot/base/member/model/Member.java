@@ -9,9 +9,6 @@ import javax.persistence.*;
 @Entity
 @Table(name = "member")
 public class Member extends BaseModel<String> {
-
-    private static final long serialVersionUID = -1300306668752973060L;
-
     @Id
     @GeneratedValue(generator = "system-uuid")
     @GenericGenerator(name = "system-uuid", strategy = "uuid")
@@ -31,10 +28,25 @@ public class Member extends BaseModel<String> {
     private String shortName;//简称
 
     @Column(length = 50)
+    private String shortDescription;
+
+    @Column(length = 500)
+    private String description;
+
+    @Column(length = 50)
     private String loginName;//登录名
 
     @Column(length = 50)
     private String loginPassword;//登录密码
+
+    @Column(length = 100)
+    private String weixin;
+
+    @Column(length = 100)
+    private String companyName;
+
+    @Column(length = 100)
+    private String jobName;
 
     @Column(length = 36)
     private String phone;//手机号码
@@ -213,5 +225,45 @@ public class Member extends BaseModel<String> {
 
     public void setRankID(String rankID) {
         this.rankID = rankID;
+    }
+
+    public String getWeixin() {
+        return weixin;
+    }
+
+    public void setWeixin(String weixin) {
+        this.weixin = weixin;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+
+    public String getJobName() {
+        return jobName;
+    }
+
+    public void setJobName(String jobName) {
+        this.jobName = jobName;
+    }
+
+    public String getShortDescription() {
+        return shortDescription;
+    }
+
+    public void setShortDescription(String shortDescription) {
+        this.shortDescription = shortDescription;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

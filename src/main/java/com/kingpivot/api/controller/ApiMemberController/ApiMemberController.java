@@ -379,6 +379,11 @@ public class ApiMemberController extends ApiBaseController {
         String sessionID = request.getParameter("sessionID");
         String name = request.getParameter("name");
         String avatarURL = request.getParameter("avatarURL");
+        String weixin = request.getParameter("weixin");
+        String companyName = request.getParameter("companyName");
+        String jobName = request.getParameter("jobName");
+        String shortDescription = request.getParameter("shortDescription");
+        String description = request.getParameter("description");
         if (StringUtils.isEmpty(sessionID)) {
             return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
         }
@@ -402,14 +407,29 @@ public class ApiMemberController extends ApiBaseController {
         if (StringUtils.isNotBlank(avatarURL)) {
             updateMember.setAvatarURL(avatarURL);
         }
+        if (StringUtils.isNotBlank(weixin)) {
+            updateMember.setWeixin(weixin);
+        }
+        if (StringUtils.isNotBlank(companyName)) {
+            updateMember.setCompanyName(companyName);
+        }
+        if (StringUtils.isNotBlank(jobName)) {
+            updateMember.setJobName(jobName);
+        }
+        if (StringUtils.isNotBlank(description)) {
+            updateMember.setDescription(description);
+        }
+        if (StringUtils.isNotBlank(shortDescription)) {
+            updateMember.setShortDescription(shortDescription);
+        }
         memberService.save(updateMember);
         putSession(request, updateMember);
-        String description = String.format("%s修改会员信息", member.getName());
+        String desc = String.format("%s修改会员信息", member.getName());
 
         UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));
         MemberLogRequestBase base = MemberLogRequestBase.BALANCE()
                 .sessionID(sessionID)
-                .description(description)
+                .description(desc)
                 .userAgent(userAgent == null ? null : userAgent.getBrowserType())
                 .operateType(Memberlog.MemberOperateType.UPDATEMEMBERINFO.getOname())
                 .build();
@@ -623,8 +643,14 @@ public class ApiMemberController extends ApiBaseController {
             return MessagePacket.newFail(MessageHeader.Code.memberIDIsNull, "会员不存在");
         }
 
+
+        MemberLoginDto data = BeanMapper.map(member, MemberLoginDto.class);
+        if (StringUtils.isNotBlank(data.getRankID())) {
+            data.setRankName(rankService.getNameById(data.getRankID()));
+        }
+
         Map<String, Object> rsMap = Maps.newHashMap();
-        rsMap.put("data", BeanMapper.map(member, MemberLoginDto.class));
+        rsMap.put("data", data);
 
         if (StringUtils.isNotBlank(sessionID)) {
             String description = String.format("%s获取会员信息", member.getName());

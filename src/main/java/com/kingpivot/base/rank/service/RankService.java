@@ -4,4 +4,6 @@ import com.kingpivot.base.rank.model.Rank;
 import com.kingpivot.common.service.BaseService;
 
 public interface RankService extends BaseService<Rank, String> {
+
+    String getNameById(String id);
 }

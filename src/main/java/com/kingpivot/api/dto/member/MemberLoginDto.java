@@ -15,6 +15,16 @@ public class MemberLoginDto {
 
     private String shortName;//简称
 
+    private String shortDescription;
+
+    private String description;
+
+    private String weixin;
+
+    private String companyName;
+
+    private String jobName;
+
     private String loginName;//登录名
 
     private String phone;//手机号码
@@ -32,6 +42,10 @@ public class MemberLoginDto {
     private String siteID;//站点ID
 
     private String avatarURL;//头像URL
+
+    private String rankID;
+
+    private String rankName;
 
     public String getId() {
         return id;
@@ -143,5 +157,61 @@ public class MemberLoginDto {
 
     public void setAvatarURL(String avatarURL) {
         this.avatarURL = avatarURL;
+    }
+
+    public String getShortDescription() {
+        return shortDescription;
+    }
+
+    public void setShortDescription(String shortDescription) {
+        this.shortDescription = shortDescription;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getWeixin() {
+        return weixin;
+    }
+
+    public void setWeixin(String weixin) {
+        this.weixin = weixin;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+
+    public String getJobName() {
+        return jobName;
+    }
+
+    public void setJobName(String jobName) {
+        this.jobName = jobName;
+    }
+
+    public String getRankID() {
+        return rankID;
+    }
+
+    public void setRankID(String rankID) {
+        this.rankID = rankID;
+    }
+
+    public String getRankName() {
+        return rankName;
+    }
+
+    public void setRankName(String rankName) {
+        this.rankName = rankName;
     }
 }

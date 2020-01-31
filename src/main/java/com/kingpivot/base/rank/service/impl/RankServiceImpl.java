@@ -19,4 +19,9 @@ public class RankServiceImpl extends BaseServiceImpl<Rank, String> implements Ra
     public BaseDao<Rank, String> getDAO() {
         return this.rankDao;
     }
+
+    @Override
+    public String getNameById(String id) {
+        return rankDao.getNameById(id);
+    }
 }
