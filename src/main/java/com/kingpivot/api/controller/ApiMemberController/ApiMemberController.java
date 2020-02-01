@@ -1,6 +1,7 @@
 package com.kingpivot.api.controller.ApiMemberController;
 
 import com.google.common.collect.Maps;
+import com.kingpivot.api.dto.member.ApplicationMemberListDto;
 import com.kingpivot.api.dto.member.MemberLoginDto;
 import com.kingpivot.api.dto.memberstatistics.MemberStatisticsInfoDto;
 import com.kingpivot.base.application.model.Application;
@@ -41,6 +42,10 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -49,6 +54,9 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -720,6 +728,50 @@ public class ApiMemberController extends ApiBaseController {
 
         sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
         return MessagePacket.newSuccess(rsMap, "getMemberStatisticsInfo success!");
+    }
+
+
+    @ApiOperation(value = "获取应用会员列表", notes = "获取应用会员列表")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query", name = "currentPage", value = "分页，页码从1开始", dataType = "int"),
+            @ApiImplicitParam(paramType = "query", name = "pageNumber", value = "每一页大小", dataType = "int"),
+            @ApiImplicitParam(paramType = "query", name = "applicationID", value = "应用id", dataType = "String")})
+    @RequestMapping(value = "/getApplicationMemberList")
+    public MessagePacket getApplicationMemberList(HttpServletRequest request) {
+        String applicationID = request.getParameter("applicationID");
+        if (StringUtils.isEmpty(applicationID)) {
+            return MessagePacket.newFail(MessageHeader.Code.applicationIdIsNull, "应用id不能为空");
+        }
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("isValid", Constants.ISVALID_YES);
+        paramMap.put("isLock", Constants.ISLOCK_NO);
+        paramMap.put("applicationID", applicationID);
+
+        List<Sort.Order> orders = new ArrayList<Sort.Order>();
+        orders.add(new Sort.Order(Sort.Direction.ASC, "orderSeq"));
+
+        Object currentPage = request.getParameter("currentPage");
+        Object pageNumber = request.getParameter("pageNumber");
+
+        TPage page = ApiPageUtil.makePage(currentPage, pageNumber);
+
+        Pageable pageable = new PageRequest(page.getOffset(), page.getPageSize(), new Sort(orders));
+
+        Page<Member> rs = memberService.list(paramMap, pageable);
+
+        List<ApplicationMemberListDto> list = null;
+        if (rs != null && rs.getSize() != 0) {
+            list = BeanMapper.mapList(rs.getContent(), ApplicationMemberListDto.class);
+            page.setTotalSize((int) rs.getTotalElements());
+        } else {
+            list = new ArrayList<>();
+        }
+
+        Map<String, Object> rsMap = Maps.newHashMap();
+        MessagePage messagePage = new MessagePage(page, list);
+        rsMap.put("data", messagePage);
+
+        return MessagePacket.newSuccess(rsMap, "getApplicationMemberList success!");
     }
 
     //发送会员登录日志
