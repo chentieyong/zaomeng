@@ -98,14 +98,14 @@ public class ApiStoryController extends ApiBaseController {
 
         if (StringUtils.isNotBlank(urls)) {
             //新增附件图
-            sendMessageService.sendAddAttachmentMessage(new AddAttachmentDto.Builder()
+            sendMessageService.sendAddAttachmentMessage(JacksonHelper.toJson(new AddAttachmentDto.Builder()
                     .objectID(story.getId())
                     .objectDefineID(Config.STORY_OBJECTDEFINEID)
                     .objectName(story.getName())
                     .fileType(1)
                     .showType(1)
                     .urls(urls)
-                    .build().toString());
+                    .build()));
         }
 
         String desc = String.format("%s提交一个故事", member.getName());
@@ -160,6 +160,9 @@ public class ApiStoryController extends ApiBaseController {
         String isPublish = request.getParameter("isPublish");
         String faceImage = request.getParameter("faceImage");
         String description = request.getParameter("description");
+        String urls = request.getParameter("urls");
+        String delUrls = request.getParameter("delUrls");
+
 
         story.setName(name);
         story.setDescription(description);
@@ -170,6 +173,17 @@ public class ApiStoryController extends ApiBaseController {
             story.setFaceImage(faceImage);
         }
         storyService.save(story);
+
+        //新增附件图
+        sendMessageService.sendAddAttachmentMessage(JacksonHelper.toJson(new AddAttachmentDto.Builder()
+                .objectID(story.getId())
+                .objectDefineID(Config.STORY_OBJECTDEFINEID)
+                .objectName(story.getName())
+                .fileType(1)
+                .showType(1)
+                .urls(urls)
+                .delUrls(delUrls)
+                .build()));
 
         String desc = String.format("%s修改一个故事", member.getName());
         UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));
@@ -238,7 +252,7 @@ public class ApiStoryController extends ApiBaseController {
     @RequestMapping(value = "/getStoryList")
     public MessagePacket getStoryList(HttpServletRequest request) {
         String memberID = request.getParameter("memberID");
-        if(StringUtils.isEmpty(memberID)){
+        if (StringUtils.isEmpty(memberID)) {
             return MessagePacket.newFail(MessageHeader.Code.memberIDIsNull, "会员id不能为空");
         }
         Map<String, Object> paramMap = new HashMap<>();

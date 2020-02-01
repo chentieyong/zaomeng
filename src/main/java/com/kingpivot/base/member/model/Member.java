@@ -5,10 +5,14 @@ import com.kingpivot.common.model.BaseModel;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "member")
-public class Member extends BaseModel<String> {
+public class Member extends BaseModel<String> implements Serializable {
+
+    private static final long serialVersionUID = -1300306668752973060L;
+
     @Id
     @GeneratedValue(generator = "system-uuid")
     @GenericGenerator(name = "system-uuid", strategy = "uuid")
