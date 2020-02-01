@@ -1,6 +1,7 @@
 package com.kingpivot.common.jms.dto.attachment;
 
 public class AddAttachmentDto {
+    private String name;//名称
     private String objectID;//对象id
     private String objectName;//对象名称
     private String objectDefineID;//对象定义
@@ -10,6 +11,7 @@ public class AddAttachmentDto {
     private String delUrls;//老图片链接
 
     public static class Builder {
+        private String name;//名称
         private String objectID;//对象id
         private String objectName;//对象名称
         private String objectDefineID;//对象定义
@@ -17,6 +19,11 @@ public class AddAttachmentDto {
         private int showType;//公开类型
         private String urls;//图片链接
         private String delUrls;//老图片链接
+
+        public Builder name(String val) {
+            name = val;
+            return this;
+        }
 
         public Builder objectID(String val) {
             objectID = val;
@@ -62,6 +69,7 @@ public class AddAttachmentDto {
     }
 
     private AddAttachmentDto(Builder builder) {
+        this.name = builder.name;//名称
         this.objectID = builder.objectID;//对象id
         this.objectName = builder.objectName;//对象名称
         this.objectDefineID = builder.objectDefineID;//对象定义
@@ -69,6 +77,14 @@ public class AddAttachmentDto {
         this.showType = builder.showType;//公开类型
         this.urls = builder.urls;//图片链接
         this.delUrls = builder.delUrls;//老图片链接
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getObjectID() {

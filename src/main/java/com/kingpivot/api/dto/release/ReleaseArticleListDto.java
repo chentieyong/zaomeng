@@ -23,6 +23,8 @@ public class ReleaseArticleListDto {
 
     private String createdTimeStr;//创建时间
 
+    private int readTimes = 0;
+
 
     public String getId() {
         return id;
@@ -95,5 +97,13 @@ public class ReleaseArticleListDto {
 
     public void setCreatedTimeStr(String createdTimeStr) {
         this.createdTimeStr = createdTimeStr;
+    }
+
+    public int getReadTimes() {
+        return readTimes;
+    }
+
+    public void setReadTimes(int readTimes) {
+        this.readTimes = readTimes;
     }
 }

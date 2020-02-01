@@ -4,10 +4,11 @@ import com.google.common.collect.Maps;
 import com.kingpivot.api.dto.attachment.ObjectAttachmentListDto;
 import com.kingpivot.base.attachment.model.Attachment;
 import com.kingpivot.base.attachment.service.AttachmentService;
+import com.kingpivot.base.config.Config;
+import com.kingpivot.common.jms.SendMessageService;
+import com.kingpivot.common.jms.dto.attachment.AddAttachmentDto;
 import com.kingpivot.common.util.Constants;
-import com.kingpivot.common.utils.ApiPageUtil;
-import com.kingpivot.common.utils.BeanMapper;
-import com.kingpivot.common.utils.TPage;
+import com.kingpivot.common.utils.*;
 import com.kingpivot.protocol.ApiBaseController;
 import com.kingpivot.protocol.MessageHeader;
 import com.kingpivot.protocol.MessagePacket;
@@ -25,6 +26,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,6 +39,8 @@ import java.util.Map;
 public class ApiAttachmentController extends ApiBaseController {
     @Autowired
     private AttachmentService attachmentService;
+    @Resource
+    private SendMessageService sendMessageService;
 
     @ApiOperation(value = "获取对象附件列表", notes = "获取对象附件列表")
     @ApiImplicitParams({
@@ -58,7 +62,7 @@ public class ApiAttachmentController extends ApiBaseController {
         if (StringUtils.isNotBlank(objectID)) {
             paramMap.put("objectID", objectID);
         }
-        if(StringUtils.isNotBlank(name)){
+        if (StringUtils.isNotBlank(name)) {
             paramMap.put("name", name);
         }
 
@@ -84,5 +88,37 @@ public class ApiAttachmentController extends ApiBaseController {
         rsMap.put("data", messagePage);
 
         return MessagePacket.newSuccess(rsMap, "getObjectAttachmentList success!");
+    }
+
+    @ApiOperation(value = "上传对象附件", notes = "上传对象附件")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query", name = "objectID", value = "对象id", dataType = "int"),
+            @ApiImplicitParam(paramType = "query", name = "objectDefineID", value = "对象定义id", dataType = "int"),
+            @ApiImplicitParam(paramType = "query", name = "objectName", value = "对象名称", dataType = "int"),
+            @ApiImplicitParam(paramType = "query", name = "urls", value = "url", dataType = "String")})
+    @RequestMapping(value = "/addObjectAttachment")
+    public MessagePacket addObjectAttachment(HttpServletRequest request) {
+        String objectID = request.getParameter("objectID");
+        String objectDefineID = request.getParameter("objectDefineID");
+        String objectName = request.getParameter("objectName");
+        String urls = request.getParameter("urls");
+        String delUrls = request.getParameter("delUrls");
+        String name = request.getParameter("name");
+
+        //新增附件图
+        sendMessageService.sendAddAttachmentMessage(JacksonHelper.toJson(new AddAttachmentDto.Builder()
+                .name(name)
+                .objectID(objectID)
+                .objectDefineID(objectDefineID)
+                .objectName(objectName)
+                .fileType(1)
+                .showType(1)
+                .urls(urls)
+                .delUrls(delUrls)
+                .build()));
+
+        Map<String, Object> rsMap = Maps.newHashMap();
+        rsMap.put("data", TimeTest.getTimeStr());
+        return MessagePacket.newSuccess(rsMap, "addObjectAttachment success!");
     }
 }
