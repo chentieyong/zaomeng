@@ -47,4 +47,9 @@ public class MemberServiceImpl extends BaseServiceImpl<Member, String> implement
     public Member getMemberByWeixinCodeAndAppId(String code, String applicationID) {
         return memberDao.getMemberByWeixinCodeAndAppId(code, applicationID);
     }
+
+    @Override
+    public String getNameById(String id) {
+        return memberDao.getNameById(id);
+    }
 }

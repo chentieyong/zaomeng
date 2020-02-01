@@ -35,6 +35,8 @@ public class MemberLoginDto {
 
     private String recommandID;//推荐人;
 
+    private String recommandName;//推荐人姓名
+
     private String recommandCode;//推荐码
 
     private String recommandChain;//推荐链
@@ -213,5 +215,13 @@ public class MemberLoginDto {
 
     public void setRankName(String rankName) {
         this.rankName = rankName;
+    }
+
+    public String getRecommandName() {
+        return recommandName;
+    }
+
+    public void setRecommandName(String recommandName) {
+        this.recommandName = recommandName;
     }
 }

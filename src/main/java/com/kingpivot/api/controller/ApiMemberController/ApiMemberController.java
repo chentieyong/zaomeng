@@ -656,7 +656,9 @@ public class ApiMemberController extends ApiBaseController {
         if (StringUtils.isNotBlank(data.getRankID())) {
             data.setRankName(rankService.getNameById(data.getRankID()));
         }
-
+        if (StringUtils.isNotBlank(data.getRecommandID())) {
+            data.setRecommandName(memberService.getNameById(data.getRecommandID()));
+        }
         Map<String, Object> rsMap = Maps.newHashMap();
         rsMap.put("data", data);
 
