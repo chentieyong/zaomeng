@@ -24,7 +24,7 @@ public class ApiLoginSessionHelper {
         }
         HttpSession session = request.getSession();
         String sessionId = session.getId();
-        redisTemplate.opsForValue().set(String.format("%s%s", RedisKey.Key.MEMBER_KEY.key, sessionId), member, 7200, TimeUnit.SECONDS);
+        redisTemplate.opsForValue().set(String.format("%s%s", RedisKey.Key.MEMBER_KEY.key, sessionId), member, 30, TimeUnit.DAYS);
     }
 
     public Member getCurrentMember(String sessionId) {
@@ -47,7 +47,7 @@ public class ApiLoginSessionHelper {
         }
         HttpSession session = request.getSession();
         String sessionId = session.getId();
-        redisTemplate.opsForValue().set(String.format("%s%s", RedisKey.Key.MEMBERLOG_KEY.key, sessionId), memberLogDTO, 7200, TimeUnit.SECONDS);
+        redisTemplate.opsForValue().set(String.format("%s%s", RedisKey.Key.MEMBERLOG_KEY.key, sessionId), memberLogDTO, 30, TimeUnit.DAYS);
     }
 
     public MemberLogDTO getMemberDto(String sessionId) {

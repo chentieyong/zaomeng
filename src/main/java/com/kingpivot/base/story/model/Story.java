@@ -20,6 +20,9 @@ public class Story extends BaseModel<String> {
     @Column(length = 100)
     private String name;//主键
 
+    @Column(length = 200)
+    private String description;//说明
+
     @Column(length = 36)
     private String memberID;
 
@@ -76,5 +79,13 @@ public class Story extends BaseModel<String> {
 
     public void setFaceImage(String faceImage) {
         this.faceImage = faceImage;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

@@ -36,7 +36,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -81,12 +80,14 @@ public class ApiStoryController extends ApiBaseController {
         }
         String isPublish = request.getParameter("isPublish");
         String faceImage = request.getParameter("faceImage");
+        String description = request.getParameter("description");
         String urls = request.getParameter("urls");
 
         Story story = new Story();
         story.setApplicationID(member.getApplicationID());
         story.setName(name);
-
+        story.setDescription(description);
+        story.setMemberID(member.getId());
         if (StringUtils.isNotBlank(isPublish)) {
             story.setIsPublish(Integer.parseInt(isPublish));
         }
@@ -107,11 +108,11 @@ public class ApiStoryController extends ApiBaseController {
                     .build().toString());
         }
 
-        String description = String.format("%s提交一个故事", member.getName());
+        String desc = String.format("%s提交一个故事", member.getName());
         UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));
         MemberLogRequestBase base = MemberLogRequestBase.BALANCE()
                 .sessionID(sessionID)
-                .description(description)
+                .description(desc)
                 .userAgent(userAgent == null ? null : userAgent.getBrowserType())
                 .operateType(Memberlog.MemberOperateType.SUBMITONESTORY.getOname())
                 .build();
@@ -158,8 +159,10 @@ public class ApiStoryController extends ApiBaseController {
         }
         String isPublish = request.getParameter("isPublish");
         String faceImage = request.getParameter("faceImage");
+        String description = request.getParameter("description");
 
         story.setName(name);
+        story.setDescription(description);
         if (StringUtils.isNotBlank(isPublish)) {
             story.setIsPublish(Integer.parseInt(isPublish));
         }
@@ -168,11 +171,11 @@ public class ApiStoryController extends ApiBaseController {
         }
         storyService.save(story);
 
-        String description = String.format("%s修改一个故事", member.getName());
+        String desc = String.format("%s修改一个故事", member.getName());
         UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));
         MemberLogRequestBase base = MemberLogRequestBase.BALANCE()
                 .sessionID(sessionID)
-                .description(description)
+                .description(desc)
                 .userAgent(userAgent == null ? null : userAgent.getBrowserType())
                 .operateType(Memberlog.MemberOperateType.UPDATEONESTORY.getOname())
                 .build();
@@ -230,28 +233,18 @@ public class ApiStoryController extends ApiBaseController {
 
     @ApiOperation(value = "获取故事列表", notes = "获取故事列表")
     @ApiImplicitParams({
-            @ApiImplicitParam(paramType = "query", name = "sessionID", value = "登录标识", dataType = "String"),
             @ApiImplicitParam(paramType = "query", name = "currentPage", value = "分页，页码从1开始", dataType = "int"),
             @ApiImplicitParam(paramType = "query", name = "pageNumber", value = "每一页大小", dataType = "int")})
     @RequestMapping(value = "/getStoryList")
     public MessagePacket getStoryList(HttpServletRequest request) {
-        String sessionID = request.getParameter("sessionID");
-        if (StringUtils.isEmpty(sessionID)) {
-            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        String memberID = request.getParameter("memberID");
+        if(StringUtils.isEmpty(memberID)){
+            return MessagePacket.newFail(MessageHeader.Code.memberIDIsNull, "会员id不能为空");
         }
-        Member member = (Member) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBER_KEY.key, sessionID));
-        if (member == null) {
-            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
-        }
-        MemberLogDTO memberLogDTO = (MemberLogDTO) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBERLOG_KEY.key, sessionID));
-        if (memberLogDTO == null) {
-            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
-        }
-
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("isValid", Constants.ISVALID_YES);
         paramMap.put("isLock", Constants.ISLOCK_NO);
-        paramMap.put("memberID", member.getId());
+        paramMap.put("memberID", memberID);
 
         List<Sort.Order> orders = new ArrayList<Sort.Order>();
         orders.add(new Sort.Order(Sort.Direction.DESC, "createdTime"));
@@ -269,18 +262,6 @@ public class ApiStoryController extends ApiBaseController {
             list = BeanMapper.mapList(rs.getContent(), StoryListDto.class);
             page.setTotalSize((int) rs.getTotalElements());
         }
-
-        String description = String.format("%s获取故事列表", member.getName());
-
-        UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));
-        MemberLogRequestBase base = MemberLogRequestBase.BALANCE()
-                .sessionID(sessionID)
-                .description(description)
-                .userAgent(userAgent == null ? null : userAgent.getBrowserType())
-                .operateType(Memberlog.MemberOperateType.GETSTORYLIST.getOname())
-                .build();
-        sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
-
         Map<String, Object> rsMap = Maps.newHashMap();
         MessagePage messagePage = new MessagePage(page, list);
         rsMap.put("data", messagePage);
@@ -289,47 +270,18 @@ public class ApiStoryController extends ApiBaseController {
 
     @ApiOperation(value = "获取故事详情", notes = "获取故事详情")
     @ApiImplicitParams({
-            @ApiImplicitParam(paramType = "query", name = "sessionID", value = "登录标识", dataType = "String"),
             @ApiImplicitParam(paramType = "query", name = "storyID", value = "故事id", dataType = "String")})
     @RequestMapping(value = "/getStoryDetail")
     public MessagePacket getStoryDetail(HttpServletRequest request) {
-
-        String sessionID = request.getParameter("sessionID");
-        if (StringUtils.isEmpty(sessionID)) {
-            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
-        }
-        Member member = (Member) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBER_KEY.key, sessionID));
-        if (member == null) {
-            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
-        }
-        MemberLogDTO memberLogDTO = (MemberLogDTO) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBERLOG_KEY.key, sessionID));
-        if (memberLogDTO == null) {
-            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
-        }
-
         String storyID = request.getParameter("storyID");
-
         if (StringUtils.isEmpty(storyID)) {
             return MessagePacket.newFail(MessageHeader.Code.storyIdIsNull, "storyID不能为空");
         }
-
         Story story = storyService.findById(storyID);
         if (story == null) {
             return MessagePacket.newFail(MessageHeader.Code.storyIdIsError, "storyID不正确");
         }
-
         StoryDetailDto data = BeanMapper.map(story, StoryDetailDto.class);
-
-        String description = String.format("%s获取故事详情", member.getName());
-        UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));
-        MemberLogRequestBase base = MemberLogRequestBase.BALANCE()
-                .sessionID(sessionID)
-                .description(description)
-                .userAgent(userAgent == null ? null : userAgent.getBrowserType())
-                .operateType(Memberlog.MemberOperateType.GETSTORYDETAIL.getOname())
-                .build();
-        sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
-
         Map<String, Object> rsMap = Maps.newHashMap();
         rsMap.put("data", data);
         return MessagePacket.newSuccess(rsMap, "getStoryDetail success!");

@@ -3,6 +3,7 @@ package com.kingpivot.api.dto.story;
 public class StoryListDto {
     private String id;//主键
     private String name;//主键
+    private String description;//说明
     private String memberID;
     private int isPublish;//是否上架 0不上架，1上架
     private String faceImage;//押题图
@@ -45,5 +46,13 @@ public class StoryListDto {
 
     public void setFaceImage(String faceImage) {
         this.faceImage = faceImage;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }
