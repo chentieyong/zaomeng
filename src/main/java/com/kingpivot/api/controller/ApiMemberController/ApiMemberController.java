@@ -3,6 +3,7 @@ package com.kingpivot.api.controller.ApiMemberController;
 import com.google.common.collect.Maps;
 import com.kingpivot.api.dto.member.ApplicationMemberListDto;
 import com.kingpivot.api.dto.member.MemberLoginDto;
+import com.kingpivot.api.dto.member.MyChildrenMemberList;
 import com.kingpivot.api.dto.memberstatistics.MemberStatisticsInfoDto;
 import com.kingpivot.base.application.model.Application;
 import com.kingpivot.base.application.service.ApplicationService;
@@ -774,6 +775,71 @@ public class ApiMemberController extends ApiBaseController {
         rsMap.put("data", messagePage);
 
         return MessagePacket.newSuccess(rsMap, "getApplicationMemberList success!");
+    }
+
+    @ApiOperation(value = "获取我的下级会员列表", notes = "获取我的下级会员列表")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query", name = "currentPage", value = "分页，页码从1开始", dataType = "int"),
+            @ApiImplicitParam(paramType = "query", name = "pageNumber", value = "每一页大小", dataType = "int"),
+            @ApiImplicitParam(paramType = "query", name = "goodsCategoryID", value = "分类id", dataType = "String"),
+            @ApiImplicitParam(paramType = "query", name = "sessionID", value = "登录标识", dataType = "String")})
+    @RequestMapping(value = "/getMyChildrenMemberList")
+    public MessagePacket getMyChildrenMemberList(HttpServletRequest request) {
+        String sessionID = request.getParameter("sessionID");
+        if (StringUtils.isEmpty(sessionID)) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        Member member = (Member) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBER_KEY.key, sessionID));
+        if (member == null) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        MemberLogDTO memberLogDTO = (MemberLogDTO) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBERLOG_KEY.key, sessionID));
+        if (memberLogDTO == null) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("isValid", Constants.ISVALID_YES);
+        paramMap.put("isLock", Constants.ISLOCK_NO);
+        paramMap.put("recommandID", member.getId());
+
+        List<Sort.Order> orders = new ArrayList<Sort.Order>();
+        orders.add(new Sort.Order(Sort.Direction.DESC, "createdTime"));
+
+        Object currentPage = request.getParameter("currentPage");
+        Object pageNumber = request.getParameter("pageNumber");
+
+        TPage page = ApiPageUtil.makePage(currentPage, pageNumber);
+
+        Pageable pageable = new PageRequest(page.getOffset(), page.getPageSize(), new Sort(orders));
+
+        Page<Member> rs = memberService.list(paramMap, pageable);
+
+        List<MyChildrenMemberList> list = null;
+        if (rs != null && rs.getSize() != 0) {
+            list = BeanMapper.mapList(rs.getContent(), MyChildrenMemberList.class);
+            page.setTotalSize((int) rs.getTotalElements());
+        } else {
+            list = new ArrayList<>();
+        }
+
+        Map<String, Object> rsMap = Maps.newHashMap();
+        MessagePage messagePage = new MessagePage(page, list);
+        rsMap.put("data", messagePage);
+
+        String description = String.format("%s获取我的下级会员列表", member.getName());
+
+        UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));
+        MemberLogRequestBase base = MemberLogRequestBase.BALANCE()
+                .sessionID(sessionID)
+                .description(description)
+                .userAgent(userAgent == null ? null : userAgent.getBrowserType())
+                .operateType(Memberlog.MemberOperateType.GETMYCHILDRENMEMBERLIST.getOname())
+                .build();
+
+        sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
+
+        return MessagePacket.newSuccess(rsMap, "getMyChildrenMemberList success!");
     }
 
     //发送会员登录日志
