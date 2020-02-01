@@ -111,7 +111,8 @@ public class Memberlog extends BaseModel<String> {
         GETNOREADMESSAGENUM("获取未阅读消息数量"),GETMEMBERSTATISTICS("获取会员统计信息"),MEMBERSIGNININIT("会员签到初始化"),SUBMITONESTORY("提交一个故事")
         ,GETMEMBERORDERGOODSRETURNLIST("获取会员订单商品退货列表"),GETMEMBERORDERGOODSRETURNDETAIL("获取会员订单商品退货详情"),UPDATEONESTORY("修改一个故事")
         ,DELETEONESTORY("删除一个故事"),ADDCOLLECT("加入收藏"),ADDPRAISE("加入赞"),REMOVEPRAISE("删除赞"),GETPRAISELIST("获取会员赞列表")
-        ,GETOBJECTPRAISELIST("获取对象赞列表"),GETSTORYLIST("获取故事列表"),GETSTORYDETAIL("获取故事详情"),GETMYCHILDRENMEMBERLIST("获取我的下级会员列表");
+        ,GETOBJECTPRAISELIST("获取对象赞列表"),GETSTORYLIST("获取故事列表"),GETSTORYDETAIL("获取故事详情"),GETMYCHILDRENMEMBERLIST("获取我的下级会员列表"),
+        GETMAJORLIST("获取专业列表"),APPLYONEMAJOR("申请一个专业身份"),UPDATEONEMEMBERMAJOR("修改一个会员专业"),DELETEONEMEMBERMAJOR("删除一个会员专业");
         private String oname;
 
         MemberOperateType(String oname) {

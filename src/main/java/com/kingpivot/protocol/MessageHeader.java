@@ -163,6 +163,10 @@ public class MessageHeader implements Serializable {
         pageIsNull(10086),//page为空
         sceneIsNull(10087),//scene为空
         publicNoIsNull(10088),//publicNo为空
+        majorIDIsNull(10089),//majorIDIsNull为空
+        memberMajorIDIsNull(10090),//memberMajorID为空
+        memberMajorIDIsError(10091),//memberMajorID不正确
+        majorIsApply(10092),//专业已申请
         ;
         public int code;
 
