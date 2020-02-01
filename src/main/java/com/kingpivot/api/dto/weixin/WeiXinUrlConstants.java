@@ -13,4 +13,6 @@ public class WeiXinUrlConstants {
 
     public static final String GET_WEIXINAPPCODE_URL = "https://api.weixin.qq.com/sns/jscode2session";
 
+    public static final String GET_WEIXINACODEUNLIMIT_URL = "https://api.weixin.qq.com/wxa/getwxacodeunlimit";
+
 }

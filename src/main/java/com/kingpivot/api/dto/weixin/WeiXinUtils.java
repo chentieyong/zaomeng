@@ -3,6 +3,7 @@ package com.kingpivot.api.dto.weixin;
 import com.kingpivot.common.utils.JacksonHelper;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,11 +15,11 @@ public class WeiXinUtils {
 
     public static final String CHARSET = "UTF-8";
 
-    public static WeiXinToken getToken(String appID,String secret){
-        Map<String,String> param = new HashMap<>();
-        param.put("grant_type","client_credential");
-        param.put("appid",appID);
-        param.put("secret",secret);
+    public static WeiXinToken getToken(String appID, String secret) {
+        Map<String, String> param = new HashMap<>();
+        param.put("grant_type", "client_credential");
+        param.put("appid", appID);
+        param.put("secret", secret);
         WeiXinToken weiXinToken = null;
         try {
             String responseStr = HttpUtil.doGet(WeiXinUrlConstants.GET_TOKEN_URL, param);
@@ -29,8 +30,22 @@ public class WeiXinUtils {
         return weiXinToken;
     }
 
+    //获取自定义二维码
+    public static InputStream getwxacodeunlimit(String scene, String page, String appId, String secret) {
+        WeiXinToken weixinToken = getToken(appId, secret);
+        if (weixinToken == null) {
+            return null;
+        }
+        String data = "{\"scene\": \"" + scene + "\", \"page\": \"" + page + "\", \"width\": \"200\"}";
+        InputStream inputStream = HttpUtil.postWx(String.format("%S?access_token=%s",
+                WeiXinUrlConstants.GET_WEIXINACODEUNLIMIT_URL,
+                weixinToken.getAccess_token()), data);
+        return inputStream;
+    }
+
     /**
      * 随机16为数值
+     *
      * @return
      */
     public static String buildRandom() {
@@ -47,7 +62,7 @@ public class WeiXinUtils {
         return (int) ((random * num)) + strTime;
     }
 
-    public static String getTimestamp(){
+    public static String getTimestamp() {
         return String.format("%s", System.currentTimeMillis()).substring(0, 10);
     }
 }

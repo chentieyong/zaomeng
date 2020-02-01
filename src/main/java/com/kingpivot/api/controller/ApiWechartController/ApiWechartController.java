@@ -1,11 +1,17 @@
 package com.kingpivot.api.controller.ApiWechartController;
 
 import com.google.common.collect.Maps;
+import com.kingpivot.Result;
 import com.kingpivot.api.dto.weixin.*;
+import com.kingpivot.base.config.Config;
 import com.kingpivot.base.wechart.model.Wechart;
 import com.kingpivot.base.wechart.service.WechartService;
+import com.kingpivot.client.FileClient;
 import com.kingpivot.common.util.JsonUtil;
 import com.kingpivot.common.util.MapUtil;
+import com.kingpivot.common.utils.FileUtil;
+import com.kingpivot.common.utils.IdGenerator;
+import com.kingpivot.common.utils.JacksonHelper;
 import com.kingpivot.protocol.ApiBaseController;
 import com.kingpivot.protocol.MessageHeader;
 import com.kingpivot.protocol.MessagePacket;
@@ -20,6 +26,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -113,5 +121,50 @@ public class ApiWechartController extends ApiBaseController {
             return MessagePacket.newFail(MessageHeader.Code.weixinFormID, "获取openid异常，请联系管理员");
         }
         return MessagePacket.newSuccess(rsMap, "getWeiXinAppOpenId success");
+    }
+
+    @ApiOperation(value = "独立接口：获取自定义小程序二维码", notes = "独立接口：获取自定义小程序二维码")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query", name = "page", value = "页面路径", dataType = "String"),
+            @ApiImplicitParam(paramType = "query", name = "scene", value = "参数", dataType = "String"),
+            @ApiImplicitParam(paramType = "query", name = "publicNo", value = "公众号标识", dataType = "String"),
+    })
+    @RequestMapping(value = "/getWeixinAppQrcode")
+    public MessagePacket getWeixinAppQrcode(HttpServletRequest request) {
+        String page = request.getParameter("page");
+        String scene = request.getParameter("scene");
+        String publicNo = request.getParameter("publicNo");
+        if (StringUtils.isEmpty(page)) {
+            return MessagePacket.newFail(MessageHeader.Code.pageIsNull, "page不能为空");
+        }
+        if (StringUtils.isEmpty(scene)) {
+            return MessagePacket.newFail(MessageHeader.Code.sceneIsNull, "scene不能为空");
+        }
+        if (StringUtils.isEmpty(publicNo)) {
+            return MessagePacket.newFail(MessageHeader.Code.publicNoIsNull, "publicNo不能为空");
+        }
+        Wechart wechart = wechartService.getWechartByPublicNo(publicNo);
+        if (wechart == null) {
+            return MessagePacket.newFail(MessageHeader.Code.publicNoIsError, "publicNo不正确");
+        }
+        InputStream inputStream = WeiXinUtils.getwxacodeunlimit(scene, page, wechart.getAPPid(), wechart.getAPPsecret());
+        if (null != inputStream) {
+            String fileName = String.format("%s.jpg", IdGenerator.uuid32());
+            File file = new File(fileName);
+            FileUtil.inputStreamToFile(inputStream, file);
+            String url = FileClient.uploadFile(file, fileName, ".jpg", Config.LOCAL_FILE_SERVER_BUCKET, false);
+            file.delete();
+            if (StringUtils.hasText(url)) {
+                Result result = JacksonHelper.fromJson(url, Result.class);
+                if (result != null) {
+                    Map<String, Object> rsMap = Maps.newHashMap();
+                    rsMap.put("url", result.getFilePath());
+                    return MessagePacket.newSuccess(rsMap, "getWeixinAppQrcode success");
+                }
+            }
+            return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "文件生成失败，请联系管理员");
+        } else {
+            return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "文件为空");
+        }
     }
 }
