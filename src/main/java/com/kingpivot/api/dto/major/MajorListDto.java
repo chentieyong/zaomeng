@@ -9,6 +9,8 @@ public class MajorListDto {
     private String listImage;
     private String faceImage;
     private int applyType;//1注册赠送，2会员申请，3后台赠送
+    private int myVerifyStatus;
+    private String myApplyTimeStr;
 
     public String getId() {
         return id;
@@ -72,5 +74,21 @@ public class MajorListDto {
 
     public void setApplyType(int applyType) {
         this.applyType = applyType;
+    }
+
+    public int getMyVerifyStatus() {
+        return myVerifyStatus;
+    }
+
+    public void setMyVerifyStatus(int myVerifyStatus) {
+        this.myVerifyStatus = myVerifyStatus;
+    }
+
+    public String getMyApplyTimeStr() {
+        return myApplyTimeStr;
+    }
+
+    public void setMyApplyTimeStr(String myApplyTimeStr) {
+        this.myApplyTimeStr = myApplyTimeStr;
     }
 }

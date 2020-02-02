@@ -29,4 +29,9 @@ public class MemberMajorServiceImpl extends BaseServiceImpl<MemberMajor, String>
         }
         return false;
     }
+
+    @Override
+    public MemberMajor getMemberMajorByMajorIdAndMemberId(String majorID, String memberID) {
+        return memberMajorDao.getMemberMajorByMajorIdAndMemberId(majorID, memberID);
+    }
 }

@@ -7,6 +7,8 @@ import com.kingpivot.base.config.UserAgent;
 import com.kingpivot.base.major.model.Major;
 import com.kingpivot.base.major.service.MajorService;
 import com.kingpivot.base.member.model.Member;
+import com.kingpivot.base.memberMajor.model.MemberMajor;
+import com.kingpivot.base.memberMajor.service.MemberMajorService;
 import com.kingpivot.base.memberlog.model.Memberlog;
 import com.kingpivot.base.support.MemberLogDTO;
 import com.kingpivot.common.jms.SendMessageService;
@@ -49,6 +51,8 @@ public class ApiMajorController extends ApiBaseController {
     private RedisTemplate redisTemplate;
     @Autowired
     private MajorService majorService;
+    @Autowired
+    private MemberMajorService memberMajorService;
 
     @ApiOperation(value = "获取专业列表", notes = "获取专业列表")
     @ApiImplicitParams({
@@ -77,7 +81,7 @@ public class ApiMajorController extends ApiBaseController {
         paramMap.put("isValid", Constants.ISVALID_YES);
         paramMap.put("isLock", Constants.ISLOCK_NO);
         paramMap.put("applicationID", member.getApplicationID());
-        if(StringUtils.isNotBlank(applyType)){
+        if (StringUtils.isNotBlank(applyType)) {
             paramMap.put("applyType", Integer.parseInt(applyType));
         }
 
@@ -96,6 +100,13 @@ public class ApiMajorController extends ApiBaseController {
         List<MajorListDto> list = null;
         if (rs != null && rs.getSize() != 0) {
             list = BeanMapper.mapList(rs.getContent(), MajorListDto.class);
+            for (MajorListDto obj : list) {
+                MemberMajor memberMajor = memberMajorService.getMemberMajorByMajorIdAndMemberId(obj.getId(), member.getId());
+                if (memberMajor != null) {
+                    obj.setMyApplyTimeStr(TimeTest.toDateTimeFormat(memberMajor.getCreatedTime()));
+                    obj.setMyVerifyStatus(memberMajor.getStatus());
+                }
+            }
             page.setTotalSize((int) rs.getTotalElements());
         } else {
             list = new ArrayList<>();

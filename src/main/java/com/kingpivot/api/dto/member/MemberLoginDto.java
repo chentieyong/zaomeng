@@ -35,7 +35,11 @@ public class MemberLoginDto {
 
     private String recommandID;//推荐人;
 
-    private String recommandName;//推荐人姓名
+    private String recommandMemberName;//推荐人姓名
+
+    private String recommandMemberCode;//推荐会员编号
+
+    private String recommandMemberAvatarURL;//推荐会员头像
 
     private String recommandCode;//推荐码
 
@@ -217,11 +221,27 @@ public class MemberLoginDto {
         this.rankName = rankName;
     }
 
-    public String getRecommandName() {
-        return recommandName;
+    public String getRecommandMemberName() {
+        return recommandMemberName;
     }
 
-    public void setRecommandName(String recommandName) {
-        this.recommandName = recommandName;
+    public void setRecommandMemberName(String recommandMemberName) {
+        this.recommandMemberName = recommandMemberName;
+    }
+
+    public String getRecommandMemberCode() {
+        return recommandMemberCode;
+    }
+
+    public void setRecommandMemberCode(String recommandMemberCode) {
+        this.recommandMemberCode = recommandMemberCode;
+    }
+
+    public String getRecommandMemberAvatarURL() {
+        return recommandMemberAvatarURL;
+    }
+
+    public void setRecommandMemberAvatarURL(String recommandMemberAvatarURL) {
+        this.recommandMemberAvatarURL = recommandMemberAvatarURL;
     }
 }

@@ -104,6 +104,7 @@ public class ApiMemberMajorController extends ApiBaseController {
         if (StringUtils.isNotBlank(xianID)) {
             memberMajor.setXianID(xianID);
         }
+        memberMajor.setStatus(1);
         memberMajorService.save(memberMajor);
 
         Map<String, Object> rsMap = Maps.newHashMap();

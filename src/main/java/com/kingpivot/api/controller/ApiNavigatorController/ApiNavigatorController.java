@@ -218,6 +218,8 @@ public class ApiNavigatorController extends ApiBaseController {
                         break;
                 }
             }
+        } else {
+            list = new ArrayList<>();
         }
         Map<String, Object> rsMap = Maps.newHashMap();
         MessagePage messagePage = new MessagePage(page, list);

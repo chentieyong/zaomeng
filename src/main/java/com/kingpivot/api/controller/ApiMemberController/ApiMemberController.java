@@ -450,6 +450,50 @@ public class ApiMemberController extends ApiBaseController {
         return MessagePacket.newSuccess(rsMap, "updateMemberInfo success!");
     }
 
+    @ApiOperation(value = "取消会员推荐关系", notes = "取消会员推荐关系")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query", name = "sessionID", value = "登录标识", dataType = "String", required = false),
+            @ApiImplicitParam(paramType = "query", name = "name", value = "名称", dataType = "String", required = false),
+            @ApiImplicitParam(paramType = "query", name = "avatarURL", value = "头像", dataType = "String", required = false)})
+    @RequestMapping(value = "/cancelMemberRecommand")
+    public MessagePacket cancelMemberRecommand(HttpServletRequest request) {
+        String sessionID = request.getParameter("sessionID");
+        if (StringUtils.isEmpty(sessionID)) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        Member member = (Member) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBER_KEY.key, sessionID));
+        if (member == null) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        MemberLogDTO memberLogDTO = (MemberLogDTO) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBERLOG_KEY.key, sessionID));
+        if (memberLogDTO == null) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        String memberID = request.getParameter("memberID");
+        Member childrenMember = memberService.findById(memberID);
+        if (childrenMember == null) {
+            return MessagePacket.newFail(MessageHeader.Code.memberIDIsNull, "会员不存在");
+        }
+        childrenMember.setRecommandID(null);
+        childrenMember.setRecommandChain(null);
+        memberService.save(childrenMember);
+        String desc = String.format("%s取消%s会员推荐关系", member.getName(), childrenMember.getName());
+
+        UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));
+        MemberLogRequestBase base = MemberLogRequestBase.BALANCE()
+                .sessionID(sessionID)
+                .description(desc)
+                .userAgent(userAgent == null ? null : userAgent.getBrowserType())
+                .operateType(Memberlog.MemberOperateType.CANCELMEMBERRECOMMAND.getOname())
+                .build();
+
+        sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
+
+        Map<String, Object> rsMap = Maps.newHashMap();
+        rsMap.put("data", TimeTest.getTimeStr());
+        return MessagePacket.newSuccess(rsMap, "cancelMemberRecommand success!");
+    }
+
     @ApiOperation(value = "修改登录密码", notes = "修改登录密码")
     @ApiImplicitParams({
             @ApiImplicitParam(paramType = "query", name = "sessionID", value = "登录标识", dataType = "String", required = false),
@@ -658,7 +702,12 @@ public class ApiMemberController extends ApiBaseController {
             data.setRankName(rankService.getNameById(data.getRankID()));
         }
         if (StringUtils.isNotBlank(data.getRecommandID())) {
-            data.setRecommandName(memberService.getNameById(data.getRecommandID()));
+            Member recommandMember = memberService.findById(data.getRecommandID());
+            if (recommandMember != null) {
+                data.setRecommandMemberName(recommandMember.getName());
+                data.setRecommandMemberCode(recommandMember.getRecommandCode());
+                data.setRecommandMemberAvatarURL(recommandMember.getAvatarURL());
+            }
         }
         Map<String, Object> rsMap = Maps.newHashMap();
         rsMap.put("data", data);

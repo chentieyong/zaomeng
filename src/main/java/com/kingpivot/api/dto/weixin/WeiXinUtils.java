@@ -37,7 +37,7 @@ public class WeiXinUtils {
             return null;
         }
         String data = "{\"scene\": \"" + scene + "\", \"page\": \"" + page + "\", \"width\": \"200\"}";
-        InputStream inputStream = HttpUtil.postWx(String.format("%S?access_token=%s",
+        InputStream inputStream = HttpUtil.postWx(String.format("%s?access_token=%s",
                 WeiXinUrlConstants.GET_WEIXINACODEUNLIMIT_URL,
                 weixinToken.getAccess_token()), data);
         return inputStream;
