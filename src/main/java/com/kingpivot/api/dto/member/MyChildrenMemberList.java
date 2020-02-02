@@ -1,5 +1,9 @@
 package com.kingpivot.api.dto.member;
 
+import com.kingpivot.common.utils.TimeTest;
+
+import java.sql.Timestamp;
+
 public class MyChildrenMemberList {
     private String id;//主键
     private String name;//名称
@@ -18,6 +22,8 @@ public class MyChildrenMemberList {
     private String recommandChain;//推荐链
     private String avatarURL;//头像URL
     private String rankID;
+    private Timestamp createdTime;//创建时间
+    private String createdTimeStr;
 
     public String getId() {
         return id;
@@ -153,5 +159,24 @@ public class MyChildrenMemberList {
 
     public void setRankID(String rankID) {
         this.rankID = rankID;
+    }
+
+    public Timestamp getCreatedTime() {
+        return createdTime;
+    }
+
+    public void setCreatedTime(Timestamp createdTime) {
+        this.createdTime = createdTime;
+        if(createdTime!=null){
+            this.createdTimeStr = TimeTest.toDateTimeFormat(createdTime);
+        }
+    }
+
+    public String getCreatedTimeStr() {
+        return createdTimeStr;
+    }
+
+    public void setCreatedTimeStr(String createdTimeStr) {
+        this.createdTimeStr = createdTimeStr;
     }
 }
