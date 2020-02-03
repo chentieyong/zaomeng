@@ -43,7 +43,10 @@ public class ApiArticleController extends ApiBaseController {
         if (article == null) {
             return MessagePacket.newFail(MessageHeader.Code.articleIDIsError, "articleID不正确");
         }
-
+        //更新阅读次数
+        article.setReadTimes(article.getReadTimes() == null ? 1 : article.getReadTimes().intValue() + 1);
+        articleService.save(article);
+        
         ArticleDetailDto articleDetailDto = BeanMapper.map(article, ArticleDetailDto.class);
         Map<String, Object> rsMap = Maps.newHashMap();
         rsMap.put("data", articleDetailDto);

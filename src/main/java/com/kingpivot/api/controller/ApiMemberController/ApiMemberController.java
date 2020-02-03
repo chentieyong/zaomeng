@@ -7,6 +7,7 @@ import com.kingpivot.api.dto.member.MyChildrenMemberList;
 import com.kingpivot.api.dto.memberstatistics.MemberStatisticsInfoDto;
 import com.kingpivot.base.application.model.Application;
 import com.kingpivot.base.application.service.ApplicationService;
+import com.kingpivot.base.collect.service.CollectService;
 import com.kingpivot.base.config.Config;
 import com.kingpivot.base.config.RedisKey;
 import com.kingpivot.base.config.UserAgent;
@@ -16,6 +17,7 @@ import com.kingpivot.base.memberBonus.service.MemberBonusService;
 import com.kingpivot.base.memberlog.model.Memberlog;
 import com.kingpivot.base.memberstatistics.model.MemberStatistics;
 import com.kingpivot.base.memberstatistics.service.MemberStatisticsService;
+import com.kingpivot.base.praise.service.PraiseService;
 import com.kingpivot.base.rank.model.Rank;
 import com.kingpivot.base.rank.service.RankService;
 import com.kingpivot.base.site.model.Site;
@@ -93,6 +95,10 @@ public class ApiMemberController extends ApiBaseController {
     private MemberBonusService memberBonusService;
     @Autowired
     private RankService rankService;
+    @Autowired
+    private CollectService collectService;
+    @Autowired
+    private PraiseService praiseService;
 
     @ApiOperation(value = "会员登录", notes = "会员登录")
     @ApiImplicitParams({
@@ -682,20 +688,22 @@ public class ApiMemberController extends ApiBaseController {
         if (StringUtils.isEmpty(sessionID) && StringUtils.isEmpty(memberID)) {
             return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
         }
-        Member member = null;
+        Member loginMember = null;
         if (StringUtils.isNotBlank(sessionID)) {
-            member = (Member) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBER_KEY.key, sessionID));
-            if (member == null) {
+            loginMember = (Member) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBER_KEY.key, sessionID));
+            if (loginMember == null) {
                 return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
             }
-            memberID = member.getId();
         }
-
-        member = memberService.findById(memberID);
+        Member member = null;
+        if (StringUtils.isNotBlank(memberID)) {
+            member = memberService.findById(memberID);
+        } else if (loginMember != null) {
+            member = memberService.findById(loginMember.getId());
+        }
         if (member == null) {
             return MessagePacket.newFail(MessageHeader.Code.memberIDIsNull, "会员不存在");
         }
-
 
         MemberLoginDto data = BeanMapper.map(member, MemberLoginDto.class);
         if (StringUtils.isNotBlank(data.getRankID())) {
@@ -708,6 +716,10 @@ public class ApiMemberController extends ApiBaseController {
                 data.setRecommandMemberCode(recommandMember.getRecommandCode());
                 data.setRecommandMemberAvatarURL(recommandMember.getAvatarURL());
             }
+        }
+        if (loginMember != null) {
+            data.setCollectID(collectService.getCollectByObjectIDAndMemberID(member.getId(), loginMember.getId()));
+            data.setPraiseID(praiseService.getPraiseByObjectIDAndMemberID(member.getId(), loginMember.getId()));
         }
         Map<String, Object> rsMap = Maps.newHashMap();
         rsMap.put("data", data);

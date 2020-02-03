@@ -13,6 +13,8 @@ public class ObjectCollectDto {
     private String memberID;
     private String memberName;
     private String avatarURL;//头像URL
+    private String companyName;
+    private String jobName;
 
     public String getId() {
         return id;
@@ -56,6 +58,8 @@ public class ObjectCollectDto {
             this.memberID = member.getId();
             this.memberName = member.getName();
             this.avatarURL = member.getAvatarURL();
+            this.companyName = member.getCompanyName();
+            this.jobName = member.getJobName();
         }
     }
 
@@ -81,5 +85,21 @@ public class ObjectCollectDto {
 
     public void setAvatarURL(String avatarURL) {
         this.avatarURL = avatarURL;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+
+    public String getJobName() {
+        return jobName;
+    }
+
+    public void setJobName(String jobName) {
+        this.jobName = jobName;
     }
 }

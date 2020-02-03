@@ -144,6 +144,7 @@ public class ApiReleaseController extends ApiBaseController {
                                 releaseArticleListDto.setFaceImage(article.getFaceImage());
                                 releaseArticleListDto.setListImage(article.getListImage());
                                 releaseArticleListDto.setTitle(article.getTitle());
+                                releaseArticleListDto.setReadTimes(article.getReadTimes());
                                 releaseArticleListDto.setCreatedTime(release.getCreatedTime());
                                 articleList.add(releaseArticleListDto);
                             }

@@ -53,6 +53,10 @@ public class MemberLoginDto {
 
     private String rankName;
 
+    private String collectID;
+
+    private String praiseID;
+
     public String getId() {
         return id;
     }
@@ -243,5 +247,21 @@ public class MemberLoginDto {
 
     public void setRecommandMemberAvatarURL(String recommandMemberAvatarURL) {
         this.recommandMemberAvatarURL = recommandMemberAvatarURL;
+    }
+
+    public String getCollectID() {
+        return collectID;
+    }
+
+    public void setCollectID(String collectID) {
+        this.collectID = collectID;
+    }
+
+    public String getPraiseID() {
+        return praiseID;
+    }
+
+    public void setPraiseID(String praiseID) {
+        this.praiseID = praiseID;
     }
 }

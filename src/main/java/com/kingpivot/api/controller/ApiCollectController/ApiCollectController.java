@@ -94,7 +94,7 @@ public class ApiCollectController extends ApiBaseController {
         String collectID = collectService.getCollectByObjectIDAndMemberID(objectID, member.getId());
 
         if (StringUtils.isNotBlank(collectID)) {
-            return MessagePacket.newFail(MessageHeader.Code.memberIsCollect, "会员已收藏");
+            return MessagePacket.newFail(MessageHeader.Code.memberIsCollect, "请勿重复收藏");
         }
         String objectName = request.getParameter("objectName");
         if (StringUtils.isEmpty(objectName)) {

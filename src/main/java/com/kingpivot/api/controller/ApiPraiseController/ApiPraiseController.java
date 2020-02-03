@@ -79,7 +79,7 @@ public class ApiPraiseController {
         String praiseID = praiseService.getPraiseByObjectIDAndMemberID(objectID, member.getId());
 
         if (StringUtils.isNotBlank(praiseID)) {
-            return MessagePacket.newFail(MessageHeader.Code.memberIsCollect, "会员已收藏");
+            return MessagePacket.newFail(MessageHeader.Code.memberIsCollect, "请勿重复赞");
         }
         String objectName = request.getParameter("objectName");
         if (StringUtils.isEmpty(objectName)) {
