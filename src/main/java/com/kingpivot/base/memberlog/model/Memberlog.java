@@ -113,7 +113,8 @@ public class Memberlog extends BaseModel<String> {
         ,DELETEONESTORY("删除一个故事"),ADDCOLLECT("加入收藏"),ADDPRAISE("加入赞"),REMOVEPRAISE("删除赞"),GETPRAISELIST("获取会员赞列表")
         ,GETOBJECTPRAISELIST("获取对象赞列表"),GETSTORYLIST("获取故事列表"),GETSTORYDETAIL("获取故事详情"),GETMYCHILDRENMEMBERLIST("获取我的下级会员列表"),
         GETMAJORLIST("获取专业列表"),APPLYONEMAJOR("申请一个专业身份"),UPDATEONEMEMBERMAJOR("修改一个会员专业"),DELETEONEMEMBERMAJOR("删除一个会员专业"),
-        CANCELMEMBERRECOMMAND("取消会员推荐关系");
+        CANCELMEMBERRECOMMAND("取消会员推荐关系"),SUBMITONECAPITALPOST("提交一个资金投出"),SUBMITONECAPITALNEED("提交一个资金需求"),SUBMITONEJOBNEED("职位求职")
+        ,SUBMITONEJOBPOST("提交一个职位需求"),SUBMITONEFRIENDNEED("提交一个交友需求"),SUBMITONEPRODUCT("提交一个产品"),SUBMITONEPBUYNEED("提交一个产品求购");
         private String oname;
 
         MemberOperateType(String oname) {
