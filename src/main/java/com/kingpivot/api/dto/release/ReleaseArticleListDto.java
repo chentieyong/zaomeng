@@ -23,7 +23,7 @@ public class ReleaseArticleListDto {
 
     private String createdTimeStr;//创建时间
 
-    private int readTimes = 0;
+    private Integer readTimes = 0;
 
 
     public String getId() {
@@ -99,11 +99,11 @@ public class ReleaseArticleListDto {
         this.createdTimeStr = createdTimeStr;
     }
 
-    public int getReadTimes() {
+    public Integer getReadTimes() {
         return readTimes;
     }
 
-    public void setReadTimes(int readTimes) {
+    public void setReadTimes(Integer readTimes) {
         this.readTimes = readTimes;
     }
 }

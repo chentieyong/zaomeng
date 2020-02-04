@@ -91,7 +91,6 @@ public class ApiReleaseController extends ApiBaseController {
         Map<String, Object> rsMap = Maps.newHashMap();
         MessagePage messagePage = null;
         if (rs != null && rs.getSize() != 0) {
-            page.setTotalSize((int) rs.getTotalElements());
             switch (objectDefineID) {
                 case Config.GOODSSHOP_OBJECTDEFINEID://店铺商品
                     List<ReleaseGoodsShopListDto> goodsShopList = new ArrayList<>();
@@ -127,6 +126,7 @@ public class ApiReleaseController extends ApiBaseController {
                         }
                     }
                     Collections.sort(goodsShopList);
+                    page.setTotalSize((int) rs.getTotalElements());
                     messagePage = new MessagePage(page, goodsShopList);
                     break;
                 case Config.ARTICLE_OBJECTDEFINEID://文章
@@ -150,13 +150,15 @@ public class ApiReleaseController extends ApiBaseController {
                             }
                         }
                     }
+                    page.setTotalSize((int) rs.getTotalElements());
                     messagePage = new MessagePage(page, articleList);
                     break;
                 default:
-                    page.setTotalSize(0);
                     messagePage = new MessagePage(page, new ArrayList());
                     break;
             }
+        } else {
+            messagePage = new MessagePage(page, new ArrayList());
         }
         rsMap.put("data", messagePage);
 
