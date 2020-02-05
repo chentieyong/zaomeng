@@ -1,6 +1,8 @@
 package com.kingpivot.api.controller.ApiCapitalNeedController;
 
 import com.google.common.collect.Maps;
+import com.kingpivot.api.dto.capitalNeed.CapitalNeedDetailDto;
+import com.kingpivot.api.dto.capitalNeed.CapitalNeedListDto;
 import com.kingpivot.base.capitalNeed.model.CapitalNeed;
 import com.kingpivot.base.capitalNeed.service.CapitalNeedService;
 import com.kingpivot.base.config.Config;
@@ -12,18 +14,22 @@ import com.kingpivot.base.support.MemberLogDTO;
 import com.kingpivot.common.jms.SendMessageService;
 import com.kingpivot.common.jms.dto.attachment.AddAttachmentDto;
 import com.kingpivot.common.jms.dto.memberLog.MemberLogRequestBase;
-import com.kingpivot.common.utils.JacksonHelper;
-import com.kingpivot.common.utils.TimeTest;
-import com.kingpivot.common.utils.UserAgentUtil;
+import com.kingpivot.common.util.Constants;
+import com.kingpivot.common.utils.*;
 import com.kingpivot.protocol.ApiBaseController;
 import com.kingpivot.protocol.MessageHeader;
 import com.kingpivot.protocol.MessagePacket;
+import com.kingpivot.protocol.MessagePage;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,6 +37,9 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RequestMapping("/api")
@@ -148,5 +157,62 @@ public class ApiCapitalNeedController extends ApiBaseController {
         rsMap.put("data", capitalPost.getId());
 
         return MessagePacket.newSuccess(rsMap, "submitOneCapitalNeed success!");
+    }
+
+    @ApiOperation(value = "getCapitalNeedList", notes = "获取资金需求列表")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query", name = "applicationID", value = "应用id", dataType = "String"),
+            @ApiImplicitParam(paramType = "query", name = "currentPage", value = "分页，页码从1开始", dataType = "int"),
+            @ApiImplicitParam(paramType = "query", name = "pageNumber", value = "每一页大小", dataType = "int")})
+    @RequestMapping(value = "/getCapitalNeedList")
+    public MessagePacket getCapitalNeedList(HttpServletRequest request) {
+        String applicationID = request.getParameter("applicationID");
+        if (StringUtils.isEmpty(applicationID)) {
+            return MessagePacket.newFail(MessageHeader.Code.applicationIdIsNull, "applicationID不能为空");
+        }
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("applicationID", applicationID);
+        paramMap.put("isValid", Constants.ISVALID_YES);
+        paramMap.put("isLock", Constants.ISLOCK_NO);
+
+        List<Sort.Order> orders = new ArrayList<Sort.Order>();
+        orders.add(new Sort.Order(Sort.Direction.DESC, "createdTime"));
+
+        Object currentPage = request.getParameter("currentPage");
+        Object pageNumber = request.getParameter("pageNumber");
+
+        TPage page = ApiPageUtil.makePage(currentPage, pageNumber);
+
+        Pageable pageable = new PageRequest(page.getOffset(), page.getPageSize(), new Sort(orders));
+
+        Page<CapitalNeed> rs = capitalNeedService.list(paramMap, pageable);
+        List<CapitalNeedListDto> list = null;
+        if (rs != null && rs.getSize() != 0) {
+            list = BeanMapper.mapList(rs.getContent(), CapitalNeedListDto.class);
+            page.setTotalSize((int) rs.getTotalElements());
+        }
+        Map<String, Object> rsMap = Maps.newHashMap();
+        MessagePage messagePage = new MessagePage(page, list);
+        rsMap.put("data", messagePage);
+        return MessagePacket.newSuccess(rsMap, "getCapitalNeedList success!");
+    }
+
+    @ApiOperation(value = "getCapitalNeedDetail", notes = "获取资金需求详情")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query", name = "capitalNeedID", value = "资金需求id", dataType = "String")})
+    @RequestMapping(value = "/getCapitalNeedDetail")
+    public MessagePacket getCapitalNeedDetail(HttpServletRequest request) {
+        String capitalNeedID = request.getParameter("capitalNeedID");
+        if (StringUtils.isEmpty(capitalNeedID)) {
+            return MessagePacket.newFail(MessageHeader.Code.capitalNeedIDIsNull, "capitalNeedID不能为空");
+        }
+        CapitalNeed capitalNeed = capitalNeedService.findById(capitalNeedID);
+        if (capitalNeed == null) {
+            return MessagePacket.newFail(MessageHeader.Code.capitalNeedIDIsError, "capitalNeedID不正确");
+        }
+        CapitalNeedDetailDto data = BeanMapper.map(capitalNeed, CapitalNeedDetailDto.class);
+        Map<String, Object> rsMap = Maps.newHashMap();
+        rsMap.put("data", data);
+        return MessagePacket.newSuccess(rsMap, "getCapitalNeedDetail success!");
     }
 }

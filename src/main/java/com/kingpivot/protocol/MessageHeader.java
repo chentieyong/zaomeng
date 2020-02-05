@@ -167,6 +167,20 @@ public class MessageHeader implements Serializable {
         memberMajorIDIsNull(10090),//memberMajorID为空
         memberMajorIDIsError(10091),//memberMajorID不正确
         majorIsApply(10092),//专业已申请
+        capitalNeedIDIsNull(10093),//资金需求id为空
+        capitalNeedIDIsError(10094),//资金需求不存在
+        jobNeedIDIsNull(10095),//职位求职id为空
+        jobNeedIDIsError(10096),//职位求职不存在
+        friendNeedIDIsNull(10097),//交友需求id为空
+        friendNeedIDIsError(10098),//交友需求不存在
+        capitalPostIDIsNull(10099),//资金需求id为空
+        capitalPostIDIsError(10110),//资金需求不存在
+        jobPostIDIsNull(10111),//职位求职id为空
+        jobPostIDIsError(10112),//职位需求不存在
+        productIDIsNull(10113),//产品id为空
+        productIDIsError(10114),//产品不存在
+        buyNeedIDIsNull(10115),//产品求购id为空
+        buyNeedIDIsError(10116),//产品求购不存在
         ;
         public int code;
 

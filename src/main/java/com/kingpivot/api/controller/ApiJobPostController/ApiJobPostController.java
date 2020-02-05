@@ -1,6 +1,8 @@
 package com.kingpivot.api.controller.ApiJobPostController;
 
 import com.google.common.collect.Maps;
+import com.kingpivot.api.dto.jobPost.JobPostDetailDto;
+import com.kingpivot.api.dto.jobPost.JobPostListDto;
 import com.kingpivot.base.config.Config;
 import com.kingpivot.base.config.RedisKey;
 import com.kingpivot.base.config.UserAgent;
@@ -12,18 +14,22 @@ import com.kingpivot.base.support.MemberLogDTO;
 import com.kingpivot.common.jms.SendMessageService;
 import com.kingpivot.common.jms.dto.attachment.AddAttachmentDto;
 import com.kingpivot.common.jms.dto.memberLog.MemberLogRequestBase;
-import com.kingpivot.common.utils.JacksonHelper;
-import com.kingpivot.common.utils.TimeTest;
-import com.kingpivot.common.utils.UserAgentUtil;
+import com.kingpivot.common.util.Constants;
+import com.kingpivot.common.utils.*;
 import com.kingpivot.protocol.ApiBaseController;
 import com.kingpivot.protocol.MessageHeader;
 import com.kingpivot.protocol.MessagePacket;
+import com.kingpivot.protocol.MessagePage;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,6 +37,9 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RequestMapping("/api")
@@ -150,5 +159,62 @@ public class ApiJobPostController extends ApiBaseController {
         rsMap.put("data", jobNeed.getId());
 
         return MessagePacket.newSuccess(rsMap, "submitOneJobPost success!");
+    }
+
+    @ApiOperation(value = "getJobPostList", notes = "获取职位需求列表")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query", name = "applicationID", value = "应用id", dataType = "String"),
+            @ApiImplicitParam(paramType = "query", name = "currentPage", value = "分页，页码从1开始", dataType = "int"),
+            @ApiImplicitParam(paramType = "query", name = "pageNumber", value = "每一页大小", dataType = "int")})
+    @RequestMapping(value = "/getJobPostList")
+    public MessagePacket getJobPostList(HttpServletRequest request) {
+        String applicationID = request.getParameter("applicationID");
+        if (StringUtils.isEmpty(applicationID)) {
+            return MessagePacket.newFail(MessageHeader.Code.applicationIdIsNull, "applicationID不能为空");
+        }
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("applicationID", applicationID);
+        paramMap.put("isValid", Constants.ISVALID_YES);
+        paramMap.put("isLock", Constants.ISLOCK_NO);
+
+        List<Sort.Order> orders = new ArrayList<Sort.Order>();
+        orders.add(new Sort.Order(Sort.Direction.DESC, "createdTime"));
+
+        Object currentPage = request.getParameter("currentPage");
+        Object pageNumber = request.getParameter("pageNumber");
+
+        TPage page = ApiPageUtil.makePage(currentPage, pageNumber);
+
+        Pageable pageable = new PageRequest(page.getOffset(), page.getPageSize(), new Sort(orders));
+
+        Page<JobPost> rs = jobPostService.list(paramMap, pageable);
+        List<JobPostListDto> list = null;
+        if (rs != null && rs.getSize() != 0) {
+            list = BeanMapper.mapList(rs.getContent(), JobPostListDto.class);
+            page.setTotalSize((int) rs.getTotalElements());
+        }
+        Map<String, Object> rsMap = Maps.newHashMap();
+        MessagePage messagePage = new MessagePage(page, list);
+        rsMap.put("data", messagePage);
+        return MessagePacket.newSuccess(rsMap, "getJobPostList success!");
+    }
+
+    @ApiOperation(value = "getJobPostDetail", notes = "获取职位需求详情")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query", name = "jobPostID", value = "职位需求id", dataType = "String")})
+    @RequestMapping(value = "/getJobPostDetail")
+    public MessagePacket getJobNeedDetail(HttpServletRequest request) {
+        String jobPostID = request.getParameter("jobPostID");
+        if (StringUtils.isEmpty(jobPostID)) {
+            return MessagePacket.newFail(MessageHeader.Code.jobPostIDIsNull, "jobPostID不能为空");
+        }
+        JobPost jobPost = jobPostService.findById(jobPostID);
+        if (jobPost == null) {
+            return MessagePacket.newFail(MessageHeader.Code.jobPostIDIsError, "jobPostID不正确");
+        }
+        JobPostDetailDto data = BeanMapper.map(jobPost, JobPostDetailDto.class);
+        Map<String, Object> rsMap = Maps.newHashMap();
+        rsMap.put("data", data);
+        return MessagePacket.newSuccess(rsMap, "getJobPostDetail success!");
     }
 }
