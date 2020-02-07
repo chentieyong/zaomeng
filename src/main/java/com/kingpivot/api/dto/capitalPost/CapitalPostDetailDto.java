@@ -20,6 +20,10 @@ public class CapitalPostDetailDto {
 
     private String avatarURL;//头像URL
 
+    private String companyName;
+
+    private String jobName;
+
     private String memberID;//发布人
 
     private Timestamp beginDate;//开始日期
@@ -76,6 +80,8 @@ public class CapitalPostDetailDto {
             this.memberID = member.getId();
             this.memberName = member.getName();
             this.avatarURL = member.getAvatarURL();
+            this.companyName = member.getCompanyName();
+            this.jobName = member.getJobName();
         }
     }
 

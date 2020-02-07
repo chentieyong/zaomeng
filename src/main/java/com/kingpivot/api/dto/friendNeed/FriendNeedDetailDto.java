@@ -19,6 +19,10 @@ public class FriendNeedDetailDto {
 
     private String avatarURL;//头像URL
 
+    private String companyName;
+
+    private String jobName;
+
     private String name;
 
     private String shortName;
@@ -77,6 +81,8 @@ public class FriendNeedDetailDto {
             this.memberID = member.getId();
             this.memberName = member.getName();
             this.avatarURL = member.getAvatarURL();
+            this.companyName = member.getCompanyName();
+            this.jobName = member.getJobName();
         }
     }
 
@@ -190,5 +196,21 @@ public class FriendNeedDetailDto {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+
+    public String getJobName() {
+        return jobName;
+    }
+
+    public void setJobName(String jobName) {
+        this.jobName = jobName;
     }
 }

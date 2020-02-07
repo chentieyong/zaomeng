@@ -90,6 +90,7 @@ public class ApiBuyNeedController extends ApiBaseController {
         String description = request.getParameter("description");//说明
         String beginDate = request.getParameter("beginDate");//开始日期
         String endDate = request.getParameter("endDate");//结束日期
+        String days = request.getParameter("days");//发布在线天数
         String beginAmount = request.getParameter("beginAmount");
         String endAmount = request.getParameter("endAmount");
         String fromWhere = request.getParameter("fromWhere");
@@ -107,10 +108,12 @@ public class ApiBuyNeedController extends ApiBaseController {
         } else {
             buyNeed.setBeginDate(TimeTest.strToDate(beginDate));
         }
-        if (StringUtils.isEmpty(endDate)) {
-            buyNeed.setEndDate(TimeTest.timeAddDay(new Timestamp(System.currentTimeMillis()), 7));
-        } else {
+        if (StringUtils.isNotBlank(endDate)) {
             buyNeed.setEndDate(TimeTest.strToDate(endDate));
+        } else if (StringUtils.isNotBlank(days)) {
+            buyNeed.setEndDate(TimeTest.timeAddDay(new Timestamp(System.currentTimeMillis()), Integer.parseInt(days)));
+        } else {
+            buyNeed.setEndDate(TimeTest.timeAddDay(new Timestamp(System.currentTimeMillis()), 7));
         }
         if (StringUtils.isNotBlank(beginAmount)) {
             buyNeed.setBeginAmount(Integer.parseInt(beginAmount));

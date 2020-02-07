@@ -25,6 +25,10 @@ public class JobPostListDto {
 
     private String avatarURL;//头像URL
 
+    private String memberCompanyName;
+
+    private String memberJobName;
+
     private String name;//名称
 
     private String shortName;//简称
@@ -101,6 +105,8 @@ public class JobPostListDto {
             this.memberID = member.getId();
             this.memberName = member.getName();
             this.avatarURL = member.getAvatarURL();
+            this.memberCompanyName = member.getCompanyName();
+            this.memberJobName = member.getJobName();
         }
     }
 
@@ -190,5 +196,21 @@ public class JobPostListDto {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+
+    public String getMemberCompanyName() {
+        return memberCompanyName;
+    }
+
+    public void setMemberCompanyName(String memberCompanyName) {
+        this.memberCompanyName = memberCompanyName;
+    }
+
+    public String getMemberJobName() {
+        return memberJobName;
+    }
+
+    public void setMemberJobName(String memberJobName) {
+        this.memberJobName = memberJobName;
     }
 }

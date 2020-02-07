@@ -90,6 +90,7 @@ public class ApiJobNeedController extends ApiBaseController {
         String description = request.getParameter("description");//说明
         String beginDate = request.getParameter("beginDate");//开始日期
         String endDate = request.getParameter("endDate");//结束日期
+        String days = request.getParameter("days");//发布在线天数
         String age = request.getParameter("age");
         String titleID = request.getParameter("titleID");//性别
         String salaryCategoryID = request.getParameter("salaryCategoryID");//薪资范围
@@ -108,10 +109,12 @@ public class ApiJobNeedController extends ApiBaseController {
         } else {
             jobNeed.setBeginDate(TimeTest.strToDate(beginDate));
         }
-        if (StringUtils.isEmpty(endDate)) {
-            jobNeed.setEndDate(TimeTest.timeAddDay(new Timestamp(System.currentTimeMillis()), 7));
-        } else {
+        if (StringUtils.isNotBlank(endDate)) {
             jobNeed.setEndDate(TimeTest.strToDate(endDate));
+        } else if (StringUtils.isNotBlank(days)) {
+            jobNeed.setEndDate(TimeTest.timeAddDay(new Timestamp(System.currentTimeMillis()), Integer.parseInt(days)));
+        } else {
+            jobNeed.setEndDate(TimeTest.timeAddDay(new Timestamp(System.currentTimeMillis()), 7));
         }
         if (StringUtils.isNotBlank(age)) {
             jobNeed.setAge(Integer.parseInt(age));

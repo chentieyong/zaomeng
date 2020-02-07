@@ -12,6 +12,8 @@ public class CapitalNeedListDto {
     private Member member;
     private String memberName;
     private String avatarURL;//头像URL
+    private String companyName;
+    private String jobName;
 
     private String name;//名称
 
@@ -61,6 +63,8 @@ public class CapitalNeedListDto {
             this.memberID = member.getId();
             this.memberName = member.getName();
             this.avatarURL = member.getAvatarURL();
+            this.companyName = member.getCompanyName();
+            this.jobName = member.getJobName();
         }
     }
 
@@ -78,6 +82,22 @@ public class CapitalNeedListDto {
 
     public void setAvatarURL(String avatarURL) {
         this.avatarURL = avatarURL;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+
+    public String getJobName() {
+        return jobName;
+    }
+
+    public void setJobName(String jobName) {
+        this.jobName = jobName;
     }
 
     public String getName() {

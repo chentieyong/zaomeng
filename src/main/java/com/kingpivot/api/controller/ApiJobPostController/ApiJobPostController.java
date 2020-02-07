@@ -90,6 +90,7 @@ public class ApiJobPostController extends ApiBaseController {
         String description = request.getParameter("description");//说明
         String beginDate = request.getParameter("beginDate");//开始日期
         String endDate = request.getParameter("endDate");//结束日期
+        String days = request.getParameter("days");//发布在线天数
         String companyName = request.getParameter("companyName");
         String companyAddress = request.getParameter("companyAddress");
         String phone = request.getParameter("phone");
@@ -98,47 +99,49 @@ public class ApiJobPostController extends ApiBaseController {
         String educationCategoryID = request.getParameter("educationCategoryID");//学历
         String urls = request.getParameter("urls");//附件图
 
-        JobPost jobNeed = new JobPost();
-        jobNeed.setApplicationID(member.getApplicationID());
-        jobNeed.setName(name);
-        jobNeed.setDescription(description);
-        jobNeed.setMemberID(member.getId());
+        JobPost jobPost = new JobPost();
+        jobPost.setApplicationID(member.getApplicationID());
+        jobPost.setName(name);
+        jobPost.setDescription(description);
+        jobPost.setMemberID(member.getId());
         if (StringUtils.isEmpty(beginDate)) {
-            jobNeed.setBeginDate(new Timestamp(System.currentTimeMillis()));
+            jobPost.setBeginDate(new Timestamp(System.currentTimeMillis()));
         } else {
-            jobNeed.setBeginDate(TimeTest.strToDate(beginDate));
+            jobPost.setBeginDate(TimeTest.strToDate(beginDate));
         }
-        if (StringUtils.isEmpty(endDate)) {
-            jobNeed.setEndDate(TimeTest.timeAddDay(new Timestamp(System.currentTimeMillis()), 7));
+        if (StringUtils.isNotBlank(endDate)) {
+            jobPost.setEndDate(TimeTest.strToDate(endDate));
+        } else if (StringUtils.isNotBlank(days)) {
+            jobPost.setEndDate(TimeTest.timeAddDay(new Timestamp(System.currentTimeMillis()), Integer.parseInt(days)));
         } else {
-            jobNeed.setEndDate(TimeTest.strToDate(endDate));
+            jobPost.setEndDate(TimeTest.timeAddDay(new Timestamp(System.currentTimeMillis()), 7));
         }
         if (StringUtils.isNotBlank(companyName)) {
-            jobNeed.setCompanyName(companyName);
+            jobPost.setCompanyName(companyName);
         }
         if (StringUtils.isNotBlank(companyAddress)) {
-            jobNeed.setCompanyAddress(companyAddress);
+            jobPost.setCompanyAddress(companyAddress);
         }
         if (StringUtils.isNotBlank(phone)) {
-            jobNeed.setPhone(phone);
+            jobPost.setPhone(phone);
         }
         if (StringUtils.isNotBlank(salaryCategoryID)) {
-            jobNeed.setSalaryCategoryID(salaryCategoryID);
+            jobPost.setSalaryCategoryID(salaryCategoryID);
         }
         if (StringUtils.isNotBlank(needNumber)) {
-            jobNeed.setNeedNumber(Integer.parseInt(needNumber));
+            jobPost.setNeedNumber(Integer.parseInt(needNumber));
         }
         if (StringUtils.isNotBlank(educationCategoryID)) {
-            jobNeed.setEducationCategoryID(educationCategoryID);
+            jobPost.setEducationCategoryID(educationCategoryID);
         }
-        jobPostService.save(jobNeed);
+        jobPostService.save(jobPost);
 
         if (StringUtils.isNotBlank(urls)) {
             //新增附件图
             sendMessageService.sendAddAttachmentMessage(JacksonHelper.toJson(new AddAttachmentDto.Builder()
-                    .objectID(jobNeed.getId())
+                    .objectID(jobPost.getId())
                     .objectDefineID(Config.JOBNEED_OBJECTDEFIPOST)
-                    .objectName(jobNeed.getName())
+                    .objectName(jobPost.getName())
                     .fileType(1)
                     .showType(1)
                     .urls(urls)
@@ -156,7 +159,7 @@ public class ApiJobPostController extends ApiBaseController {
         sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
 
         Map<String, Object> rsMap = Maps.newHashMap();
-        rsMap.put("data", jobNeed.getId());
+        rsMap.put("data", jobPost.getId());
 
         return MessagePacket.newSuccess(rsMap, "submitOneJobPost success!");
     }

@@ -90,6 +90,7 @@ public class ApiCapitalPostController extends ApiBaseController {
         String description = request.getParameter("description");//说明
         String beginDate = request.getParameter("beginDate");//开始日期
         String endDate = request.getParameter("endDate");//结束日期
+        String days = request.getParameter("days");//发布时间
         String fromType = request.getParameter("fromType");//资金类型 1股权投资2金融投资3其他投资
         String stageType = request.getParameter("stageType");//发展阶段 1种子期 2初创期 3成长期 4稳健期
         String amountType = request.getParameter("amountType");//投资资金 1:小余50w 2:50w-100w 3:100w-500w 4:500w以上
@@ -107,10 +108,12 @@ public class ApiCapitalPostController extends ApiBaseController {
         } else {
             capitalPost.setBeginDate(TimeTest.strToDate(beginDate));
         }
-        if (StringUtils.isEmpty(endDate)) {
-            capitalPost.setEndDate(TimeTest.timeAddDay(new Timestamp(System.currentTimeMillis()), 7));
-        } else {
+        if (StringUtils.isNotBlank(endDate)) {
             capitalPost.setEndDate(TimeTest.strToDate(endDate));
+        } else if (StringUtils.isNotBlank(days)) {
+            capitalPost.setEndDate(TimeTest.timeAddDay(new Timestamp(System.currentTimeMillis()), Integer.parseInt(days)));
+        } else {
+            capitalPost.setEndDate(TimeTest.timeAddDay(new Timestamp(System.currentTimeMillis()), 7));
         }
         if (StringUtils.isEmpty(fromType)) {
             capitalPost.setFromType(3);

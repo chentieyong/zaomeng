@@ -91,6 +91,7 @@ public class ApiProductController extends ApiBaseController {
         String description = request.getParameter("description");//说明
         String beginDate = request.getParameter("beginDate");//开始日期
         String endDate = request.getParameter("endDate");//结束日期
+        String days = request.getParameter("days");//发布在线天数
         String amount = request.getParameter("endDate");//产品价格
         String priceUnit = request.getParameter("endDate");//价格单位
         String address = request.getParameter("endDate");//发货地址
@@ -109,10 +110,12 @@ public class ApiProductController extends ApiBaseController {
         } else {
             product.setBeginDate(TimeTest.strToDate(beginDate));
         }
-        if (StringUtils.isEmpty(endDate)) {
-            product.setEndDate(TimeTest.timeAddDay(new Timestamp(System.currentTimeMillis()), 7));
-        } else {
+        if (StringUtils.isNotBlank(endDate)) {
             product.setEndDate(TimeTest.strToDate(endDate));
+        } else if (StringUtils.isNotBlank(days)) {
+            product.setEndDate(TimeTest.timeAddDay(new Timestamp(System.currentTimeMillis()), Integer.parseInt(days)));
+        } else {
+            product.setEndDate(TimeTest.timeAddDay(new Timestamp(System.currentTimeMillis()), 7));
         }
         if (StringUtils.isNotBlank(amount)) {
             product.setAmount(Double.parseDouble(amount));

@@ -22,6 +22,10 @@ public class CapitalPostListDto {
 
     private String memberID;//发布人
 
+    private String companyName;
+
+    private String jobName;
+
     private Timestamp beginDate;//开始日期
 
     private String beginDateStr;//开始日期Str
@@ -76,6 +80,8 @@ public class CapitalPostListDto {
             this.memberID = member.getId();
             this.memberName = member.getName();
             this.avatarURL = member.getAvatarURL();
+            this.companyName = member.getCompanyName();
+            this.jobName = member.getJobName();
         }
     }
 
@@ -109,7 +115,7 @@ public class CapitalPostListDto {
 
     public void setBeginDate(Timestamp beginDate) {
         this.beginDate = beginDate;
-        if(beginDate!=null){
+        if (beginDate != null) {
             this.beginDateStr = TimeTest.toDateFormat(beginDate);
         }
     }
@@ -120,7 +126,7 @@ public class CapitalPostListDto {
 
     public void setEndDate(Timestamp endDate) {
         this.endDate = endDate;
-        if(endDate!=null){
+        if (endDate != null) {
             this.endDateStr = TimeTest.toDateFormat(endDate);
         }
     }
@@ -187,5 +193,21 @@ public class CapitalPostListDto {
 
     public void setEndDateStr(String endDateStr) {
         this.endDateStr = endDateStr;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+
+    public String getJobName() {
+        return jobName;
+    }
+
+    public void setJobName(String jobName) {
+        this.jobName = jobName;
     }
 }

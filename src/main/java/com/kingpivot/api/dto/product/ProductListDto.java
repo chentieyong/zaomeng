@@ -17,6 +17,10 @@ public class ProductListDto {
 
     private String avatarURL;//头像URL
 
+    private String companyName;
+
+    private String jobName;
+
     private String name;//名称
 
     private String shortName;//简称
@@ -67,6 +71,8 @@ public class ProductListDto {
             this.memberID = member.getId();
             this.memberName = member.getName();
             this.avatarURL = member.getAvatarURL();
+            this.companyName = member.getCompanyName();
+            this.jobName = member.getJobName();
         }
     }
 
@@ -180,5 +186,21 @@ public class ProductListDto {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+
+    public String getJobName() {
+        return jobName;
+    }
+
+    public void setJobName(String jobName) {
+        this.jobName = jobName;
     }
 }

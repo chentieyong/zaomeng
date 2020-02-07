@@ -90,6 +90,7 @@ public class ApiCapitalNeedController extends ApiBaseController {
         String description = request.getParameter("description");//说明
         String beginDate = request.getParameter("beginDate");//开始日期
         String endDate = request.getParameter("endDate");//结束日期
+        String days = request.getParameter("days");//发布在线天数
         String giveType = request.getParameter("giveType");//融资方式 1股权投资2金融投资3其他投资
         String stageType = request.getParameter("stageType");//发展阶段 1种子期 2初创期 3成长期 4稳健期
         String amountType = request.getParameter("amountType");//投资资金 1:小余50w 2:50w-100w 3:100w-500w 4:500w以上
@@ -97,46 +98,48 @@ public class ApiCapitalNeedController extends ApiBaseController {
         String zoneName = request.getParameter("zoneName");//投资地区
         String urls = request.getParameter("urls");//附件图
 
-        CapitalNeed capitalPost = new CapitalNeed();
-        capitalPost.setApplicationID(member.getApplicationID());
-        capitalPost.setName(name);
-        capitalPost.setDescription(description);
-        capitalPost.setMemberID(member.getId());
+        CapitalNeed capitalNeed = new CapitalNeed();
+        capitalNeed.setApplicationID(member.getApplicationID());
+        capitalNeed.setName(name);
+        capitalNeed.setDescription(description);
+        capitalNeed.setMemberID(member.getId());
         if (StringUtils.isEmpty(beginDate)) {
-            capitalPost.setBeginDate(new Timestamp(System.currentTimeMillis()));
+            capitalNeed.setBeginDate(new Timestamp(System.currentTimeMillis()));
         } else {
-            capitalPost.setBeginDate(TimeTest.strToDate(beginDate));
+            capitalNeed.setBeginDate(TimeTest.strToDate(beginDate));
         }
-        if (StringUtils.isEmpty(endDate)) {
-            capitalPost.setEndDate(TimeTest.timeAddDay(new Timestamp(System.currentTimeMillis()), 7));
+        if (StringUtils.isNotBlank(endDate)) {
+            capitalNeed.setEndDate(TimeTest.strToDate(endDate));
+        } else if (StringUtils.isNotBlank(days)) {
+            capitalNeed.setEndDate(TimeTest.timeAddDay(new Timestamp(System.currentTimeMillis()), Integer.parseInt(days)));
         } else {
-            capitalPost.setEndDate(TimeTest.strToDate(endDate));
+            capitalNeed.setEndDate(TimeTest.timeAddDay(new Timestamp(System.currentTimeMillis()), 7));
         }
         if (StringUtils.isEmpty(giveType)) {
-            capitalPost.setGiveType(3);
+            capitalNeed.setGiveType(3);
         } else {
-            capitalPost.setGiveType(Integer.parseInt(giveType));
+            capitalNeed.setGiveType(Integer.parseInt(giveType));
         }
         if (StringUtils.isEmpty(stageType)) {
-            capitalPost.setStageType(1);
+            capitalNeed.setStageType(1);
         } else {
-            capitalPost.setStageType(Integer.parseInt(stageType));
+            capitalNeed.setStageType(Integer.parseInt(stageType));
         }
         if (StringUtils.isEmpty(amountType)) {
-            capitalPost.setAmountType(1);
+            capitalNeed.setAmountType(1);
         } else {
-            capitalPost.setAmountType(Integer.parseInt(amountType));
+            capitalNeed.setAmountType(Integer.parseInt(amountType));
         }
-        capitalPost.setIndustrialName(industrialName);
-        capitalPost.setZoneName(zoneName);
-        capitalNeedService.save(capitalPost);
+        capitalNeed.setIndustrialName(industrialName);
+        capitalNeed.setZoneName(zoneName);
+        capitalNeedService.save(capitalNeed);
 
         if (StringUtils.isNotBlank(urls)) {
             //新增附件图
             sendMessageService.sendAddAttachmentMessage(JacksonHelper.toJson(new AddAttachmentDto.Builder()
-                    .objectID(capitalPost.getId())
+                    .objectID(capitalNeed.getId())
                     .objectDefineID(Config.CAPITALNEED_OBJECTDEFINEID)
-                    .objectName(capitalPost.getName())
+                    .objectName(capitalNeed.getName())
                     .fileType(1)
                     .showType(1)
                     .urls(urls)
@@ -154,7 +157,7 @@ public class ApiCapitalNeedController extends ApiBaseController {
         sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
 
         Map<String, Object> rsMap = Maps.newHashMap();
-        rsMap.put("data", capitalPost.getId());
+        rsMap.put("data", capitalNeed.getId());
 
         return MessagePacket.newSuccess(rsMap, "submitOneCapitalNeed success!");
     }
