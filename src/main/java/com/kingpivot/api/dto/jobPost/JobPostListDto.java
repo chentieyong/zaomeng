@@ -1,7 +1,9 @@
 package com.kingpivot.api.dto.jobPost;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.kingpivot.base.category.model.Category;
 import com.kingpivot.base.member.model.Member;
+import com.kingpivot.common.utils.TimeTest;
 
 import java.sql.Timestamp;
 
@@ -13,6 +15,8 @@ public class JobPostListDto {
     private String companyName;//公司名称
 
     private String companyAddress;//公司地址
+
+    private String jobCategory;//工作性质
 
     private String phone;//电话
 
@@ -37,13 +41,27 @@ public class JobPostListDto {
 
     private Timestamp beginDate;//开始日期
 
+    private String beginDateStr;//开始日期
+
     private Timestamp endDate;//结束日期
+
+    private String endDateStr;//结束日期
 
     private int needNumber = 1;//需求个数
 
     private String educationCategoryID;//学历要求
 
+    private String educationCategoryName;//学历要求
+
+    @JsonIgnore
+    private Category educationCategory;
+
     private String salaryCategoryID;//资金待遇
+
+    @JsonIgnore
+    private Category salaryCategory;
+
+    private String salaryCategoryName;//资金待遇
 
     private int status = 1;//状态 1新
 
@@ -156,6 +174,9 @@ public class JobPostListDto {
 
     public void setBeginDate(Timestamp beginDate) {
         this.beginDate = beginDate;
+        if (beginDate != null) {
+            this.beginDateStr = TimeTest.toDateFormat(beginDate);
+        }
     }
 
     public Timestamp getEndDate() {
@@ -164,6 +185,9 @@ public class JobPostListDto {
 
     public void setEndDate(Timestamp endDate) {
         this.endDate = endDate;
+        if (endDate != null) {
+            this.endDateStr = TimeTest.toDateFormat(endDate);
+        }
     }
 
     public int getNeedNumber() {
@@ -212,5 +236,67 @@ public class JobPostListDto {
 
     public void setMemberJobName(String memberJobName) {
         this.memberJobName = memberJobName;
+    }
+
+    public String getJobCategory() {
+        return jobCategory;
+    }
+
+    public void setJobCategory(String jobCategory) {
+        this.jobCategory = jobCategory;
+    }
+
+    public String getEducationCategoryName() {
+        return educationCategoryName;
+    }
+
+    public void setEducationCategoryName(String educationCategoryName) {
+        this.educationCategoryName = educationCategoryName;
+    }
+
+    public Category getEducationCategory() {
+        return educationCategory;
+    }
+
+    public void setEducationCategory(Category educationCategory) {
+        this.educationCategory = educationCategory;
+        if (educationCategory != null) {
+            this.educationCategoryName = educationCategory.getName();
+        }
+    }
+
+    public Category getSalaryCategory() {
+        return salaryCategory;
+    }
+
+    public void setSalaryCategory(Category salaryCategory) {
+        this.salaryCategory = salaryCategory;
+        if (salaryCategory != null) {
+            this.salaryCategoryName = salaryCategory.getName();
+        }
+    }
+
+    public String getSalaryCategoryName() {
+        return salaryCategoryName;
+    }
+
+    public void setSalaryCategoryName(String salaryCategoryName) {
+        this.salaryCategoryName = salaryCategoryName;
+    }
+
+    public String getBeginDateStr() {
+        return beginDateStr;
+    }
+
+    public void setBeginDateStr(String beginDateStr) {
+        this.beginDateStr = beginDateStr;
+    }
+
+    public String getEndDateStr() {
+        return endDateStr;
+    }
+
+    public void setEndDateStr(String endDateStr) {
+        this.endDateStr = endDateStr;
     }
 }

@@ -1,5 +1,6 @@
 package com.kingpivot.base.jobPost.model;
 
+import com.kingpivot.base.category.model.Category;
 import com.kingpivot.base.member.model.Member;
 import com.kingpivot.common.model.BaseModel;
 import org.hibernate.annotations.GenericGenerator;
@@ -24,6 +25,9 @@ public class JobPost extends BaseModel<String> {
 
     @Column(length = 100)
     private String companyAddress;//公司地址
+
+    @Column(length = 100)
+    private String jobCategory;//工作性质
 
     @Column(length = 100)
     private String phone;//电话
@@ -54,9 +58,15 @@ public class JobPost extends BaseModel<String> {
 
     @Column(length = 36)
     private String educationCategoryID;//学历要求
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "educationCategoryID", insertable = false, updatable = false)  //不能保存和修改
+    private Category educationCategory;
 
     @Column
     private String salaryCategoryID;//资金待遇
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "salaryCategoryID", insertable = false, updatable = false)  //不能保存和修改
+    private Category salaryCategory;
 
     @Column(name = "status", columnDefinition = "int default 1")
     private int status = 1;//状态 1新
@@ -188,6 +198,30 @@ public class JobPost extends BaseModel<String> {
 
     public void setMember(Member member) {
         this.member = member;
+    }
+
+    public String getJobCategory() {
+        return jobCategory;
+    }
+
+    public void setJobCategory(String jobCategory) {
+        this.jobCategory = jobCategory;
+    }
+
+    public Category getEducationCategory() {
+        return educationCategory;
+    }
+
+    public void setEducationCategory(Category educationCategory) {
+        this.educationCategory = educationCategory;
+    }
+
+    public Category getSalaryCategory() {
+        return salaryCategory;
+    }
+
+    public void setSalaryCategory(Category salaryCategory) {
+        this.salaryCategory = salaryCategory;
     }
 }
 

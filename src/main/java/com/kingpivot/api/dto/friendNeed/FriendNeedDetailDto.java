@@ -1,7 +1,9 @@
 package com.kingpivot.api.dto.friendNeed;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.kingpivot.base.category.model.Category;
 import com.kingpivot.base.member.model.Member;
+import com.kingpivot.common.utils.TimeTest;
 
 import java.sql.Timestamp;
 
@@ -31,13 +33,22 @@ public class FriendNeedDetailDto {
 
     private Timestamp beginDate;//开始日期
 
+    private String beginDateStr;//开始日期
+
     private Timestamp endDate;//结束日期
+
+    private String endDateStr;//结束日期
 
     private int age;//年龄
 
     private String titleID;//性别
 
     private String salaryCategoryID;//收入范围
+
+    private String salaryCategoryName;//收入范围
+
+    @JsonIgnore
+    private Category salaryCategory;
 
     private String phone;//电话
 
@@ -132,6 +143,9 @@ public class FriendNeedDetailDto {
 
     public void setBeginDate(Timestamp beginDate) {
         this.beginDate = beginDate;
+        if(beginDate!=null){
+            this.beginDateStr = TimeTest.toDateFormat(beginDate);
+        }
     }
 
     public Timestamp getEndDate() {
@@ -140,6 +154,9 @@ public class FriendNeedDetailDto {
 
     public void setEndDate(Timestamp endDate) {
         this.endDate = endDate;
+        if(endDate!=null){
+            this.endDateStr = TimeTest.toDateFormat(endDate);
+        }
     }
 
     public int getAge() {
@@ -212,5 +229,40 @@ public class FriendNeedDetailDto {
 
     public void setJobName(String jobName) {
         this.jobName = jobName;
+    }
+
+    public Category getSalaryCategory() {
+        return salaryCategory;
+    }
+
+    public void setSalaryCategory(Category salaryCategory) {
+        this.salaryCategory = salaryCategory;
+        if (salaryCategory != null) {
+            this.salaryCategoryName = salaryCategory.getName();
+        }
+    }
+
+    public String getSalaryCategoryName() {
+        return salaryCategoryName;
+    }
+
+    public void setSalaryCategoryName(String salaryCategoryName) {
+        this.salaryCategoryName = salaryCategoryName;
+    }
+
+    public String getBeginDateStr() {
+        return beginDateStr;
+    }
+
+    public void setBeginDateStr(String beginDateStr) {
+        this.beginDateStr = beginDateStr;
+    }
+
+    public String getEndDateStr() {
+        return endDateStr;
+    }
+
+    public void setEndDateStr(String endDateStr) {
+        this.endDateStr = endDateStr;
     }
 }

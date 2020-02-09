@@ -96,6 +96,7 @@ public class ApiJobPostController extends ApiBaseController {
         String phone = request.getParameter("phone");
         String salaryCategoryID = request.getParameter("salaryCategoryID");//薪资范围
         String needNumber = request.getParameter("needNumber");
+        String jobCategory = request.getParameter("jobCategory");//工作性质
         String educationCategoryID = request.getParameter("educationCategoryID");//学历
         String urls = request.getParameter("urls");//附件图
 
@@ -134,6 +135,7 @@ public class ApiJobPostController extends ApiBaseController {
         if (StringUtils.isNotBlank(educationCategoryID)) {
             jobPost.setEducationCategoryID(educationCategoryID);
         }
+        jobPost.setJobCategory(jobCategory);
         jobPostService.save(jobPost);
 
         if (StringUtils.isNotBlank(urls)) {

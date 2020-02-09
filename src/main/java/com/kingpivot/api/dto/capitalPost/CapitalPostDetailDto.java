@@ -7,6 +7,8 @@ import com.kingpivot.common.utils.TimeTest;
 import java.sql.Timestamp;
 
 public class CapitalPostDetailDto {
+    private String id;
+
     private String name;//名称
 
     private String shortName;//简称
@@ -193,5 +195,29 @@ public class CapitalPostDetailDto {
 
     public void setEndDateStr(String endDateStr) {
         this.endDateStr = endDateStr;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+
+    public String getJobName() {
+        return jobName;
+    }
+
+    public void setJobName(String jobName) {
+        this.jobName = jobName;
     }
 }

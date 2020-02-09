@@ -1,5 +1,6 @@
 package com.kingpivot.base.friendNeed.model;
 
+import com.kingpivot.base.category.model.Category;
 import com.kingpivot.base.member.model.Member;
 import com.kingpivot.common.model.BaseModel;
 import org.hibernate.annotations.GenericGenerator;
@@ -49,6 +50,10 @@ public class FriendNeed extends BaseModel<String> {
 
     @Column(length = 36)
     private String salaryCategoryID;//收入范围
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "salaryCategoryID", insertable = false, updatable = false)  //不能保存和修改
+    private Category salaryCategory;
 
     @Column(length = 100)
     private String phone;//电话
@@ -189,5 +194,13 @@ public class FriendNeed extends BaseModel<String> {
 
     public void setApplicationID(String applicationID) {
         this.applicationID = applicationID;
+    }
+
+    public Category getSalaryCategory() {
+        return salaryCategory;
+    }
+
+    public void setSalaryCategory(Category salaryCategory) {
+        this.salaryCategory = salaryCategory;
     }
 }
