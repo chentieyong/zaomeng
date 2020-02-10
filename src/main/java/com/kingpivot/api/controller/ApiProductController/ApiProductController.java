@@ -92,12 +92,12 @@ public class ApiProductController extends ApiBaseController {
         String beginDate = request.getParameter("beginDate");//开始日期
         String endDate = request.getParameter("endDate");//结束日期
         String days = request.getParameter("days");//发布在线天数
-        String amount = request.getParameter("endDate");//产品价格
-        String priceUnit = request.getParameter("endDate");//价格单位
-        String address = request.getParameter("endDate");//发货地址
-        String deliveryFeeType = request.getParameter("endDate");//1包邮2不包邮
-        String faceImage = request.getParameter("endDate");//押题图
-        String listImage = request.getParameter("endDate");//列表图
+        String amount = request.getParameter("amount");//产品价格
+        String priceUnit = request.getParameter("priceUnit");//价格单位
+        String address = request.getParameter("address");//发货地址
+        String deliveryFeeType = request.getParameter("deliveryFeeType");//1包邮2不包邮
+        String faceImage = request.getParameter("faceImage");//押题图
+        String listImage = request.getParameter("listImage");//列表图
         String urls = request.getParameter("urls");//附件图
 
         Product product = new Product();

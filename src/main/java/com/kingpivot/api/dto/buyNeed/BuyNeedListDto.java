@@ -2,6 +2,7 @@ package com.kingpivot.api.dto.buyNeed;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.kingpivot.base.member.model.Member;
+import com.kingpivot.common.utils.TimeTest;
 
 import java.sql.Timestamp;
 
@@ -29,7 +30,11 @@ public class BuyNeedListDto {
 
     private Timestamp beginDate;
 
+    private String beginDateStr;
+
     private Timestamp endDate;
+
+    private String endDateStr;
 
     private int beginAmount;
 
@@ -120,6 +125,9 @@ public class BuyNeedListDto {
 
     public void setBeginDate(Timestamp beginDate) {
         this.beginDate = beginDate;
+        if (beginDate != null) {
+            this.beginDateStr = TimeTest.toDateFormat(beginDate);
+        }
     }
 
     public Timestamp getEndDate() {
@@ -128,6 +136,9 @@ public class BuyNeedListDto {
 
     public void setEndDate(Timestamp endDate) {
         this.endDate = endDate;
+        if(endDate!=null){
+            this.endDateStr = TimeTest.toDateFormat(endDate);
+        }
     }
 
     public int getBeginAmount() {
@@ -192,5 +203,21 @@ public class BuyNeedListDto {
 
     public void setJobName(String jobName) {
         this.jobName = jobName;
+    }
+
+    public String getBeginDateStr() {
+        return beginDateStr;
+    }
+
+    public void setBeginDateStr(String beginDateStr) {
+        this.beginDateStr = beginDateStr;
+    }
+
+    public String getEndDateStr() {
+        return endDateStr;
+    }
+
+    public void setEndDateStr(String endDateStr) {
+        this.endDateStr = endDateStr;
     }
 }

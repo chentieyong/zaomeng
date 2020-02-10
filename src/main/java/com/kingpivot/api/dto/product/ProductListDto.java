@@ -2,6 +2,7 @@ package com.kingpivot.api.dto.product;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.kingpivot.base.member.model.Member;
+import com.kingpivot.common.utils.TimeTest;
 
 import java.sql.Timestamp;
 
@@ -27,9 +28,13 @@ public class ProductListDto {
 
     private String description;//描述
 
-    private Timestamp beginDate;//开始日期
+    private Timestamp beginDate;//
+
+    private String beginDateStr;//开始日期
 
     private Timestamp endDate;//结束日期
+
+    private String endDateStr;//结束日期
 
     private double amount = 1;//产品价格
 
@@ -122,6 +127,9 @@ public class ProductListDto {
 
     public void setBeginDate(Timestamp beginDate) {
         this.beginDate = beginDate;
+        if (beginDate != null) {
+            this.beginDateStr = TimeTest.toDateFormat(beginDate);
+        }
     }
 
     public Timestamp getEndDate() {
@@ -130,6 +138,9 @@ public class ProductListDto {
 
     public void setEndDate(Timestamp endDate) {
         this.endDate = endDate;
+        if (endDate != null) {
+            this.endDateStr = TimeTest.toDateFormat(endDate);
+        }
     }
 
     public double getAmount() {
@@ -202,5 +213,21 @@ public class ProductListDto {
 
     public void setJobName(String jobName) {
         this.jobName = jobName;
+    }
+
+    public String getBeginDateStr() {
+        return beginDateStr;
+    }
+
+    public void setBeginDateStr(String beginDateStr) {
+        this.beginDateStr = beginDateStr;
+    }
+
+    public String getEndDateStr() {
+        return endDateStr;
+    }
+
+    public void setEndDateStr(String endDateStr) {
+        this.endDateStr = endDateStr;
     }
 }

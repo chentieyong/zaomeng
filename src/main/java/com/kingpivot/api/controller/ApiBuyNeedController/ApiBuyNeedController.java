@@ -94,7 +94,7 @@ public class ApiBuyNeedController extends ApiBaseController {
         String beginAmount = request.getParameter("beginAmount");
         String endAmount = request.getParameter("endAmount");
         String fromWhere = request.getParameter("fromWhere");
-        String priceUnit = request.getParameter("endDate");//价格单位
+        String priceUnit = request.getParameter("priceUnit");//价格单位
         String qty = request.getParameter("qty");//数量
         String urls = request.getParameter("urls");//附件图
 
