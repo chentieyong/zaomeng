@@ -18,4 +18,9 @@ public class CityServiceImpl extends BaseServiceImpl<City, String> implements Ci
     public BaseDao<City, String> getDAO() {
         return this.cityDao;
     }
+
+    @Override
+    public String getNameById(String id) {
+        return cityDao.getNameById(id);
+    }
 }

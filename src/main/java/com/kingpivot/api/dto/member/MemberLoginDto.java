@@ -61,6 +61,20 @@ public class MemberLoginDto {
 
     private String majorName;
 
+    private int isShow = 1;//是否显示 1显示2隐藏
+
+    private String shengID;//省id
+
+    private String shengName;//省id
+
+    private String shiID;//市id
+
+    private String shiName;//市id
+
+    private String xianID;//县id
+
+    private String xianName;//县id
+
     public String getId() {
         return id;
     }
@@ -283,5 +297,61 @@ public class MemberLoginDto {
 
     public void setMajorName(String majorName) {
         this.majorName = majorName;
+    }
+
+    public int getIsShow() {
+        return isShow;
+    }
+
+    public void setIsShow(int isShow) {
+        this.isShow = isShow;
+    }
+
+    public String getShengID() {
+        return shengID;
+    }
+
+    public void setShengID(String shengID) {
+        this.shengID = shengID;
+    }
+
+    public String getShengName() {
+        return shengName;
+    }
+
+    public void setShengName(String shengName) {
+        this.shengName = shengName;
+    }
+
+    public String getShiID() {
+        return shiID;
+    }
+
+    public void setShiID(String shiID) {
+        this.shiID = shiID;
+    }
+
+    public String getShiName() {
+        return shiName;
+    }
+
+    public void setShiName(String shiName) {
+        this.shiName = shiName;
+    }
+
+    public String getXianID() {
+        return xianID;
+    }
+
+    public void setXianID(String xianID) {
+        this.xianID = xianID;
+    }
+
+    public String getXianName() {
+        return xianName;
+    }
+
+    public void setXianName(String xianName) {
+        this.xianName = xianName;
     }
 }

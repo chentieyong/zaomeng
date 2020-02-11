@@ -4,4 +4,5 @@ import com.kingpivot.base.city.model.City;
 import com.kingpivot.common.service.BaseService;
 
 public interface CityService extends BaseService<City, String> {
+    String getNameById(String id);
 }

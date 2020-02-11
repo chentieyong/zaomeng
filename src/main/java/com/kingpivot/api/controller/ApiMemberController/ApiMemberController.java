@@ -7,6 +7,7 @@ import com.kingpivot.api.dto.member.MyChildrenMemberList;
 import com.kingpivot.api.dto.memberstatistics.MemberStatisticsInfoDto;
 import com.kingpivot.base.application.model.Application;
 import com.kingpivot.base.application.service.ApplicationService;
+import com.kingpivot.base.city.service.CityService;
 import com.kingpivot.base.collect.service.CollectService;
 import com.kingpivot.base.config.Config;
 import com.kingpivot.base.config.RedisKey;
@@ -102,6 +103,8 @@ public class ApiMemberController extends ApiBaseController {
     private PraiseService praiseService;
     @Autowired
     private MemberMajorService memberMajorService;
+    @Autowired
+    private CityService cityService;
 
     @ApiOperation(value = "会员登录", notes = "会员登录")
     @ApiImplicitParams({
@@ -401,7 +404,11 @@ public class ApiMemberController extends ApiBaseController {
         String companyName = request.getParameter("companyName");
         String jobName = request.getParameter("jobName");
         String shortDescription = request.getParameter("shortDescription");
+        String isShow = request.getParameter("isShow");
+        String shengID = request.getParameter("shengID");
         String description = request.getParameter("description");
+        String shiID = request.getParameter("shiID");
+        String xianID = request.getParameter("xianID");
         if (StringUtils.isEmpty(sessionID)) {
             return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
         }
@@ -439,6 +446,18 @@ public class ApiMemberController extends ApiBaseController {
         }
         if (StringUtils.isNotBlank(shortDescription)) {
             updateMember.setShortDescription(shortDescription);
+        }
+        if (StringUtils.isNotBlank(isShow)) {
+            updateMember.setIsShow(Integer.parseInt(isShow));
+        }
+        if (StringUtils.isNotBlank(shengID)) {
+            updateMember.setShengID(shengID);
+        }
+        if (StringUtils.isNotBlank(shiID)) {
+            updateMember.setShiID(shiID);
+        }
+        if (StringUtils.isNotBlank(xianID)) {
+            updateMember.setXianID(xianID);
         }
         memberService.save(updateMember);
         putSession(request, updateMember);
@@ -724,6 +743,15 @@ public class ApiMemberController extends ApiBaseController {
             data.setCollectID(collectService.getCollectByObjectIDAndMemberID(member.getId(), loginMember.getId()));
             data.setPraiseID(praiseService.getPraiseByObjectIDAndMemberID(member.getId(), loginMember.getId()));
         }
+        if (StringUtils.isNotBlank(member.getShengID())) {
+            data.setShengName(cityService.getNameById(member.getShengID()));
+        }
+        if (StringUtils.isNotBlank(member.getShiID())) {
+            data.setShiName(cityService.getNameById(member.getShiID()));
+        }
+        if (StringUtils.isNotBlank(member.getXianID())) {
+            data.setXianName(cityService.getNameById(member.getXianID()));
+        }
         data.setMajorName(memberMajorService.getMajorNameByMemberId(member.getId()));
         Map<String, Object> rsMap = Maps.newHashMap();
         rsMap.put("data", data);
@@ -811,6 +839,7 @@ public class ApiMemberController extends ApiBaseController {
             return MessagePacket.newFail(MessageHeader.Code.applicationIdIsNull, "应用id不能为空");
         }
         Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("isShow", 1);
         paramMap.put("isValid", Constants.ISVALID_YES);
         paramMap.put("isLock", Constants.ISLOCK_NO);
         paramMap.put("applicationID", applicationID);

@@ -89,6 +89,18 @@ public class Member extends BaseModel<String> implements Serializable {
     @Column(length = 36)
     private String peopleID;
 
+    @Column(name = "isShow", columnDefinition = "int default 1")
+    private int isShow = 1;//是否显示 1显示2隐藏
+
+    @Column(length = 36)
+    private String shengID;//省id
+
+    @Column(length = 36)
+    private String shiID;//市id
+
+    @Column(length = 36)
+    private String xianID;//县id
+
     @Override
     public String getId() {
         return id;
@@ -280,5 +292,37 @@ public class Member extends BaseModel<String> implements Serializable {
 
     public void setPeopleID(String peopleID) {
         this.peopleID = peopleID;
+    }
+
+    public int getIsShow() {
+        return isShow;
+    }
+
+    public void setIsShow(int isShow) {
+        this.isShow = isShow;
+    }
+
+    public String getShengID() {
+        return shengID;
+    }
+
+    public void setShengID(String shengID) {
+        this.shengID = shengID;
+    }
+
+    public String getShiID() {
+        return shiID;
+    }
+
+    public void setShiID(String shiID) {
+        this.shiID = shiID;
+    }
+
+    public String getXianID() {
+        return xianID;
+    }
+
+    public void setXianID(String xianID) {
+        this.xianID = xianID;
     }
 }
