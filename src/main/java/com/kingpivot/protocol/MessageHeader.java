@@ -181,6 +181,11 @@ public class MessageHeader implements Serializable {
         productIDIsError(10114),//产品不存在
         buyNeedIDIsNull(10115),//产品求购id为空
         buyNeedIDIsError(10116),//产品求购不存在
+        peopleIDIsNull(10117),//实名id为空
+        peopleIDIsError(10118),//实名id不存在
+        idNumberIsNull(10119),//身份证号为空
+        faceImageIsNull(10120),//正面照为空
+        backImageIsNull(10121),//反面照为空
         ;
         public int code;
 
