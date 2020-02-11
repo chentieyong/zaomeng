@@ -57,6 +57,10 @@ public class MemberLoginDto {
 
     private String praiseID;
 
+    private String peopleID;
+
+    private String majorName;
+
     public String getId() {
         return id;
     }
@@ -263,5 +267,21 @@ public class MemberLoginDto {
 
     public void setPraiseID(String praiseID) {
         this.praiseID = praiseID;
+    }
+
+    public String getPeopleID() {
+        return peopleID;
+    }
+
+    public void setPeopleID(String peopleID) {
+        this.peopleID = peopleID;
+    }
+
+    public String getMajorName() {
+        return majorName;
+    }
+
+    public void setMajorName(String majorName) {
+        this.majorName = majorName;
     }
 }

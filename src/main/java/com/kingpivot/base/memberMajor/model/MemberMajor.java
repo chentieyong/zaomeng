@@ -31,8 +31,8 @@ public class MemberMajor extends BaseModel<String> {
     private String shiID;
     @Column(length = 36)
     private String xianID;
-    @Column(name = "status",columnDefinition = "int default 1")
-    private int status;//1新申请,2通过,3拒绝
+    @Column(name = "status", columnDefinition = "int default 1")
+    private int status = 1;//1新申请,2通过,3拒绝
 
     @Override
     public String getId() {

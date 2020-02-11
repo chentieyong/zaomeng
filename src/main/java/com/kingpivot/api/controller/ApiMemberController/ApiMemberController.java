@@ -14,6 +14,7 @@ import com.kingpivot.base.config.UserAgent;
 import com.kingpivot.base.member.model.Member;
 import com.kingpivot.base.member.service.MemberService;
 import com.kingpivot.base.memberBonus.service.MemberBonusService;
+import com.kingpivot.base.memberMajor.service.MemberMajorService;
 import com.kingpivot.base.memberlog.model.Memberlog;
 import com.kingpivot.base.memberstatistics.model.MemberStatistics;
 import com.kingpivot.base.memberstatistics.service.MemberStatisticsService;
@@ -99,6 +100,8 @@ public class ApiMemberController extends ApiBaseController {
     private CollectService collectService;
     @Autowired
     private PraiseService praiseService;
+    @Autowired
+    private MemberMajorService memberMajorService;
 
     @ApiOperation(value = "会员登录", notes = "会员登录")
     @ApiImplicitParams({
@@ -721,6 +724,7 @@ public class ApiMemberController extends ApiBaseController {
             data.setCollectID(collectService.getCollectByObjectIDAndMemberID(member.getId(), loginMember.getId()));
             data.setPraiseID(praiseService.getPraiseByObjectIDAndMemberID(member.getId(), loginMember.getId()));
         }
+        data.setMajorName(memberMajorService.getMajorNameByMemberId(member.getId()));
         Map<String, Object> rsMap = Maps.newHashMap();
         rsMap.put("data", data);
 

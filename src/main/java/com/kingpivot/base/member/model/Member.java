@@ -86,6 +86,9 @@ public class Member extends BaseModel<String> implements Serializable {
     @Column(length = 36)
     private String rankID;
 
+    @Column(length = 36)
+    private String peopleID;
+
     @Override
     public String getId() {
         return id;
@@ -269,5 +272,13 @@ public class Member extends BaseModel<String> implements Serializable {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getPeopleID() {
+        return peopleID;
+    }
+
+    public void setPeopleID(String peopleID) {
+        this.peopleID = peopleID;
     }
 }
