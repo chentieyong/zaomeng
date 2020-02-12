@@ -987,7 +987,6 @@ public class ApiMemberController extends ApiBaseController {
         }
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("isShow", 1);
-        paramMap.put("companyName:ne", null);
         paramMap.put("isValid", Constants.ISVALID_YES);
         paramMap.put("isLock", Constants.ISLOCK_NO);
         paramMap.put("applicationID", applicationID);

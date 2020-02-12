@@ -89,8 +89,8 @@ public class Member extends BaseModel<String> implements Serializable {
     @Column(length = 36)
     private String peopleID;
 
-    @Column(name = "isShow", columnDefinition = "int default 1")
-    private int isShow = 1;//是否显示 1显示2隐藏
+    @Column(name = "isShow", columnDefinition = "int default 2")
+    private int isShow = 2;//是否显示 1显示2隐藏
 
     @Column(length = 36)
     private String shengID;//省id
