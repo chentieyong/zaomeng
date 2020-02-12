@@ -30,6 +30,8 @@ import com.kingpivot.base.smsTemplate.service.SmsTemplateService;
 import com.kingpivot.base.smsWay.model.SmsWay;
 import com.kingpivot.base.smsWay.service.SmsWayService;
 import com.kingpivot.base.support.MemberLogDTO;
+import com.kingpivot.base.weiXinAppMember.model.WeiXinAppMember;
+import com.kingpivot.base.weiXinAppMember.service.WeiXinAppMemberService;
 import com.kingpivot.common.KingBase;
 import com.kingpivot.common.jms.SendMessageService;
 import com.kingpivot.common.jms.dto.memberLog.MemberLogRequestBase;
@@ -105,6 +107,8 @@ public class ApiMemberController extends ApiBaseController {
     private MemberMajorService memberMajorService;
     @Autowired
     private CityService cityService;
+    @Autowired
+    private WeiXinAppMemberService weiXinAppMemberService;
 
     @ApiOperation(value = "会员登录", notes = "会员登录")
     @ApiImplicitParams({
@@ -123,6 +127,10 @@ public class ApiMemberController extends ApiBaseController {
                 return loginNameLogin(request);
             case "2"://微信code登录
                 return weixinCodeLogin(request);
+            case "3"://微信小程序code登录
+                return weiXinAppCodeLogin(request);
+            case "4"://微信小程序phone登录
+                return weiXinAppPhoneLogin(request);
             default:
                 return MessagePacket.newFail(MessageHeader.Code.loginTypeIsError, "loginType不正确");
         }
@@ -265,6 +273,141 @@ public class ApiMemberController extends ApiBaseController {
         sendMemberLoginLog(request, member, false);
 
         return MessagePacket.newSuccess(rsMap, "appLogin success!");
+    }
+
+    /**
+     * 微信小程序手机号登录
+     *
+     * @param request
+     * @return
+     */
+    public MessagePacket weiXinAppPhoneLogin(HttpServletRequest request) {
+        String name = request.getParameter("name");
+        String code = request.getParameter("code");
+        String siteID = request.getParameter("siteID");
+        String avatarUrl = request.getParameter("avatarUrl");
+        String phone = request.getParameter("phone");
+        String vCode = request.getParameter("vCode");
+        String recommandID = request.getParameter("recommandID");
+
+        if (StringUtils.isEmpty(code)) {
+            return MessagePacket.newFail(MessageHeader.Code.codeIsNull, "code为空");
+        }
+        if (StringUtils.isEmpty(phone)) {
+            return MessagePacket.newFail(MessageHeader.Code.phoneIsNull, "手机号不能为空");
+        }
+        if (StringUtils.isEmpty(vCode)) {
+            return MessagePacket.newFail(MessageHeader.Code.vCodeIsNull, "验证码为空");
+        }
+
+        String authCode = stringRedisTemplate.opsForValue().get(String.format("%s_%s", CacheContant.LOGIN_WEIXINAPPLOGIN_CODE, phone));
+        if (StringUtils.isEmpty(authCode) || !vCode.equals(authCode)) {
+            return MessagePacket.newFail(MessageHeader.Code.vCodeError, "验证码错误");
+        }
+        if (StringUtils.isEmpty(siteID)) {
+            return MessagePacket.newFail(MessageHeader.Code.siteIdIsNull, "siteID为空");
+        }
+        Site site = siteService.findById(siteID);
+        if (site == null) {
+            return MessagePacket.newFail(MessageHeader.Code.siteIdError, "siteID不正确");
+        }
+        boolean isNew = false;//是否新会员
+        Member member = memberService.getMemberByPhoneAndApplicationId(phone, site.getApplicationID());
+        if (member == null) {
+            isNew = true;
+            member = new Member();
+            member.setLoginName(name);
+            member.setName(name);
+            member.setShortName(name);
+            member.setCompanyID(site.getCompanyID());
+            member.setSiteID(site.getId());
+            member.setApplicationID(site.getApplicationID());
+            if (StringUtils.isNotBlank(recommandID)) {
+                member.setRecommandID(recommandID);
+            }
+            String reCode = this.memberService.getCurRecommandCode(site.getApplicationID());
+            if (StringUtils.isNotEmpty(reCode)) {
+                member.setRecommandCode(NumberUtils.strFormat3(String.valueOf(Integer.valueOf(reCode) + 1)));
+            } else {
+                member.setRecommandCode("00001");
+            }
+            member.setPhone(phone);
+            member.setWeixinToken(code);
+            member.setAvatarURL(avatarUrl);
+            memberService.save(member);
+        }
+        WeiXinAppMember weiXinAppMember = weiXinAppMemberService.getWeiXinAppMemberByCode(code);
+
+        if (weiXinAppMember == null) {
+            weiXinAppMember = new WeiXinAppMember();
+            weiXinAppMember.setName(name);
+            weiXinAppMember.setCode(code);
+            weiXinAppMember.setSiteID(siteID);
+            weiXinAppMember.setMemberID(member.getId());
+            weiXinAppMemberService.save(weiXinAppMember);
+        } else {
+            weiXinAppMember.setMemberID(member.getId());
+            weiXinAppMemberService.save(weiXinAppMember);
+        }
+
+        Map<String, Object> rsMap = Maps.newHashMap();
+        rsMap.put("memberID", member.getId());
+        rsMap.put("sessionID", request.getSession().getId());
+
+        MemberLogDTO memberLogDTO = new MemberLogDTO(site.getId(), member.getApplicationID(), member.getId()
+                , member.getCompanyID());
+
+        putSession(request, member);
+
+        putMemberLogSession(request, memberLogDTO);
+
+        sendMemberLoginLog(request, member, isNew);
+
+        stringRedisTemplate.delete(String.format("%s_%s", CacheContant.LOGIN_WEIXINAPPLOGIN_CODE, phone));
+
+        return MessagePacket.newSuccess(rsMap, "weiXinAppPhoneLogin success!");
+    }
+
+    /**
+     * 微信小程序code登录
+     *
+     * @param request
+     * @return
+     */
+    public MessagePacket weiXinAppCodeLogin(HttpServletRequest request) {
+        String code = request.getParameter("code");
+        String siteID = request.getParameter("siteID");
+
+        if (StringUtils.isEmpty(code)) {
+            return MessagePacket.newFail(MessageHeader.Code.codeIsNull, "code为空");
+        }
+        if (StringUtils.isEmpty(siteID)) {
+            return MessagePacket.newFail(MessageHeader.Code.siteIdIsNull, "siteID为空");
+        }
+        Site site = siteService.findById(siteID);
+        if (site == null) {
+            return MessagePacket.newFail(MessageHeader.Code.siteIdError, "siteID不正确");
+        }
+
+        Member member = memberService.getMemberByAppCode(code);
+        if (member == null) {
+            return MessagePacket.newFail(MessageHeader.Code.weixinAppMemberNull, "会员不存在");
+        }
+
+        Map<String, Object> rsMap = Maps.newHashMap();
+        rsMap.put("memberID", member.getId());
+        rsMap.put("sessionID", request.getSession().getId());
+
+        MemberLogDTO memberLogDTO = new MemberLogDTO(site.getId(), member.getApplicationID(), member.getId()
+                , member.getCompanyID());
+
+        putSession(request, member);
+
+        putMemberLogSession(request, memberLogDTO);
+
+        sendMemberLoginLog(request, member, false);
+
+        return MessagePacket.newSuccess(rsMap, "weiXinAppCodeLogin success!");
     }
 
     /**
@@ -626,6 +769,10 @@ public class ApiMemberController extends ApiBaseController {
                 sendTypeName = "找回登录密码";
                 templateValue = CacheContant.FIND_LOGINPASSWORD_CODE;
                 break;
+            case "2":
+                sendTypeName = "微信小程序手机号登录";
+                templateValue = CacheContant.LOGIN_WEIXINAPPLOGIN_CODE;
+                break;
             default:
                 return MessagePacket.newFail(MessageHeader.Code.sendTypeError, "发送类型不正确!");
         }
@@ -840,6 +987,7 @@ public class ApiMemberController extends ApiBaseController {
         }
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("isShow", 1);
+        paramMap.put("companyName:ne", null);
         paramMap.put("isValid", Constants.ISVALID_YES);
         paramMap.put("isLock", Constants.ISLOCK_NO);
         paramMap.put("applicationID", applicationID);

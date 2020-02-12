@@ -21,10 +21,10 @@ public interface MemberDao extends BaseDao<Member, String> {
     String getCurRecommandCode(String applicationId);
 
     @Query(value = "SELECT id FROM member WHERE phone=?1 and applicationID=?2 AND isValid=1 AND isLock=0 LIMIT 1", nativeQuery = true)
-    String getMemberIdByPhoneAndApplicationId(String phone,String applicationId);
+    String getMemberIdByPhoneAndApplicationId(String phone, String applicationId);
 
     @Query(value = "SELECT * FROM member WHERE phone=?1 and applicationID=?2 AND isValid=1 AND isLock=0 LIMIT 1", nativeQuery = true)
-    Member getMemberByPhoneAndApplicationId(String phone,String applicationId);
+    Member getMemberByPhoneAndApplicationId(String phone, String applicationId);
 
     @Query(value = "SELECT applicationID FROM member WHERE id=?1 AND isValid=1 AND isLock=0 LIMIT 1", nativeQuery = true)
     String getMemberApplicationID(String memberID);
@@ -34,4 +34,10 @@ public interface MemberDao extends BaseDao<Member, String> {
 
     @Query(value = "SELECT name FROM member WHERE id=?1 AND isValid=1 AND isLock=0", nativeQuery = true)
     String getNameById(String id);
+
+    @Query(value = "SELECT tb_member.* FROM weiXinAppMember tb_weixinapp_member INNER JOIN member tb_member\n" +
+            " ON  tb_weixinapp_member.memberID=tb_member.id\n" +
+            " WHERE tb_weixinapp_member.`code`=?1 AND tb_weixinapp_member.isValid=1 AND tb_weixinapp_member.isLock=0\n" +
+            " AND tb_member.isValid=1 AND tb_member.isLock=0", nativeQuery = true)
+    Member getMemberByAppCode(String code);
 }

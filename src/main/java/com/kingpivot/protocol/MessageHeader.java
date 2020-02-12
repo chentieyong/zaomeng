@@ -72,6 +72,7 @@ public class MessageHeader implements Serializable {
         serverException(88888),//服务器异常
         success(0), //成功 除此之外全是失败
         fail(-1),//失败
+        weixinAppMemberNull(-2),//微信app会员不存在
         unauth(10000),//未登录
         illegalParameter(10001),//参数不正确
         loginTypeIsNull(10002),//登录类型不能为空

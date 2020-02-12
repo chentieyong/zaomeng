@@ -18,4 +18,6 @@ public interface MemberService extends BaseService<Member, String> {
     Member getMemberByWeixinCodeAndAppId(String code, String applicationID);
 
     String getNameById(String id);
+
+    Member getMemberByAppCode(String code);
 }

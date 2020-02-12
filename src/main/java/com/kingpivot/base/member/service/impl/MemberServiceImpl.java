@@ -52,4 +52,9 @@ public class MemberServiceImpl extends BaseServiceImpl<Member, String> implement
     public String getNameById(String id) {
         return memberDao.getNameById(id);
     }
+
+    @Override
+    public Member getMemberByAppCode(String code) {
+        return memberDao.getMemberByAppCode(code);
+    }
 }
