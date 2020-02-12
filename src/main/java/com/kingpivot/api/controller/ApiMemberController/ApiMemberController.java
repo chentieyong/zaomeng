@@ -322,9 +322,9 @@ public class ApiMemberController extends ApiBaseController {
             member.setCompanyID(site.getCompanyID());
             member.setSiteID(site.getId());
             member.setApplicationID(site.getApplicationID());
-            if (StringUtils.isNotBlank(recommandID)) {
-                member.setRecommandID(recommandID);
-            }
+//            if (StringUtils.isNotBlank(recommandID)) {
+//                member.setRecommandID(recommandID);
+//            }
             String reCode = this.memberService.getCurRecommandCode(site.getApplicationID());
             if (StringUtils.isNotEmpty(reCode)) {
                 member.setRecommandCode(NumberUtils.strFormat3(String.valueOf(Integer.valueOf(reCode) + 1)));
@@ -623,9 +623,7 @@ public class ApiMemberController extends ApiBaseController {
 
     @ApiOperation(value = "取消会员推荐关系", notes = "取消会员推荐关系")
     @ApiImplicitParams({
-            @ApiImplicitParam(paramType = "query", name = "sessionID", value = "登录标识", dataType = "String", required = false),
-            @ApiImplicitParam(paramType = "query", name = "name", value = "名称", dataType = "String", required = false),
-            @ApiImplicitParam(paramType = "query", name = "avatarURL", value = "头像", dataType = "String", required = false)})
+            @ApiImplicitParam(paramType = "query", name = "sessionID", value = "登录标识", dataType = "String", required = false)})
     @RequestMapping(value = "/cancelMemberRecommand")
     public MessagePacket cancelMemberRecommand(HttpServletRequest request) {
         String sessionID = request.getParameter("sessionID");
@@ -985,11 +983,16 @@ public class ApiMemberController extends ApiBaseController {
         if (StringUtils.isEmpty(applicationID)) {
             return MessagePacket.newFail(MessageHeader.Code.applicationIdIsNull, "应用id不能为空");
         }
+        String keywords = request.getParameter("keywords");
         Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("applicationID", applicationID);
+        if (StringUtils.isNotBlank(keywords)) {
+            paramMap.put("name:like", keywords);
+        }
         paramMap.put("isShow", 1);
         paramMap.put("isValid", Constants.ISVALID_YES);
         paramMap.put("isLock", Constants.ISLOCK_NO);
-        paramMap.put("applicationID", applicationID);
+
 
         List<Sort.Order> orders = new ArrayList<Sort.Order>();
         orders.add(new Sort.Order(Sort.Direction.DESC, "createdTime"));
