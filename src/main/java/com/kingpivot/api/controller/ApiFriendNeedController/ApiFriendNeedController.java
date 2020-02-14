@@ -177,6 +177,7 @@ public class ApiFriendNeedController extends ApiBaseController {
         }
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("applicationID", applicationID);
+        paramMap.put("endDate:gte", new Timestamp(System.currentTimeMillis()));
         paramMap.put("isValid", Constants.ISVALID_YES);
         paramMap.put("isLock", Constants.ISLOCK_NO);
 

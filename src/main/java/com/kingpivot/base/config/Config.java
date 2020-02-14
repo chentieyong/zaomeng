@@ -9,6 +9,7 @@ public class Config {
     public static final String ENCODE_KEY = "kpbase";
     public static final String LOCAL_FILE_SERVER_BUCKET = "kingjs";
     public static final String GOODSSHOP_OBJECTDEFINEID = "422429993732";//店铺商品对象定义id
+    public static final String MEMBER_OBJECTDEFINEID = "00000000700458b2017005302511000c";//会员对象定义id
     public static final String ARTICLE_OBJECTDEFINEID = "422429993731";//文章对象定义id
     public static final String MEMBERORDER_OBJECTDEFINEID = "8a2f462a591162d101591595925b1cc0";//订单对象定义id
     public static final String MESSAGE_OBJECTDEFINEID = "402892e96a5895ef016a5896b76b0002";//消息对象定义id

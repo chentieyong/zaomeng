@@ -3,9 +3,12 @@ package com.kingpivot.api.controller.ApiPraiseController;
 import com.google.common.collect.Maps;
 import com.kingpivot.api.dto.praise.ObjectPraiseDto;
 import com.kingpivot.api.dto.praise.PraiseDto;
+import com.kingpivot.api.dto.praise.PraiseMemberDto;
+import com.kingpivot.base.config.Config;
 import com.kingpivot.base.config.RedisKey;
 import com.kingpivot.base.config.UserAgent;
 import com.kingpivot.base.member.model.Member;
+import com.kingpivot.base.member.service.MemberService;
 import com.kingpivot.base.memberlog.model.Memberlog;
 import com.kingpivot.base.praise.model.Praise;
 import com.kingpivot.base.praise.service.PraiseService;
@@ -49,6 +52,8 @@ public class ApiPraiseController {
     private RedisTemplate redisTemplate;
     @Autowired
     private PraiseService praiseService;
+    @Autowired
+    private MemberService memberService;
 
     @ApiOperation(value = "加入赞", notes = "加入赞")
     @ApiImplicitParams({
@@ -210,8 +215,33 @@ public class ApiPraiseController {
         MessagePage messagePage = null;
         if (rs != null && rs.getSize() != 0) {
             page.setTotalSize((int) rs.getTotalElements());
-            List<PraiseDto> list = BeanMapper.mapList(rs.getContent(), PraiseDto.class);
-            messagePage = new MessagePage(page, list);
+            if (StringUtils.isNotBlank(objectDefineID)) {
+                switch (objectDefineID) {
+                    case Config.MEMBER_OBJECTDEFINEID://会员对象定义id
+                        List<PraiseMemberDto> praiseMemberList = BeanMapper.mapList(rs.getContent(), PraiseMemberDto.class);
+                        Member collectMember = null;
+                        for (PraiseMemberDto obj : praiseMemberList) {
+                            collectMember = memberService.findById(obj.getObjectID());
+                            if (collectMember != null) {
+                                obj.setMemberID(collectMember.getId());
+                                obj.setAvatarURL(collectMember.getAvatarURL());
+                                obj.setMemberName(collectMember.getName());
+                                obj.setCompanyName(collectMember.getCompanyName());
+                                obj.setJobName(collectMember.getJobName());
+                            }
+                        }
+                        messagePage = new MessagePage(page, praiseMemberList);
+                        break;
+                    default:
+                        List<PraiseDto> list = BeanMapper.mapList(rs.getContent(), PraiseDto.class);
+                        messagePage = new MessagePage(page, list);
+                        break;
+                }
+            } else {
+                List<PraiseDto> list = BeanMapper.mapList(rs.getContent(), PraiseDto.class);
+                messagePage = new MessagePage(page, list);
+            }
+
         } else {
             page.setTotalSize(0);
             messagePage = new MessagePage(page, new ArrayList());

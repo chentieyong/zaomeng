@@ -3,6 +3,7 @@ package com.kingpivot.api.controller.ApiCollectController;
 import com.google.common.collect.Maps;
 import com.kingpivot.api.dto.collect.CollectGoodsShopListDto;
 import com.kingpivot.api.dto.collect.CollectListDto;
+import com.kingpivot.api.dto.collect.CollectMemberListDto;
 import com.kingpivot.api.dto.collect.ObjectCollectDto;
 import com.kingpivot.api.dto.goodsShop.GoodsShopListDto;
 import com.kingpivot.base.collect.model.Collect;
@@ -13,6 +14,7 @@ import com.kingpivot.base.config.UserAgent;
 import com.kingpivot.base.goodsShop.model.GoodsShop;
 import com.kingpivot.base.goodsShop.service.GoodsShopService;
 import com.kingpivot.base.member.model.Member;
+import com.kingpivot.base.member.service.MemberService;
 import com.kingpivot.base.memberRank.service.MemberRankService;
 import com.kingpivot.base.memberlog.model.Memberlog;
 import com.kingpivot.base.objectFeatureData.service.ObjectFeatureDataService;
@@ -64,6 +66,8 @@ public class ApiCollectController extends ApiBaseController {
     private ObjectFeatureItemService objectFeatureItemService;
     @Autowired
     private ObjectFeatureDataService objectFeatureDataService;
+    @Autowired
+    private MemberService memberService;
 
     @ApiOperation(value = "加入收藏", notes = "加入收藏")
     @ApiImplicitParams({
@@ -224,46 +228,68 @@ public class ApiCollectController extends ApiBaseController {
         Map<String, Object> rsMap = Maps.newHashMap();
         MessagePage messagePage = null;
         if (rs != null && rs.getSize() != 0) {
-            switch (objectDefineID) {
-                case Config.GOODSSHOP_OBJECTDEFINEID://店铺商品
-                    List<CollectGoodsShopListDto> goodsShopList = new ArrayList<>();
-                    CollectGoodsShopListDto collectGoodsShopListDto = null;
-                    GoodsShop goodsShop = null;
-                    for (Collect collect : rs.getContent()) {
-                        if (StringUtils.isNotBlank(collect.getObjectID())) {
-                            goodsShop = goodsShopService.findById(collect.getObjectID());
-                            if (goodsShop != null) {
-                                collectGoodsShopListDto = new CollectGoodsShopListDto();
-                                collectGoodsShopListDto.setCollectID(collect.getId());
-                                collectGoodsShopListDto.setObjectID(goodsShop.getId());
-                                collectGoodsShopListDto.setObjectName(goodsShop.getName());
-                                collectGoodsShopListDto.setListImage(goodsShop.getLittleImage());
-                                collectGoodsShopListDto.setShowPrice(goodsShop.getRealPrice());
-                                collectGoodsShopListDto.setStockNumber(goodsShop.getStockNumber());
-                                collectGoodsShopListDto.setStockOut(goodsShop.getStockOut());
-                                collectGoodsShopListDto.setUnitDescription(goodsShop.getUnitDescription());
+            if (StringUtils.isNotBlank(objectDefineID)) {
+                switch (objectDefineID) {
+                    case Config.GOODSSHOP_OBJECTDEFINEID://店铺商品
+                        List<CollectGoodsShopListDto> goodsShopList = new ArrayList<>();
+                        CollectGoodsShopListDto collectGoodsShopListDto = null;
+                        GoodsShop goodsShop = null;
+                        for (Collect collect : rs.getContent()) {
+                            if (StringUtils.isNotBlank(collect.getObjectID())) {
+                                goodsShop = goodsShopService.findById(collect.getObjectID());
+                                if (goodsShop != null) {
+                                    collectGoodsShopListDto = new CollectGoodsShopListDto();
+                                    collectGoodsShopListDto.setCollectID(collect.getId());
+                                    collectGoodsShopListDto.setObjectID(goodsShop.getId());
+                                    collectGoodsShopListDto.setObjectName(goodsShop.getName());
+                                    collectGoodsShopListDto.setListImage(goodsShop.getLittleImage());
+                                    collectGoodsShopListDto.setShowPrice(goodsShop.getRealPrice());
+                                    collectGoodsShopListDto.setStockNumber(goodsShop.getStockNumber());
+                                    collectGoodsShopListDto.setStockOut(goodsShop.getStockOut());
+                                    collectGoodsShopListDto.setUnitDescription(goodsShop.getUnitDescription());
 
-                                Object itemOjb = objectFeatureItemService.getDefaultFeatureItem(goodsShop.getId());
-                                if (itemOjb != null) {
-                                    Object[] obj = (Object[]) itemOjb;
-                                    if (obj != null) {
-                                        collectGoodsShopListDto.setUnitDescription((String) obj[0]);
-                                        collectGoodsShopListDto.setObjectFeatureItemID1((String) obj[1]);
-                                        collectGoodsShopListDto.setShowPrice(objectFeatureDataService.getObjectFetureData(goodsShop.getId(), (String) obj[1]));
+                                    Object itemOjb = objectFeatureItemService.getDefaultFeatureItem(goodsShop.getId());
+                                    if (itemOjb != null) {
+                                        Object[] obj = (Object[]) itemOjb;
+                                        if (obj != null) {
+                                            collectGoodsShopListDto.setUnitDescription((String) obj[0]);
+                                            collectGoodsShopListDto.setObjectFeatureItemID1((String) obj[1]);
+                                            collectGoodsShopListDto.setShowPrice(objectFeatureDataService.getObjectFetureData(goodsShop.getId(), (String) obj[1]));
+                                        }
                                     }
+                                    goodsShopList.add(collectGoodsShopListDto);
                                 }
-                                goodsShopList.add(collectGoodsShopListDto);
                             }
                         }
-                    }
-                    page.setTotalSize((int) rs.getTotalElements());
-                    messagePage = new MessagePage(page, goodsShopList);
-                    break;
-                default:
-                    page.setTotalSize((int) rs.getTotalElements());
-                    List<CollectListDto> list = BeanMapper.mapList(rs.getContent(), CollectListDto.class);
-                    messagePage = new MessagePage(page, list);
-                    break;
+                        page.setTotalSize((int) rs.getTotalElements());
+                        messagePage = new MessagePage(page, goodsShopList);
+                        break;
+                    case Config.MEMBER_OBJECTDEFINEID:
+                        page.setTotalSize((int) rs.getTotalElements());
+                        List<CollectMemberListDto> collectMemberList = BeanMapper.mapList(rs.getContent(), CollectMemberListDto.class);
+                        Member collectMember = null;
+                        for (CollectMemberListDto obj : collectMemberList) {
+                            collectMember = memberService.findById(obj.getObjectID());
+                            if (collectMember != null) {
+                                obj.setMemberID(collectMember.getId());
+                                obj.setAvatarURL(collectMember.getAvatarURL());
+                                obj.setMemberName(collectMember.getName());
+                                obj.setCompanyName(collectMember.getCompanyName());
+                                obj.setJobName(collectMember.getJobName());
+                            }
+                        }
+                        messagePage = new MessagePage(page, collectMemberList);
+                        break;
+                    default:
+                        page.setTotalSize((int) rs.getTotalElements());
+                        List<CollectListDto> list = BeanMapper.mapList(rs.getContent(), CollectListDto.class);
+                        messagePage = new MessagePage(page, list);
+                        break;
+                }
+            } else {
+                page.setTotalSize((int) rs.getTotalElements());
+                List<CollectListDto> list = BeanMapper.mapList(rs.getContent(), CollectListDto.class);
+                messagePage = new MessagePage(page, list);
             }
         } else {
             page.setTotalSize(0);

@@ -322,9 +322,9 @@ public class ApiMemberController extends ApiBaseController {
             member.setCompanyID(site.getCompanyID());
             member.setSiteID(site.getId());
             member.setApplicationID(site.getApplicationID());
-//            if (StringUtils.isNotBlank(recommandID)) {
-//                member.setRecommandID(recommandID);
-//            }
+            if (StringUtils.isNotBlank(recommandID)) {
+                member.setRecommandID(recommandID);
+            }
             String reCode = this.memberService.getCurRecommandCode(site.getApplicationID());
             if (StringUtils.isNotEmpty(reCode)) {
                 member.setRecommandCode(NumberUtils.strFormat3(String.valueOf(Integer.valueOf(reCode) + 1)));
