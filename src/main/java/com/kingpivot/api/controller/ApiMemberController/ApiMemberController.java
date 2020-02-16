@@ -828,7 +828,10 @@ public class ApiMemberController extends ApiBaseController {
             switch (smsWay.getSmsType()) {
                 case 1:
                     String templateParam = smsTemplate.getTextDefine().replaceAll("CODE", authCode);
-                    msg = SmsSendUtil.aliyunSmsSend(smsWay.getAccount(), smsWay.getPwd(), templateParam, smsTemplate.getTemplateCode(), smsWay.getSignName(), phone);
+                    msg = SmsSendUtil.aliyunSmsSend(smsTemplate, phone, templateParam, smsWay.getSignName());
+                    break;
+                case 2:
+                    msg = SmsSendUtil.smsSendRongLian(smsTemplate, phone, authCode);
                     break;
             }
         }

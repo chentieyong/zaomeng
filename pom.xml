@@ -165,6 +165,15 @@
             <version>1.1.0</version>
         </dependency>
 
+        <!--融联-->
+        <dependency>
+            <groupId>yunTongXun</groupId>
+            <artifactId>yunTongXun</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/src/main/webapp/WEB-INF/lib/yunTongXun.jar</systemPath>
+        </dependency>
+
         <!-- 七牛 -->
         <dependency>
             <groupId>com.qiniu</groupId>

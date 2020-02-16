@@ -23,6 +23,15 @@ public class SmsTemplate extends BaseModel<String> {
     @Column(length = 100)
     private String name;//名称
 
+    @Column(length = 100)
+    private String accountID;
+
+    @Column(length = 100)
+    private String accountToken;
+
+    @Column(length = 100)
+    private String appId;
+
     @Column(length = 20)
     private String templateValue;
 
@@ -34,6 +43,18 @@ public class SmsTemplate extends BaseModel<String> {
 
     @Column(length = 100)
     private String description;//描述
+
+    @Column(name = "parameterLength", columnDefinition = "int default 1")
+    private int parameterLength = 1;
+
+    @Column(length = 100)
+    private String parameter1;//参数1
+
+    @Column(length = 100)
+    private String parameter2;//参数2
+
+    @Column(length = 100)
+    private String parameter3;//参数3
 
     @Override
     public String getId() {
@@ -58,6 +79,30 @@ public class SmsTemplate extends BaseModel<String> {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getAccountID() {
+        return accountID;
+    }
+
+    public void setAccountID(String accountID) {
+        this.accountID = accountID;
+    }
+
+    public String getAccountToken() {
+        return accountToken;
+    }
+
+    public void setAccountToken(String accountToken) {
+        this.accountToken = accountToken;
+    }
+
+    public String getAppId() {
+        return appId;
+    }
+
+    public void setAppId(String appId) {
+        this.appId = appId;
     }
 
     public String getTemplateValue() {
@@ -90,5 +135,37 @@ public class SmsTemplate extends BaseModel<String> {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public int getParameterLength() {
+        return parameterLength;
+    }
+
+    public void setParameterLength(int parameterLength) {
+        this.parameterLength = parameterLength;
+    }
+
+    public String getParameter1() {
+        return parameter1;
+    }
+
+    public void setParameter1(String parameter1) {
+        this.parameter1 = parameter1;
+    }
+
+    public String getParameter2() {
+        return parameter2;
+    }
+
+    public void setParameter2(String parameter2) {
+        this.parameter2 = parameter2;
+    }
+
+    public String getParameter3() {
+        return parameter3;
+    }
+
+    public void setParameter3(String parameter3) {
+        this.parameter3 = parameter3;
     }
 }
