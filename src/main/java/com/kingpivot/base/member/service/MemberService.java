@@ -20,4 +20,6 @@ public interface MemberService extends BaseService<Member, String> {
     String getNameById(String id);
 
     Member getMemberByAppCode(String code);
+
+    int getMyChildrenNum(String memberID);
 }

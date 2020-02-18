@@ -57,4 +57,9 @@ public class MemberServiceImpl extends BaseServiceImpl<Member, String> implement
     public Member getMemberByAppCode(String code) {
         return memberDao.getMemberByAppCode(code);
     }
+
+    @Override
+    public int getMyChildrenNum(String memberID) {
+        return memberDao.getMyChildrenNum(memberID);
+    }
 }

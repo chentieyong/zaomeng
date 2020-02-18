@@ -339,7 +339,7 @@ public class ApiMemberController extends ApiBaseController {
                 if (recommandMember != null) {
                     //判断什么身份
                     Major major = majorService.getMaxMemberMajorByMemberId(recommandID);
-                    if (major.getAlreadyUpgradeNumber() < major.getUpgradeNumber()) {
+                    if (major.getMaxFollows() > memberService.getMyChildrenNum(recommandID)) {
                         member.setRecommandID(recommandID);
                     } else {
                         //发送个数已满异常

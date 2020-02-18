@@ -40,4 +40,7 @@ public interface MemberDao extends BaseDao<Member, String> {
             " WHERE tb_weixinapp_member.`code`=?1 AND tb_weixinapp_member.isValid=1 AND tb_weixinapp_member.isLock=0\n" +
             " AND tb_member.isValid=1 AND tb_member.isLock=0", nativeQuery = true)
     Member getMemberByAppCode(String code);
+
+    @Query(value = "SELECT COUNT(id) FROM member WHERE recommandID=?1 AND isValid=1 AND isLock=0", nativeQuery = true)
+    int getMyChildrenNum(String memberID);
 }
