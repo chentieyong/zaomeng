@@ -7,4 +7,6 @@ import com.kingpivot.common.util.TreeInfoDTO;
 
 public interface CategoryService extends BaseService<Category, String> {
     TreeInfoDTO<TreeInfo> getTreeData(String rootId, String depth);
+
+    String getIdByNameAndAppId(String name, String applicationID);
 }

@@ -7,14 +7,18 @@ import com.kingpivot.api.dto.member.MyChildrenMemberList;
 import com.kingpivot.api.dto.memberstatistics.MemberStatisticsInfoDto;
 import com.kingpivot.base.application.model.Application;
 import com.kingpivot.base.application.service.ApplicationService;
+import com.kingpivot.base.category.service.CategoryService;
 import com.kingpivot.base.city.service.CityService;
 import com.kingpivot.base.collect.service.CollectService;
 import com.kingpivot.base.config.Config;
 import com.kingpivot.base.config.RedisKey;
 import com.kingpivot.base.config.UserAgent;
+import com.kingpivot.base.major.model.Major;
+import com.kingpivot.base.major.service.MajorService;
 import com.kingpivot.base.member.model.Member;
 import com.kingpivot.base.member.service.MemberService;
 import com.kingpivot.base.memberBonus.service.MemberBonusService;
+import com.kingpivot.base.memberMajor.model.MemberMajor;
 import com.kingpivot.base.memberMajor.service.MemberMajorService;
 import com.kingpivot.base.memberlog.model.Memberlog;
 import com.kingpivot.base.memberstatistics.model.MemberStatistics;
@@ -36,6 +40,7 @@ import com.kingpivot.common.KingBase;
 import com.kingpivot.common.jms.SendMessageService;
 import com.kingpivot.common.jms.dto.memberLog.MemberLogRequestBase;
 import com.kingpivot.common.jms.dto.memberLogin.MemberLoginRequestBase;
+import com.kingpivot.common.jms.dto.message.MessageRequest;
 import com.kingpivot.common.util.Constants;
 import com.kingpivot.common.util.sms.RadomMsgAuthCodeUtil;
 import com.kingpivot.common.utils.*;
@@ -48,6 +53,8 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -71,6 +78,7 @@ import java.util.concurrent.TimeUnit;
 @RestController
 @Api(description = "会员管理接口")
 public class ApiMemberController extends ApiBaseController {
+    Logger logger = LoggerFactory.getLogger(this.getClass());
     @Resource
     private SendMessageService sendMessageService;
     @Autowired
@@ -109,6 +117,10 @@ public class ApiMemberController extends ApiBaseController {
     private CityService cityService;
     @Autowired
     private WeiXinAppMemberService weiXinAppMemberService;
+    @Autowired
+    private MajorService majorService;
+    @Autowired
+    private CategoryService categoryService;
 
     @ApiOperation(value = "会员登录", notes = "会员登录")
     @ApiImplicitParams({
@@ -323,7 +335,29 @@ public class ApiMemberController extends ApiBaseController {
             member.setSiteID(site.getId());
             member.setApplicationID(site.getApplicationID());
             if (StringUtils.isNotBlank(recommandID)) {
-                member.setRecommandID(recommandID);
+                Member recommandMember = memberService.findById(recommandID);
+                if (recommandMember != null) {
+                    //判断什么身份
+                    Major major = majorService.getMaxMemberMajorByMemberId(recommandID);
+                    if (major.getAlreadyUpgradeNumber() < major.getUpgradeNumber()) {
+                        member.setRecommandID(recommandID);
+                    } else {
+                        //发送个数已满异常
+                        sendMessageService.sendMessage(JacksonHelper.toJson(new MessageRequest.Builder()
+                                .objectDefineID(Config.MEMBER_OBJECTDEFINEID)
+                                .objectName(member.getName())
+                                .objectID(member.getId())
+                                .messageType(categoryService.getIdByNameAndAppId(Config.RECOMMAND_MEMBER_NAME,
+                                        member.getApplicationID()))
+                                .receiverID(member.getRecommandID())
+                                .applicationID(member.getApplicationID())
+                                .messageCode(Config.RECOMMAND_FULL_ERROR_CODE)
+                                .build()));
+                        logger.error("推荐id：[{}]个数已满，时间：[{}]", recommandID, TimeTest.getTimeStr());
+                    }
+                } else {
+                    logger.error("推荐id：[{}]不存在，时间：[{}]", recommandID, TimeTest.getTimeStr());
+                }
             }
             String reCode = this.memberService.getCurRecommandCode(site.getApplicationID());
             if (StringUtils.isNotEmpty(reCode)) {

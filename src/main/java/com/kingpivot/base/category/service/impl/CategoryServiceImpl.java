@@ -55,4 +55,9 @@ public class CategoryServiceImpl extends BaseServiceImpl<Category, String> imple
             return null;
         }
     }
+
+    @Override
+    public String getIdByNameAndAppId(String name, String applicationID) {
+        return categoryDao.getIdByNameAndAppId(name, applicationID);
+    }
 }

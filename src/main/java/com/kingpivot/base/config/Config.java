@@ -26,4 +26,6 @@ public class Config {
     public static String QINIU_BUCKETNAME = "zaomeng";
     public static String QINIU_ACCESSKEY = "QaWF6IgWIeH5V-Kf9BOl825RvzFf2vWRnykN3V7A";
     public static String QINIU_LOOKHEAD = "http://qn.wgclm.com/";
+    public static final String RECOMMAND_FULL_ERROR_CODE = "RECOMMAND_FULL_ERROR";//会员推荐异常语句code
+    public static final String RECOMMAND_MEMBER_NAME = "推荐会员";//推荐会员name
 }

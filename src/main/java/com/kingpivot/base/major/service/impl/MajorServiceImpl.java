@@ -19,4 +19,9 @@ public class MajorServiceImpl extends BaseServiceImpl<Major, String> implements 
     public BaseDao<Major, String> getDAO() {
         return this.majorDao;
     }
+
+    @Override
+    public Major getMaxMemberMajorByMemberId(String memberID) {
+        return majorDao.getMaxMemberMajorByMemberId(memberID);
+    }
 }

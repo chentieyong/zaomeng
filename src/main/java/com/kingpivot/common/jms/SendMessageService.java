@@ -10,4 +10,6 @@ public interface SendMessageService {
     void getMemberBonusMessage(String msg);
 
     void sendAddAttachmentMessage(String msg);
+
+    void sendMessage(String msg);
 }

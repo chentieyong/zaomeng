@@ -18,4 +18,7 @@ public interface CategoryDao extends BaseDao<Category, String> {
             "             AND parent.rightWeight AND parent.id = ?1 AND parent.isValid = '1' AND node.isValid = '1' \n" +
             "             AND node.depth <= parent.depth+?2 ORDER BY node.orderSeq ASC", nativeQuery = true)
     Object[] getTreeData(String rootId, String depth);
+
+    @Query(value = "SELECT id FROM category WHERE `name`=?1 AND applicationID=?2 AND isValid=1 AND isLock=0 LIMIT 1", nativeQuery = true)
+    String getIdByNameAndAppId(String name, String applicationID);
 }
