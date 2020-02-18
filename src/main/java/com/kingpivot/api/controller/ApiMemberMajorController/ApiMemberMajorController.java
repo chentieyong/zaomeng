@@ -3,6 +3,8 @@ package com.kingpivot.api.controller.ApiMemberMajorController;
 import com.google.common.collect.Maps;
 import com.kingpivot.base.config.RedisKey;
 import com.kingpivot.base.config.UserAgent;
+import com.kingpivot.base.major.model.Major;
+import com.kingpivot.base.major.service.MajorService;
 import com.kingpivot.base.member.model.Member;
 import com.kingpivot.base.memberMajor.model.MemberMajor;
 import com.kingpivot.base.memberMajor.service.MemberMajorService;
@@ -40,6 +42,8 @@ public class ApiMemberMajorController extends ApiBaseController {
     private RedisTemplate redisTemplate;
     @Autowired
     private MemberMajorService memberMajorService;
+    @Autowired
+    private MajorService majorService;
 
     @ApiOperation(value = "申请一个专业身份", notes = "申请一个专业身份")
     @ApiImplicitParams({
@@ -80,8 +84,17 @@ public class ApiMemberMajorController extends ApiBaseController {
             return MessagePacket.newFail(MessageHeader.Code.majorIDIsNull, "majorID不能为空");
         }
 
+        Major major = majorService.findById(majorID);
+        if (major == null) {
+            return MessagePacket.newFail(MessageHeader.Code.majorIDIsNull, "专业记录不存在");
+        }
+
         if (memberMajorService.isApply(majorID, member.getId())) {
             return MessagePacket.newFail(MessageHeader.Code.majorIsApply, "请勿重复申请");
+        }
+
+        if (major.getUpgradeNumber() <= major.getAlreadyUpgradeNumber()) {
+            return MessagePacket.newFail(MessageHeader.Code.majorIsFull, "升级个数已满");
         }
 
         String shengID = request.getParameter("shengID");
@@ -106,6 +119,10 @@ public class ApiMemberMajorController extends ApiBaseController {
         }
         memberMajor.setStatus(1);
         memberMajorService.save(memberMajor);
+
+        //更新数量
+        major.setAlreadyUpgradeNumber(major.getAlreadyUpgradeNumber() + 1);
+        majorService.save(major);
 
         Map<String, Object> rsMap = Maps.newHashMap();
         rsMap.put("data", memberMajor.getId());

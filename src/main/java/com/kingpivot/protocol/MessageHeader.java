@@ -187,6 +187,7 @@ public class MessageHeader implements Serializable {
         idNumberIsNull(10119),//身份证号为空
         faceImageIsNull(10120),//正面照为空
         backImageIsNull(10121),//反面照为空
+        majorIsFull(10122),//专业申请已满
         ;
         public int code;
 
