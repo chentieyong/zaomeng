@@ -117,15 +117,10 @@ public class ApiMemberMajorController extends ApiBaseController {
         if (StringUtils.isNotBlank(xianID)) {
             memberMajor.setXianID(xianID);
         }
-        memberMajor.setStatus(1);
-        memberMajorService.save(memberMajor);
-
-        //更新数量
-        major.setAlreadyUpgradeNumber(major.getAlreadyUpgradeNumber() + 1);
-        majorService.save(major);
+        String memberMajorID = memberMajorService.applyOneMajor(memberMajor, major);
 
         Map<String, Object> rsMap = Maps.newHashMap();
-        rsMap.put("data", memberMajor.getId());
+        rsMap.put("data", memberMajorID);
 
         String desc = String.format("%s申请一个专业身份", member.getName());
 
