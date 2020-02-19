@@ -2,6 +2,7 @@ package com.kingpivot.api.controller.ApiMessageController;
 
 import com.google.common.collect.Maps;
 import com.kingpivot.api.dto.message.ApiMessageListDto;
+import com.kingpivot.api.dto.message.MessageDetailDto;
 import com.kingpivot.base.config.RedisKey;
 import com.kingpivot.base.config.UserAgent;
 import com.kingpivot.base.member.model.Member;
@@ -119,6 +120,52 @@ public class ApiMessageController extends ApiBaseController {
         MessagePage messagePage = new MessagePage(page, list);
         rsMap.put("data", messagePage);
         return MessagePacket.newSuccess(rsMap, "getMyMessageList success!");
+    }
+
+    @ApiOperation(value = "获取消息详情", notes = "getMessageDetail")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query", name = "sessionID", value = "登录标识", dataType = "String"),
+            @ApiImplicitParam(paramType = "query", name = "currentPage", value = "分页，页码从1开始", dataType = "int"),
+            @ApiImplicitParam(paramType = "query", name = "pageNumber", value = "每一页大小", dataType = "int")})
+    @RequestMapping(value = "/getMessageDetail")
+    public MessagePacket getMessageDetail(HttpServletRequest request) {
+        String sessionID = request.getParameter("sessionID");
+        if (StringUtils.isEmpty(sessionID)) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        Member member = (Member) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBER_KEY.key, sessionID));
+        if (member == null) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        MemberLogDTO memberLogDTO = (MemberLogDTO) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBERLOG_KEY.key, sessionID));
+        if (memberLogDTO == null) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        String messageID = request.getParameter("messageID");
+        if (StringUtils.isEmpty(messageID)) {
+            return MessagePacket.newFail(MessageHeader.Code.messageIdIsNull, "消息id不能为空");
+        }
+        Message message = messageService.findById(messageID);
+        if (message == null) {
+            return MessagePacket.newFail(MessageHeader.Code.messageIdIsError, "消息不存在");
+        }
+
+        MessageDetailDto data = BeanMapper.map(message, MessageDetailDto.class);
+
+        String description = String.format("%s获取消息详情", member.getName());
+
+        UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));
+        MemberLogRequestBase base = MemberLogRequestBase.BALANCE()
+                .sessionID(sessionID)
+                .description(description)
+                .userAgent(userAgent == null ? null : userAgent.getBrowserType())
+                .operateType(Memberlog.MemberOperateType.GETMESSAGEDETAIL.getOname())
+                .build();
+        sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
+
+        Map<String, Object> rsMap = Maps.newHashMap();
+        rsMap.put("data", data);
+        return MessagePacket.newSuccess(rsMap, "getMessageDetail success!");
     }
 
     @ApiOperation(value = "阅读消息", notes = "阅读消息")

@@ -349,7 +349,7 @@ public class ApiMemberController extends ApiBaseController {
                                 .objectID(member.getId())
                                 .messageType(categoryService.getIdByNameAndAppId(Config.RECOMMAND_MEMBER_NAME,
                                         member.getApplicationID()))
-                                .receiverID(member.getRecommandID())
+                                .receiverID(recommandID)
                                 .applicationID(member.getApplicationID())
                                 .messageCode(Config.RECOMMAND_FULL_ERROR_CODE)
                                 .build()));
