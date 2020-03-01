@@ -12,4 +12,6 @@ public interface SendMessageService {
     void sendAddAttachmentMessage(String msg);
 
     void sendMessage(String msg);
+
+    void sendMemberBalance(String msg);
 }

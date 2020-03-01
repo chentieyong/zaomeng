@@ -30,6 +30,9 @@ public class ActiveMQConfig {
     @Value("${sendMessageQueueName}")
     private String sendMessage;
 
+    @Value("${sendMemberBalanceQueueName}")
+    private String sendMemberBalanceQueueName;
+
     @Value("${spring.activemq.user}")
     private String usrName;
 
@@ -67,6 +70,11 @@ public class ActiveMQConfig {
     @Bean
     public Queue sendMessage() {
         return new ActiveMQQueue(sendMessage);
+    }
+
+    @Bean
+    public Queue sendMemberBalanceQueueName() {
+        return new ActiveMQQueue(sendMemberBalanceQueueName);
     }
 
     @Bean

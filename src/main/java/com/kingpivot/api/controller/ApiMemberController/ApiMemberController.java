@@ -18,8 +18,10 @@ import com.kingpivot.base.major.service.MajorService;
 import com.kingpivot.base.member.model.Member;
 import com.kingpivot.base.member.service.MemberService;
 import com.kingpivot.base.memberBonus.service.MemberBonusService;
-import com.kingpivot.base.memberMajor.model.MemberMajor;
 import com.kingpivot.base.memberMajor.service.MemberMajorService;
+import com.kingpivot.base.memberRankTemp.service.MemberRankTempService;
+import com.kingpivot.base.memberStatisticsTemp.model.MemberStatisticsTemp;
+import com.kingpivot.base.memberStatisticsTemp.service.MemberStatisticsTempService;
 import com.kingpivot.base.memberlog.model.Memberlog;
 import com.kingpivot.base.memberstatistics.model.MemberStatistics;
 import com.kingpivot.base.memberstatistics.service.MemberStatisticsService;
@@ -38,6 +40,7 @@ import com.kingpivot.base.weiXinAppMember.model.WeiXinAppMember;
 import com.kingpivot.base.weiXinAppMember.service.WeiXinAppMemberService;
 import com.kingpivot.common.KingBase;
 import com.kingpivot.common.jms.SendMessageService;
+import com.kingpivot.common.jms.dto.memberBalance.MemberBalanceRequest;
 import com.kingpivot.common.jms.dto.memberLog.MemberLogRequestBase;
 import com.kingpivot.common.jms.dto.memberLogin.MemberLoginRequestBase;
 import com.kingpivot.common.jms.dto.message.MessageRequest;
@@ -67,6 +70,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -121,6 +125,38 @@ public class ApiMemberController extends ApiBaseController {
     private MajorService majorService;
     @Autowired
     private CategoryService categoryService;
+    @Autowired
+    private MemberStatisticsTempService memberStatisticsTempService;
+
+    @ApiOperation(value = "同步会员资金", notes = "同步会员资金")
+    @RequestMapping(value = "/synchronizedMemberStatistics")
+    public String synchronizedMemberStatistics(HttpServletRequest request) {
+        List<Member> memberList = memberService.getList();
+        for (Member member : memberList) {
+            MemberStatisticsTemp memberStatisticsTemp = memberStatisticsTempService.getByMemberId(member.getId());
+            if (memberStatisticsTemp.getPoint() != 0 || memberStatisticsTemp.getCashBalance() != 0) {
+                double amount = memberStatisticsTemp.getCashBalance() == null ? 0
+                        : memberStatisticsTemp.getCashBalance().doubleValue();
+                //系统转移-补充资金
+                sendMessageService.sendMemberBalance(JacksonHelper.toJson(new MemberBalanceRequest.Builder()
+                        .memberID(member.getId())
+                        .applicationID(member.getApplicationID())
+                        .siteID(member.getSiteID())
+                        .operateType(1)
+                        .objectDefineID(Config.MEMBER_OBJECTDEFINEID)
+                        .objectName(member.getName())
+                        .objectID(member.getId())
+                        .amount(new BigDecimal(amount == 0 ? 0.01 : amount))
+                        .point(memberStatisticsTemp.getPoint())
+                        .description("系统转移-补充资金")
+                        .type(1)
+                        .build()));
+                logger.info("会员[{}]转移资金[{}]", memberStatisticsTemp);
+            }
+        }
+        return "SUCCESS";
+    }
+
 
     @ApiOperation(value = "会员登录", notes = "会员登录")
     @ApiImplicitParams({

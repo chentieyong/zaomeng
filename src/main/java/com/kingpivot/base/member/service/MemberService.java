@@ -3,6 +3,8 @@ package com.kingpivot.base.member.service;
 import com.kingpivot.base.member.model.Member;
 import com.kingpivot.common.service.BaseService;
 
+import java.util.List;
+
 public interface MemberService extends BaseService<Member, String> {
 
     Member getMemberByLoginNameAndApplicationId(String loginName, String applicationID);
@@ -22,4 +24,6 @@ public interface MemberService extends BaseService<Member, String> {
     Member getMemberByAppCode(String code);
 
     int getMyChildrenNum(String memberID);
+
+    List<Member> getList();
 }

@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.Table;
+import java.util.List;
 
 @Repository
 @Table(name = "member")
@@ -43,4 +44,7 @@ public interface MemberDao extends BaseDao<Member, String> {
 
     @Query(value = "SELECT COUNT(id) FROM member WHERE recommandID=?1 AND isValid=1 AND isLock=0", nativeQuery = true)
     int getMyChildrenNum(String memberID);
+
+    @Query(value = "SELECT * FROM member ORDER BY createdTime asc", nativeQuery = true)
+    List<Member> getList();
 }

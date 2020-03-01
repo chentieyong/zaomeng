@@ -8,6 +8,8 @@ import com.kingpivot.common.service.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service("memberService")
 public class MemberServiceImpl extends BaseServiceImpl<Member, String> implements MemberService {
     @Autowired
@@ -61,5 +63,10 @@ public class MemberServiceImpl extends BaseServiceImpl<Member, String> implement
     @Override
     public int getMyChildrenNum(String memberID) {
         return memberDao.getMyChildrenNum(memberID);
+    }
+
+    @Override
+    public List<Member> getList() {
+        return memberDao.getList();
     }
 }

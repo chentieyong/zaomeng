@@ -24,6 +24,8 @@ public class SendMessageServiceImpl implements SendMessageService {
     private Queue addAttachmentMessage;
     @Autowired
     private Queue sendMessage;
+    @Autowired
+    private Queue sendMemberBalanceQueueName;
 
     @Override
     public void sendMemberLogMessage(String msg) {
@@ -53,5 +55,10 @@ public class SendMessageServiceImpl implements SendMessageService {
     @Override
     public void sendMessage(String msg) {
         jms.convertAndSend(sendMessage, msg);
+    }
+
+    @Override
+    public void sendMemberBalance(String msg) {
+        jms.convertAndSend(sendMemberBalanceQueueName, msg);
     }
 }
