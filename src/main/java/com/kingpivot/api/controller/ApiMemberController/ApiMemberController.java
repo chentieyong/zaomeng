@@ -377,12 +377,6 @@ public class ApiMemberController extends ApiBaseController {
                     Major major = majorService.getMaxMemberMajorByMemberId(recommandID);
                     if (major.getMaxFollows() > memberService.getMyChildrenNum(recommandID)) {
                         member.setRecommandID(recommandID);
-                        if (StringUtils.isNotBlank(recommandMember.getRecommandChain())) {
-                            member.setRecommandChain(String.format("%s,%s", recommandMember.getRecommandChain(),
-                                    recommandMember.getRecommandCode()));
-                        } else {
-                            member.setRecommandChain(recommandMember.getRecommandCode());
-                        }
                     } else {
                         //发送个数已满异常
                         sendMessageService.sendMessage(JacksonHelper.toJson(new MessageRequest.Builder()
