@@ -191,6 +191,9 @@ public class MessageHeader implements Serializable {
         shopListIsNull(10123),//店铺为空
         shopIDIsNull(10124),//店铺id为空
         shopIDIsError(10125),//店铺不存在
+        shortNameIsNull(10126),//简称不能为空
+        memberAddressIDIsNull(10127),//会员地址id为空
+        memberAddressIDIsError(10128),//会员地址不存在
         ;
         public int code;
 
