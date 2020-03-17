@@ -8,15 +8,20 @@ import com.kingpivot.base.goodsShop.model.GoodsShop;
 import com.kingpivot.base.member.model.Member;
 import com.kingpivot.base.memberBonus.dao.MemberBonusDao;
 import com.kingpivot.base.memberBonus.model.MemberBonus;
+import com.kingpivot.base.memberBonus.service.MemberBonusService;
 import com.kingpivot.base.memberOrder.dao.MemberOrderDao;
 import com.kingpivot.base.memberOrder.model.MemberOrder;
 import com.kingpivot.base.memberOrder.service.MemberOrderService;
+import com.kingpivot.base.memberOrderGoods.dao.MemberOrderGoodsDao;
 import com.kingpivot.base.memberOrderGoods.model.MemberOrderGoods;
 import com.kingpivot.base.memberOrderGoods.service.MemberOrderGoodsService;
+import com.kingpivot.base.memberPayment.dao.MemberPaymentDao;
+import com.kingpivot.base.memberPayment.model.MemberPayment;
 import com.kingpivot.base.objectFeatureData.dao.ObjectFeatureDataDao;
 import com.kingpivot.base.rank.dao.RankDao;
 import com.kingpivot.base.rank.model.Rank;
 import com.kingpivot.base.sequenceDefine.service.SequenceDefineService;
+import com.kingpivot.base.shop.dao.ShopDao;
 import com.kingpivot.common.KingBase;
 import com.kingpivot.common.dao.BaseDao;
 import com.kingpivot.common.service.BaseServiceImpl;
@@ -40,7 +45,7 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
     @Autowired
     private SequenceDefineService sequenceDefineService;
     @Autowired
-    private MemberOrderGoodsService memberOrderGoodsService;
+    private MemberOrderGoodsDao memberOrderGoodsDao;
     @Autowired
     private CartGoodsDao cartGoodsDao;
     @Autowired
@@ -53,6 +58,10 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
     private RankDao rankDao;
     @Autowired
     private GoodsShopDao goodsShopDao;
+    @Autowired
+    private MemberPaymentDao memberPaymentDao;
+    @Autowired
+    private ShopDao shopDao;
 
     @Override
     public BaseDao<MemberOrder, String> getDAO() {
@@ -97,8 +106,8 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
         memberOrder.setContactPhone(contactPhone);
         memberOrder.setAddress(address);
         memberOrder.setApplyTime(new Timestamp(System.currentTimeMillis()));
-        String memberPaymentID = kingBase.addMemberPayment(member, Config.MEMBERORDER_OBJECTDEFINEID, memberOrder.getPriceAfterDiscount());
-        memberOrder.setMemberPaymentID(memberPaymentID);
+        MemberPayment memberPayment = kingBase.addMemberPayment(member, Config.MEMBERORDER_OBJECTDEFINEID, memberOrder.getPriceAfterDiscount());
+        memberOrder.setMemberPaymentID(memberPayment.getId());
 
         MemberBonus memberBonus = null;
         if (StringUtils.isNotBlank(memberBonusID)) {
@@ -137,13 +146,13 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
         memberOrderGoods.setQTY(qty);
         memberOrderGoods.setIsReturn(goodsShop.getIsReturn());
         memberOrderGoods.setCreatedTime(new Timestamp(System.currentTimeMillis()));
-        memberOrderGoodsService.save(memberOrderGoods);
+        memberOrderGoodsDao.save(memberOrderGoods);
 
         goodsShop.setStockOut(qty + goodsShop.getStockOut());
         goodsShop.setStockNumber(goodsShop.getStockNumber() - qty);
         goodsShopDao.save(goodsShop);
 
-        return memberPaymentID;
+        return memberPayment.getId();
     }
 
     @Override
@@ -201,8 +210,8 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
         memberOrder.setAddress(address);
         memberOrder.setApplyTime(new Timestamp(System.currentTimeMillis()));
         memberOrder.setCreatedTime(memberOrder.getApplyTime());
-        String memberPaymentID = kingBase.addMemberPayment(member, Config.MEMBERORDER_OBJECTDEFINEID, memberOrder.getPriceAfterDiscount());
-        memberOrder.setMemberPaymentID(memberPaymentID);
+        MemberPayment memberPayment = kingBase.addMemberPayment(member, Config.MEMBERORDER_OBJECTDEFINEID, memberOrder.getPriceAfterDiscount());
+        memberOrder.setMemberPaymentID(memberPayment.getId());
         memberOrder.setModifiedTime(memberOrder.getApplyTime());
         memberOrderDao.save(memberOrder);
 
@@ -237,7 +246,7 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
                         memberOrderGoods.getQTY(), 2));
             }
             memberOrderGoods.setIsReturn(cartGoods.getGoodsShop().getIsReturn());
-            memberOrderGoodsService.save(memberOrderGoods);
+            memberOrderGoodsDao.save(memberOrderGoods);
 
             if (cartGoods.getGoodsShop() != null) {
                 goodsShop = cartGoods.getGoodsShop();
@@ -250,7 +259,104 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
             cartGoods.setModifiedTime(new Timestamp(System.currentTimeMillis()));
             cartGoodsDao.save(cartGoods);
         }
-        return memberPaymentID;
+        return memberPayment.getId();
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public String createMemberOrderFromShopCart(List<String> shopList, String cartID, Member member, String contactName,
+                                                String contactPhone, String address,
+                                                String memberBonusID) {
+        double bonusAmount = 0d;
+        double bonusAmountAvg = 0d;
+        MemberBonus memberBonus = null;
+        if (StringUtils.isNotBlank(memberBonusID)) {
+            memberBonus = memberBonusDao.findOne(memberBonusID);
+            if (memberBonus != null && memberBonus.getIsValid() == 1 && memberBonus.getAmount() != 0) {
+                bonusAmount = memberBonus.getAmount().doubleValue();
+                bonusAmountAvg = bonusAmount / shopList.size();
+            }
+        }
+
+        MemberPayment memberPayment = kingBase.addMemberPayment(member, Config.MEMBERORDER_OBJECTDEFINEID, 0d);
+        List<CartGoods> cartGoodsList = null;
+        MemberOrder memberOrder = null;
+        double allTotal = 0d;
+        for (String shopID : shopList) {
+            memberOrder = new MemberOrder();
+            memberOrder.setName(String.format("%s的订单", member.getName()));
+            memberOrder.setApplicationID(member.getApplicationID());
+            memberOrder.setMemberID(member.getId());
+            memberOrder.setApplyTime(new Timestamp(System.currentTimeMillis()));
+            memberOrder.setOrderCode(sequenceDefineService.genCode("orderSeq", memberOrder.getId()));
+            memberOrder.setOrderType(1);
+            memberOrder.setSendPrice(0d);
+            memberOrder.setBonusAmount(bonusAmountAvg);
+            memberOrder.setPayTotal(0d);
+            memberOrder.setStatus(1);
+            memberOrder.setMemberPaymentID(memberPayment.getId());
+            memberOrder.setContactName(contactName);
+            memberOrder.setContactPhone(contactName);
+            memberOrder.setAddress(address);
+            memberOrder.setCompanyID(shopDao.getCompanyIdById(shopID));
+            memberOrder.setShopID(shopID);
+
+            int goodQty = 0;
+            double priceTotal = 0.0;
+            cartGoodsList = cartGoodsDao.getCartGoodsListByCartID(cartID, shopID, 1);
+
+            for (CartGoods cartGoods : cartGoodsList) {
+                goodQty += cartGoods.getQty();
+                priceTotal += cartGoods.getPriceTotal();
+            }
+            memberOrder.setGoodsNumbers(cartGoodsList.size());
+            memberOrder.setGoodsQTY(goodQty);
+            memberOrder.setPriceTotal(NumberUtils.keepPrecision(priceTotal, 2));
+
+            memberOrder.setPriceAfterDiscount(NumberUtils.keepPrecision(memberOrder.getPriceTotal() - bonusAmountAvg, 2));
+            allTotal += memberOrder.getPriceAfterDiscount();
+            memberOrder.setCreatedTime(new Timestamp(System.currentTimeMillis()));
+            memberOrderDao.save(memberOrder);
+
+            MemberOrderGoods memberOrderGoods = null;
+            for (CartGoods cartGoods : cartGoodsList) {
+                memberOrderGoods = new MemberOrderGoods();
+                memberOrderGoods.setMemberOrderID(memberOrder.getId());
+                memberOrderGoods.setGoodsShopID(cartGoods.getGoodsShopID());
+                memberOrderGoods.setName(cartGoods.getGoodsShop().getName());
+                memberOrderGoods.setPriceStand(cartGoods.getStandPrice());
+                memberOrderGoods.setPriceNow(cartGoods.getPriceNow());
+                memberOrderGoods.setQTY(cartGoods.getQty());
+                memberOrderGoods.setPriceTotal(cartGoods.getPriceTotal());
+                memberOrderGoods.setPriceTotalReturn(memberOrderGoods.getPriceTotal());//退款总金额
+                memberOrderGoods.setPriceReturn(memberOrderGoods.getPriceNow());//退款金额
+                if (bonusAmountAvg != 0) {
+                    double priceTotalReturn = memberOrderGoods.getPriceTotal() / priceTotal * bonusAmountAvg;
+                    memberOrderGoods.setPriceTotalReturn(NumberUtils.keepPrecision(memberOrderGoods.getPriceTotalReturn() -
+                            priceTotalReturn, 2));
+                    memberOrderGoods.setPriceReturn(NumberUtils.keepPrecision(memberOrderGoods.getPriceTotal() /
+                            memberOrderGoods.getQTY(), 2));
+                }
+                memberOrderGoods.setIsReturn(cartGoods.getGoodsShop().getIsReturn());
+                memberOrderGoods.setStatus(1);
+                memberOrderGoods.setCreatedTime(new Timestamp(System.currentTimeMillis()));
+                memberOrderGoodsDao.save(memberOrderGoods);
+
+                cartGoods.setIsValid(0);
+                cartGoods.setModifiedTime(new Timestamp(System.currentTimeMillis()));
+                cartGoodsDao.save(cartGoods);
+            }
+        }
+        memberPayment.setAmount(allTotal);
+        memberPaymentDao.save(memberPayment);
+
+        if (memberBonus != null) {
+            memberBonus.setStatus(2);
+            memberBonus.setUseTime(new Timestamp(System.currentTimeMillis()));
+            memberBonus.setMemberOrderID(memberOrder.getId());
+            memberBonusDao.save(memberBonus);
+        }
+        return memberPayment.getId();
     }
 
     @Override

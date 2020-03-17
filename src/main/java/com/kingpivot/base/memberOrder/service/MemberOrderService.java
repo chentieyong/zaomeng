@@ -13,12 +13,62 @@ import java.util.List;
  */
 public interface MemberOrderService extends BaseService<MemberOrder, String> {
 
-    String createMemberOrder(Member member, GoodsShop goodsShop, String objectFeatureItemID1, int qty, String contactName, String contactPhone, String address,String memberBonusID);
+    /**
+     * 商品详情生成订单
+     *
+     * @param member
+     * @param goodsShop
+     * @param objectFeatureItemID1
+     * @param qty
+     * @param contactName
+     * @param contactPhone
+     * @param address
+     * @param memberBonusID
+     * @return
+     */
+    String createMemberOrder(Member member, GoodsShop goodsShop, String objectFeatureItemID1, int qty, String contactName, String contactPhone, String address, String memberBonusID);
 
-    String createMemberOrderFromCart(List<CartGoods> cartGoodsList, Member member, String contactName, String contactPhone, String address,String memberBonusID);
+    /**
+     * 单店铺生成订单
+     *
+     * @param cartGoodsList
+     * @param member
+     * @param contactName
+     * @param contactPhone
+     * @param address
+     * @param memberBonusID
+     * @return
+     */
+    String createMemberOrderFromCart(List<CartGoods> cartGoodsList, Member member, String contactName, String contactPhone, String address, String memberBonusID);
 
+    /**
+     * 多店铺生成订单
+     *
+     * @param shopList
+     * @param cartID
+     * @param member
+     * @param contactName
+     * @param contactPhone
+     * @param address
+     * @param memberBonusID
+     * @return
+     */
+    String createMemberOrderFromShopCart(List<String> shopList, String cartID, Member member, String contactName, String contactPhone, String address, String memberBonusID);
+
+    /**
+     * 根据memberPaymentID获取订单
+     *
+     * @param memberPaymentID
+     * @return
+     */
     List<MemberOrder> getMemberOrderByMemberPayMentID(String memberPaymentID);
 
-    void updateMemberOrderByMemberPaymentID(String paywayID,String memberPaymentID);
+    /**
+     * 更改会员订单memberPaymentID
+     *
+     * @param paywayID
+     * @param memberPaymentID
+     */
+    void updateMemberOrderByMemberPaymentID(String paywayID, String memberPaymentID);
 }
 

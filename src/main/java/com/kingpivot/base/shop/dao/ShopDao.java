@@ -14,4 +14,7 @@ import javax.persistence.Table;
 public interface ShopDao extends BaseDao<Shop, String> {
     @Query(value = "select name from shop where id=?1 and isValid=1 and isLock=0", nativeQuery = true)
     String getNameById(String id);
+
+    @Query(value = "select companyID from shop where id=?1 and isValid=1 and isLock=0", nativeQuery = true)
+    String getCompanyIdById(String id);
 }

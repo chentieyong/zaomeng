@@ -52,7 +52,7 @@ public class KingBase {
         smsService.save(sms);
     }
 
-    public String addMemberPayment(Member member, String objectDefineID, double amount) {
+    public MemberPayment addMemberPayment(Member member, String objectDefineID, double amount) {
         MemberPayment memberPayment = new MemberPayment();
         memberPayment.setName(String.format("%s%s申请支付", member.getName(), TimeTest.getNowDateFormat()));
         memberPayment.setMemberID(member.getId());
@@ -63,6 +63,6 @@ public class KingBase {
         memberPayment.setOrderCode(sequenceDefineService.genCode("orderSeq", memberPayment.getId()));
         memberPayment.setStatus(1);
         memberPayment = memberPaymentService.save(memberPayment);
-        return memberPayment.getId();
+        return memberPayment;
     }
 }

@@ -191,14 +191,29 @@ public class ApiMemberOrderController extends ApiBaseController {
             return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "购物车为空");
         }
 
-        List<CartGoods> cartGoodsList = cartGoodsService.getCartGoodsListByCartID(cartID, 1);
-        if (cartGoodsList.isEmpty()) {
-            return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "购物车为空");
-        }
-
         String memberBonusID = request.getParameter("memberBonusID");
 
-        String memberPaymentID = memberOrderService.createMemberOrderFromCart(cartGoodsList, member, contactName, contactPhone, address, memberBonusID);
+        String type = request.getParameter("type");//1默认单店铺，2多店铺
+        if (StringUtils.isEmpty(type)) {
+            type = "1";
+        }
+        String memberPaymentID = null;
+        switch (type) {
+            case "1":
+                List<CartGoods> cartGoodsList = cartGoodsService.getCartGoodsListByCartID(cartID, 1);
+                if (cartGoodsList.isEmpty()) {
+                    return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "购物车为空");
+                }
+                memberPaymentID = memberOrderService.createMemberOrderFromCart(cartGoodsList, member, contactName, contactPhone, address, memberBonusID);
+                break;
+            case "2":
+                List<String> shopList = cartGoodsService.getSelectCartGoodsShopList(cartID, "1");
+                if (shopList == null || shopList.isEmpty()) {
+                    return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "购物车为空");
+                }
+                memberPaymentID = memberOrderService.createMemberOrderFromShopCart(shopList, cartID, member, contactName, contactPhone, address, memberBonusID);
+                break;
+        }
 
         String description = String.format("%s店铺商品生成订单", member.getName());
 
