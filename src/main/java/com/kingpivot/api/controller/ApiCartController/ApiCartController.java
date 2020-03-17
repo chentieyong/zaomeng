@@ -2,6 +2,7 @@ package com.kingpivot.api.controller.ApiCartController;
 
 import com.google.common.collect.Maps;
 import com.kingpivot.api.dto.cart.CartGoodsListDto;
+import com.kingpivot.api.dto.cart.GoodsListDto;
 import com.kingpivot.base.cart.service.CartService;
 import com.kingpivot.base.cartGoods.model.CartGoods;
 import com.kingpivot.base.cartGoods.service.CartGoodsService;
@@ -15,6 +16,7 @@ import com.kingpivot.base.memberlog.model.Memberlog;
 import com.kingpivot.base.objectFeatureData.service.ObjectFeatureDataService;
 import com.kingpivot.base.rank.model.Rank;
 import com.kingpivot.base.rank.service.RankService;
+import com.kingpivot.base.shop.service.ShopService;
 import com.kingpivot.base.support.MemberLogDTO;
 import com.kingpivot.common.KingBase;
 import com.kingpivot.common.jms.SendMessageService;
@@ -36,15 +38,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RequestMapping("/api")
 @RestController
@@ -66,6 +66,8 @@ public class ApiCartController extends ApiBaseController {
     private ObjectFeatureDataService objectFeatureDataService;
     @Autowired
     private RankService rankService;
+    @Autowired
+    private ShopService shopService;
 
     @ApiOperation(value = "商品加入购物车", notes = "商品加入购物车")
     @ApiImplicitParams({
@@ -342,7 +344,7 @@ public class ApiCartController extends ApiBaseController {
         return MessagePacket.newSuccess(rsMap, "selectCartGoods success!");
     }
 
-    @ApiOperation(value = "获取购物车商品", notes = "获取购物车商品")
+    @ApiOperation(value = "获取购物车商品-单店铺版本", notes = "获取购物车商品-单店铺版本")
     @ApiImplicitParams({
             @ApiImplicitParam(paramType = "query", name = "sessionID", value = "登录标识", dataType = "String"),
             @ApiImplicitParam(paramType = "query", name = "currentPage", value = "分页，页码从1开始", dataType = "int"),
@@ -375,23 +377,18 @@ public class ApiCartController extends ApiBaseController {
             isSelect = "-1";
         }
 
-
         TPage page = ApiPageUtil.makePage(null, null);
-
-
         List<CartGoods> cartGoodsList = cartGoodsService.getCartGoodsListByCartID(cartID, Integer.parseInt(isSelect));
-
         List<CartGoodsListDto> list = null;
         if (cartGoodsList != null && cartGoodsList.size() != 0) {
             list = BeanMapper.mapList(cartGoodsList, CartGoodsListDto.class);
             page.setTotalSize(cartGoodsList.size());
-        }else{
+        } else {
             list = new ArrayList<>();
             page.setTotalSize(0);
         }
 
         String description = String.format("%s获取购物车商品", member.getName());
-
         UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));
         MemberLogRequestBase base = MemberLogRequestBase.BALANCE()
                 .sessionID(sessionID)
@@ -399,7 +396,6 @@ public class ApiCartController extends ApiBaseController {
                 .userAgent(userAgent == null ? null : userAgent.getBrowserType())
                 .operateType(Memberlog.MemberOperateType.GETCARTGOODSLIST.getOname())
                 .build();
-
         sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
 
         Map<String, Object> rsMap = Maps.newHashMap();
@@ -417,5 +413,105 @@ public class ApiCartController extends ApiBaseController {
         rsMap.put("priceAfterDiscount", NumberUtils.keepPrecision(priceAfterDiscount, 2));
         rsMap.put("discountPrice", NumberUtils.keepPrecision(priceTotal - priceAfterDiscount, 2));
         return MessagePacket.newSuccess(rsMap, "getCartGoodsList success!");
+    }
+
+    @ApiOperation(value = "获取购物车列表-多店铺版本", notes = "获取购物车列表-多店铺版本")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query", name = "sessionID", value = "登录标识", dataType = "String")})
+    @RequestMapping(value = "/getCartList")
+    public MessagePacket getCartList(HttpServletRequest request) {
+        String sessionID = request.getParameter("sessionID");
+        String isSelect = request.getParameter("isSelect");
+        if (StringUtils.isEmpty(sessionID)) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        Member member = (Member) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBER_KEY.key, sessionID));
+        if (member == null) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        MemberLogDTO memberLogDTO = (MemberLogDTO) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBERLOG_KEY.key, sessionID));
+        if (memberLogDTO == null) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+
+        String cartID = cartService.getCartIdByMemberID(member.getId());
+        if (StringUtils.isEmpty(cartID)) {
+            cartID = kingBase.insertCart(member);
+        }
+        if (StringUtils.isEmpty(isSelect)) {
+            isSelect = "-1";
+        }
+
+        List<String> shopList = cartGoodsService.getSelectCartGoodsShopList(cartID, isSelect);
+        if (shopList == null || shopList.isEmpty()) {
+            return MessagePacket.newFail(MessageHeader.Code.shopListIsNull, "购物车商品为空");
+        }
+
+        List<CartGoodsListDto> list = new LinkedList<>();
+        List<GoodsListDto> goodsList = null;
+        List<CartGoods> cartGoodsList = null;
+        CartGoodsListDto cartGoodsListDto = null;
+        for (String val : shopList) {
+            cartGoodsListDto = new CartGoodsListDto();
+            cartGoodsListDto.setShopName(shopService.getNameById(val));
+            cartGoodsList = cartGoodsService.getCartGoodsListByCartID(cartID, val, Integer.parseInt(isSelect));
+            if (cartGoodsList != null) {
+                goodsList = BeanMapper.mapList(cartGoodsList, GoodsListDto.class);
+            } else {
+                goodsList = new ArrayList<>();
+            }
+            cartGoodsListDto.setGoodsList(goodsList);
+            list.add(cartGoodsListDto);
+        }
+
+        String description = String.format("%s获取购物车商品", member.getName());
+        UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));
+        MemberLogRequestBase base = MemberLogRequestBase.BALANCE()
+                .sessionID(sessionID)
+                .description(description)
+                .userAgent(userAgent == null ? null : userAgent.getBrowserType())
+                .operateType(Memberlog.MemberOperateType.GETCARTGOODSLIST.getOname())
+                .build();
+        sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
+
+        Map<String, Object> rsMap = Maps.newHashMap();
+        rsMap.put("data", list);
+        return MessagePacket.newSuccess(rsMap, "getCartGoodsList success!");
+    }
+
+    @ApiOperation(value = "获取会员购物车商品数量", notes = "获取会员购物车商品数量")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query", name = "sessionID", value = "登录标识", dataType = "String")})
+    @RequestMapping(value = "/getMemberCartGoodsNum")
+    public MessagePacket getMemberCartGoodsNum(HttpServletRequest request) {
+        String sessionID = request.getParameter("sessionID");
+        if (StringUtils.isEmpty(sessionID)) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        Member member = (Member) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBER_KEY.key, sessionID));
+        if (member == null) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        MemberLogDTO memberLogDTO = (MemberLogDTO) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBERLOG_KEY.key, sessionID));
+        if (memberLogDTO == null) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+
+        String description = String.format("%s获取会员购物车商品数量", member.getName());
+
+        UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));
+        MemberLogRequestBase base = MemberLogRequestBase.BALANCE()
+                .sessionID(sessionID)
+                .description(description)
+                .userAgent(userAgent == null ? null : userAgent.getBrowserType())
+                .operateType(Memberlog.MemberOperateType.GETMEMBERCARTGOODSNUM.getOname())
+                .build();
+
+        sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
+
+        int num = cartGoodsService.getMemberCartGoodsNum(member.getId());
+        Map<String, Object> rsMap = Maps.newHashMap();
+        rsMap.put("num", num);
+        return MessagePacket.newSuccess(rsMap, "getMemberCartGoodsNum success!");
     }
 }

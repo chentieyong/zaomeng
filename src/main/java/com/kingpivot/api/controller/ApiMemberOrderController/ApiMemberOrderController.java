@@ -151,7 +151,7 @@ public class ApiMemberOrderController extends ApiBaseController {
         return MessagePacket.newSuccess(rsMap, "createMemberOrder success!");
     }
 
-    @ApiOperation(value = "购物车生成订单", notes = "购物车生成订单")
+    @ApiOperation(value = "购物车生成订单-单店铺版本", notes = "购物车生成订单-单店铺版本")
     @ApiImplicitParams({
             @ApiImplicitParam(paramType = "query", name = "sessionID", value = "登录标识", dataType = "String"),
             @ApiImplicitParam(paramType = "query", name = "contactName", value = "联系人", dataType = "String"),

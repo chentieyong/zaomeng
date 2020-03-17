@@ -50,10 +50,15 @@ public class ApiHotController extends ApiBaseController {
             return MessagePacket.newFail(MessageHeader.Code.siteIdIsNull, "siteID不能为空");
         }
 
+        String searchDefineID = request.getParameter("searchDefineID");
+
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("isValid", Constants.ISVALID_YES);
         paramMap.put("isLock", Constants.ISLOCK_NO);
         paramMap.put("siteID", siteID);
+        if (StringUtils.isNotBlank(searchDefineID)) {
+            paramMap.put("searchDefineID", searchDefineID);
+        }
 
         List<Sort.Order> orders = new ArrayList<Sort.Order>();
         orders.add(new Sort.Order(Sort.Direction.ASC, "orderSeq"));

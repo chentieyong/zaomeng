@@ -188,6 +188,9 @@ public class MessageHeader implements Serializable {
         faceImageIsNull(10120),//正面照为空
         backImageIsNull(10121),//反面照为空
         majorIsFull(10122),//专业申请已满
+        shopListIsNull(10123),//店铺为空
+        shopIDIsNull(10124),//店铺id为空
+        shopIDIsError(10125),//店铺不存在
         ;
         public int code;
 

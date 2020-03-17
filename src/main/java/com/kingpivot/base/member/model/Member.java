@@ -14,6 +14,8 @@ public class Member extends BaseModel<String> implements Serializable {
     private static final long serialVersionUID = -1300306668752973060L;
 
     @Id
+    @GeneratedValue(generator = "system-uuid")
+    @GenericGenerator(name = "system-uuid", strategy = "uuid")
     @Column(length = 36)
     private String id;//主键
 

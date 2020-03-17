@@ -115,7 +115,7 @@ public class Memberlog extends BaseModel<String> {
         GETMAJORLIST("获取专业列表"),APPLYONEMAJOR("申请一个专业身份"),UPDATEONEMEMBERMAJOR("修改一个会员专业"),DELETEONEMEMBERMAJOR("删除一个会员专业"),
         CANCELMEMBERRECOMMAND("取消会员推荐关系"),SUBMITONECAPITALPOST("提交一个资金投出"),SUBMITONECAPITALNEED("提交一个资金需求"),SUBMITONEJOBNEED("职位求职")
         ,SUBMITONEJOBPOST("提交一个职位需求"),SUBMITONEFRIENDNEED("提交一个交友需求"),SUBMITONEPRODUCT("提交一个产品"),SUBMITONEPBUYNEED("提交一个产品求购"),
-        SUBMITREALNAME("提交一个会员实名");
+        SUBMITREALNAME("提交一个会员实名"),GETMEMBERCARTGOODSNUM("获取会员购物车商品数量");;
         private String oname;
 
         MemberOperateType(String oname) {
