@@ -194,6 +194,11 @@ public class MessageHeader implements Serializable {
         shortNameIsNull(10126),//简称不能为空
         memberAddressIDIsNull(10127),//会员地址id为空
         memberAddressIDIsError(10128),//会员地址不存在
+        invoiceTypeIsNull(10129),//发票类型不能为空
+        taxTypeIsNull(10130),//发票税种不能为空
+        taxCodeIsNull(10131),//纳税人识别号不能为空
+        memberInvoiceDefineIDIsNull(10132),//会员发票id为空
+        memberInvoiceDefineIDIsError(10133),//会员发票不存在
         ;
         public int code;
 

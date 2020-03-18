@@ -19,4 +19,17 @@ public class MemberInvoiceDefineServiceImpl extends BaseServiceImpl<MemberInvoic
         return this.memberInvoiceDefineDao;
     }
 
+    @Override
+    public void updateMemberInvoiceDefineDefault(String memberID, String notEqMemberInvoiceDefineID) {
+        memberInvoiceDefineDao.updateMemberInvoiceDefineDefault(memberID, notEqMemberInvoiceDefineID);
+    }
+
+    @Override
+    public Integer getMaxOrderSeq(String memberID) {
+        Integer val = memberInvoiceDefineDao.getMaxOrderSeq(memberID);
+        if (val == null) {
+            return 1;
+        }
+        return val.intValue() + 1;
+    }
 }

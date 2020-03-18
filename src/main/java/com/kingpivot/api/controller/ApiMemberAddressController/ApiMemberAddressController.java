@@ -34,7 +34,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -229,7 +228,7 @@ public class ApiMemberAddressController extends ApiBaseController {
         if (StringUtils.isNotBlank(isDefault)) {
             //设置其他地址为0
             if (isDefault.equals("1")) {
-                memberAddressService.updateMemberAddressDefault(member.getId(), memberAddress.getId());
+                memberAddressService.updateMemberAddressDefault(member.getId(), memberAddressID);
             }
             memberAddress.setIsDefault(Integer.parseInt(isDefault));
         }
