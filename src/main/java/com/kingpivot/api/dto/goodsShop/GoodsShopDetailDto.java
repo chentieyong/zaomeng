@@ -1,11 +1,18 @@
 package com.kingpivot.api.dto.goodsShop;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.kingpivot.base.shop.model.Shop;
+
 public class GoodsShopDetailDto {
     private String id;//主键
     private String goodsCategoryID;//商品分类id
     private String name;//名称
     private String shortName;//简称
     private String showName;//展示名称
+    private String shopID;
+    @JsonIgnore
+    private Shop shop;
+    private String shopName;
     private String description;//描述
     private String largerImage;//大图
     private String littleImage;//小图
@@ -58,6 +65,33 @@ public class GoodsShopDetailDto {
 
     public void setShowName(String showName) {
         this.showName = showName;
+    }
+
+    public String getShopID() {
+        return shopID;
+    }
+
+    public void setShopID(String shopID) {
+        this.shopID = shopID;
+    }
+
+    public Shop getShop() {
+        return shop;
+    }
+
+    public void setShop(Shop shop) {
+        this.shop = shop;
+        if (shop != null) {
+            this.shopName = shop.getName();
+        }
+    }
+
+    public String getShopName() {
+        return shopName;
+    }
+
+    public void setShopName(String shopName) {
+        this.shopName = shopName;
     }
 
     public String getDescription() {

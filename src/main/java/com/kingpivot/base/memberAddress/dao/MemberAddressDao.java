@@ -19,4 +19,7 @@ public interface MemberAddressDao extends BaseDao<MemberAddress, String> {
     @Query(value = "UPDATE memberAddress SET isDefault=0 WHERE memberID=?1 AND if(?2 is not null,id!=?2,2=2)", nativeQuery = true)
     @Modifying
     void updateMemberAddressDefault(String memberID, String notEqMemberAddressID);
+
+    @Query(value = "SELECT MAX(orderSeq) FROM memberAddress WHERE memberID=?1 AND isValid=1 AND isLock=0", nativeQuery = true)
+    Integer getMaxOrderSeq(String memberID);
 }

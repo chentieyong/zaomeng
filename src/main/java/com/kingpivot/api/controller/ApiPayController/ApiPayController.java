@@ -134,10 +134,13 @@ public class ApiPayController extends ApiBaseController {
                     memberOrderService.save(memberOrder);
                     memberPaymentID = memberPayment.getId();
                 } else {
-                    memberPaymentID = kingBase.addMemberPayment(member, Config.MEMBERORDER_OBJECTDEFINEID, memberOrder.getPriceAfterDiscount());
-                    memberOrder.setMemberPaymentID(memberPaymentID);
-                    memberOrder.setPaywayID(payWayID);
-                    memberOrderService.save(memberOrder);
+                    memberPayment = kingBase.addMemberPayment(member, Config.MEMBERORDER_OBJECTDEFINEID, memberOrder.getPriceAfterDiscount());
+                    if (memberPayment != null) {
+                        memberPaymentID = memberPayment.getId();
+                        memberOrder.setMemberPaymentID(memberPaymentID);
+                        memberOrder.setPaywayID(payWayID);
+                        memberOrderService.save(memberOrder);
+                    }
                 }
             }
             outTradeNo = memberPaymentID;

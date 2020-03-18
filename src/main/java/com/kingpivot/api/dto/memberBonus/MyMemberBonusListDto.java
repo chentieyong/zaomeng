@@ -1,5 +1,7 @@
 package com.kingpivot.api.dto.memberBonus;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.kingpivot.base.bonusDefine.model.BonusDefine;
 import com.kingpivot.common.utils.TimeTest;
 
 import java.sql.Timestamp;
@@ -15,6 +17,9 @@ public class MyMemberBonusListDto {
     private Timestamp useTime;
     private String useTimeStr;
     private String printCode;
+    @JsonIgnore
+    private BonusDefine bonusDefine;
+    private double bonusStartPrice = 5d;//开始金额
     private Integer status = 1;//1未使用，2已使用，3已过期
 
     public String getId() {
@@ -47,7 +52,7 @@ public class MyMemberBonusListDto {
 
     public void setStartDate(Timestamp startDate) {
         this.startDate = startDate;
-        if(startDate!=null){
+        if (startDate != null) {
             this.startDateStr = TimeTest.toDateFormat(startDate);
         }
     }
@@ -58,7 +63,7 @@ public class MyMemberBonusListDto {
 
     public void setEndDate(Timestamp endDate) {
         this.endDate = endDate;
-        if(endDate!=null){
+        if (endDate != null) {
             this.endDateStr = TimeTest.toDateFormat(endDate);
         }
     }
@@ -69,7 +74,7 @@ public class MyMemberBonusListDto {
 
     public void setUseTime(Timestamp useTime) {
         this.useTime = useTime;
-        if(useTime!=null){
+        if (useTime != null) {
             this.useTimeStr = TimeTest.toDateTimeFormat(useTime);
         }
     }
@@ -112,5 +117,24 @@ public class MyMemberBonusListDto {
 
     public void setUseTimeStr(String useTimeStr) {
         this.useTimeStr = useTimeStr;
+    }
+
+    public BonusDefine getBonusDefine() {
+        return bonusDefine;
+    }
+
+    public void setBonusDefine(BonusDefine bonusDefine) {
+        this.bonusDefine = bonusDefine;
+        if (bonusDefine != null) {
+            this.bonusStartPrice = bonusDefine.getStartPrice();
+        }
+    }
+
+    public double getBonusStartPrice() {
+        return bonusStartPrice;
+    }
+
+    public void setBonusStartPrice(double bonusStartPrice) {
+        this.bonusStartPrice = bonusStartPrice;
     }
 }

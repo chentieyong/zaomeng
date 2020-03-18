@@ -82,11 +82,11 @@ public class ApiMemberAddressController extends ApiBaseController {
         }
 
         String name = request.getParameter("name");
-        if (StringUtils.isNotBlank(name)) {
+        if (StringUtils.isEmpty(name)) {
             return MessagePacket.newFail(MessageHeader.Code.nameIsNull, "详细地址不能为空");
         }
         String shortName = request.getParameter("shortName");
-        if (StringUtils.isNotBlank(shortName)) {
+        if (StringUtils.isEmpty(shortName)) {
             return MessagePacket.newFail(MessageHeader.Code.shortNameIsNull, "地址别名不能为空");
         }
         String shengID = request.getParameter("shengID");
@@ -127,6 +127,9 @@ public class ApiMemberAddressController extends ApiBaseController {
             }
             memberAddress.setIsDefault(Integer.parseInt(isDefault));
         }
+        memberAddress.setPhone(phone);
+        memberAddress.setContactName(contactName);
+        memberAddress.setOrderSeq(memberAddressService.getMaxOrderSeq(member.getId()));
         memberAddressService.save(memberAddress);
 
         Map<String, Object> rsMap = Maps.newHashMap();
@@ -188,11 +191,11 @@ public class ApiMemberAddressController extends ApiBaseController {
         }
 
         String name = request.getParameter("name");
-        if (StringUtils.isNotBlank(name)) {
+        if (StringUtils.isEmpty(name)) {
             return MessagePacket.newFail(MessageHeader.Code.nameIsNull, "详细地址不能为空");
         }
         String shortName = request.getParameter("shortName");
-        if (StringUtils.isNotBlank(shortName)) {
+        if (StringUtils.isEmpty(shortName)) {
             return MessagePacket.newFail(MessageHeader.Code.shortNameIsNull, "地址别名不能为空");
         }
         String shengID = request.getParameter("shengID");
@@ -230,6 +233,8 @@ public class ApiMemberAddressController extends ApiBaseController {
             }
             memberAddress.setIsDefault(Integer.parseInt(isDefault));
         }
+        memberAddress.setContactName(contactName);
+        memberAddress.setPhone(phone);
         memberAddressService.save(memberAddress);
 
         Map<String, Object> rsMap = Maps.newHashMap();

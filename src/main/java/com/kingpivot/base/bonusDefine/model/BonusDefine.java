@@ -34,6 +34,8 @@ public class BonusDefine extends BaseModel<String> {
     private Timestamp startDate;//开始日期
     @Column()
     private Timestamp endDate;//结束日期
+    @Column(name = "startPrice", columnDefinition = "double default 5")
+    private double startPrice = 5d;//开始金额
 
     @Override
     public String getId() {
@@ -122,5 +124,13 @@ public class BonusDefine extends BaseModel<String> {
 
     public void setCanGetNumber(Integer canGetNumber) {
         this.canGetNumber = canGetNumber;
+    }
+
+    public double getStartPrice() {
+        return startPrice;
+    }
+
+    public void setStartPrice(double startPrice) {
+        this.startPrice = startPrice;
     }
 }

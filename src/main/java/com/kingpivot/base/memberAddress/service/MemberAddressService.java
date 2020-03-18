@@ -5,4 +5,6 @@ import com.kingpivot.common.service.BaseService;
 
 public interface MemberAddressService extends BaseService<MemberAddress, String> {
     void updateMemberAddressDefault(String memberID, String notEqMemberAddressID);
+
+    int getMaxOrderSeq(String memberID);
 }

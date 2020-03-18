@@ -23,5 +23,14 @@ public class MemberAddressServiceImpl extends BaseServiceImpl<MemberAddress, Str
     public void updateMemberAddressDefault(String memberID, String notEqMemberAddressID) {
         memberAddressDao.updateMemberAddressDefault(memberID, notEqMemberAddressID);
     }
+
+    @Override
+    public int getMaxOrderSeq(String memberID) {
+        Integer val = memberAddressDao.getMaxOrderSeq(memberID);
+        if (val == null) {
+            return 1;
+        }
+        return val.intValue() + 1;
+    }
 }
 
