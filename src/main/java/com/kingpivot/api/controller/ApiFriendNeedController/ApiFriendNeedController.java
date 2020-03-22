@@ -10,10 +10,13 @@ import com.kingpivot.base.friendNeed.model.FriendNeed;
 import com.kingpivot.base.friendNeed.service.FriendNeedService;
 import com.kingpivot.base.member.model.Member;
 import com.kingpivot.base.memberlog.model.Memberlog;
+import com.kingpivot.base.pointapplication.service.PointApplicationService;
 import com.kingpivot.base.support.MemberLogDTO;
+import com.kingpivot.common.KingBase;
 import com.kingpivot.common.jms.SendMessageService;
 import com.kingpivot.common.jms.dto.attachment.AddAttachmentDto;
 import com.kingpivot.common.jms.dto.memberLog.MemberLogRequestBase;
+import com.kingpivot.common.jms.dto.point.UsePointRequest;
 import com.kingpivot.common.util.Constants;
 import com.kingpivot.common.utils.*;
 import com.kingpivot.protocol.ApiBaseController;
@@ -53,6 +56,10 @@ public class ApiFriendNeedController extends ApiBaseController {
     private RedisTemplate redisTemplate;
     @Autowired
     private FriendNeedService friendNeedService;
+    @Autowired
+    private KingBase kingBase;
+    @Autowired
+    private PointApplicationService pointApplicationService;
 
     @ApiOperation(value = "submitOneFriendNeed", notes = "提交一个交友需求")
     @ApiImplicitParams({
@@ -82,6 +89,12 @@ public class ApiFriendNeedController extends ApiBaseController {
         MemberLogDTO memberLogDTO = (MemberLogDTO) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBERLOG_KEY.key, sessionID));
         if (memberLogDTO == null) {
             return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+
+        //积分是否足够
+        if(!kingBase.pointLess(member, pointApplicationService.getNumberByAppIdAndPointName(
+                member.getApplicationID(), Config.CAPITALNEED_POINT_USENAME))){
+            return MessagePacket.newFail(MessageHeader.Code.pointNumberLess, "积分个数不足");
         }
 
         String name = request.getParameter("name");
@@ -148,6 +161,14 @@ public class ApiFriendNeedController extends ApiBaseController {
                     .urls(urls)
                     .build()));
         }
+
+        //发送消耗积分
+        sendMessageService.sendUsePointMessage(JacksonHelper.toJson(new UsePointRequest.Builder()
+                .objectDefineID(Config.FRIENDNEED_OBJECTDEFIPOST)
+                .memberID(member.getId())
+                .pointName(Config.FRIENDNEED_POINT_USENAME)
+                .build()));
+
         String desc = String.format("%s提交一个交友需求", member.getName());
         UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));
         MemberLogRequestBase base = MemberLogRequestBase.BALANCE()

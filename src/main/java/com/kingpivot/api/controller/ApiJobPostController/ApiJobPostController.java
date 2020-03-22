@@ -10,10 +10,13 @@ import com.kingpivot.base.jobPost.model.JobPost;
 import com.kingpivot.base.jobPost.service.JobPostService;
 import com.kingpivot.base.member.model.Member;
 import com.kingpivot.base.memberlog.model.Memberlog;
+import com.kingpivot.base.pointapplication.service.PointApplicationService;
 import com.kingpivot.base.support.MemberLogDTO;
+import com.kingpivot.common.KingBase;
 import com.kingpivot.common.jms.SendMessageService;
 import com.kingpivot.common.jms.dto.attachment.AddAttachmentDto;
 import com.kingpivot.common.jms.dto.memberLog.MemberLogRequestBase;
+import com.kingpivot.common.jms.dto.point.UsePointRequest;
 import com.kingpivot.common.util.Constants;
 import com.kingpivot.common.utils.*;
 import com.kingpivot.protocol.ApiBaseController;
@@ -53,6 +56,10 @@ public class ApiJobPostController extends ApiBaseController {
     private RedisTemplate redisTemplate;
     @Autowired
     private JobPostService jobPostService;
+    @Autowired
+    private KingBase kingBase;
+    @Autowired
+    private PointApplicationService pointApplicationService;
 
     @ApiOperation(value = "submitOneJobPost", notes = "提交一个职位需求")
     @ApiImplicitParams({
@@ -81,6 +88,12 @@ public class ApiJobPostController extends ApiBaseController {
         MemberLogDTO memberLogDTO = (MemberLogDTO) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBERLOG_KEY.key, sessionID));
         if (memberLogDTO == null) {
             return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+
+        //积分是否足够
+        if(!kingBase.pointLess(member, pointApplicationService.getNumberByAppIdAndPointName(
+                member.getApplicationID(), Config.CAPITALNEED_POINT_USENAME))){
+            return MessagePacket.newFail(MessageHeader.Code.pointNumberLess, "积分个数不足");
         }
 
         String name = request.getParameter("name");
@@ -142,13 +155,20 @@ public class ApiJobPostController extends ApiBaseController {
             //新增附件图
             sendMessageService.sendAddAttachmentMessage(JacksonHelper.toJson(new AddAttachmentDto.Builder()
                     .objectID(jobPost.getId())
-                    .objectDefineID(Config.JOBNEED_OBJECTDEFIPOST)
+                    .objectDefineID(Config.JOBPOST_OBJECTDEFINEID)
                     .objectName(jobPost.getName())
                     .fileType(1)
                     .showType(1)
                     .urls(urls)
                     .build()));
         }
+
+        //发送消耗积分
+        sendMessageService.sendUsePointMessage(JacksonHelper.toJson(new UsePointRequest.Builder()
+                .objectDefineID(Config.JOBPOST_OBJECTDEFINEID)
+                .memberID(member.getId())
+                .pointName(Config.JOBPOST_POINT_USENAME)
+                .build()));
 
         String desc = String.format("%s提交一个职位需求", member.getName());
         UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));

@@ -17,7 +17,7 @@ public class Config {
     public static final String CAPITALPOST_OBJECTDEFINEID = "00000000700f54dc0170104488620006";//资金投出(资源发布)对象定义id
     public static final String CAPITALNEED_OBJECTDEFINEID = "00000000700f54dc0170104c44d7000b";//资金需求对象定义id
     public static final String JOBNEED_OBJECTDEFINEID = "00000000700f54dc017010537833000d";//职位求职对象定义id
-    public static final String JOBNEED_OBJECTDEFIPOST = "00000000700f54dc017010575625000f";//职位需求对象定义id
+    public static final String JOBPOST_OBJECTDEFINEID = "00000000700f54dc017010575625000f";//职位需求对象定义id
     public static final String FRIENDNEED_OBJECTDEFIPOST = "00000000700f54dc01701061b0280011";//交友需求对象定义id
     public static final String PRODUCT_OBJECTDEFIPOST = "00000000700f54dc0170106db0c30013";//产品对象定义id
     public static final String BUYNEED_OBJECTDEFIPOST = "00000000700f54dc01701078ad270015";//产品求购对象定义id
@@ -28,4 +28,13 @@ public class Config {
     public static String QINIU_LOOKHEAD = "http://qn.wgclm.com/";
     public static final String RECOMMAND_FULL_ERROR_CODE = "RECOMMAND_FULL_ERROR";//会员推荐异常语句code
     public static final String RECOMMAND_MEMBER_NAME = "推荐会员";//推荐会员name
+
+
+    public static final String CAPITALPOST_POINT_USENAME = "资金投出发布";//资金投出发布-pointName
+    public static final String CAPITALNEED_POINT_USENAME = "资金需求发布";//资金需求发布-pointName
+    public static final String JOBNEED_POINT_USENAME = "职位求职发布";//职位求职发布-pointName
+    public static final String JOBPOST_POINT_USENAME = "职位需求发布";//职位需求发布-pointName
+    public static final String FRIENDNEED_POINT_USENAME = "交友需求发布";//交友需求发布-pointName
+    public static final String PRODUCT_POINT_USENAME = "产品发布";//产品发布-pointName
+    public static final String BUYNEED_POINT_USENAME = "产品求购发布";//产品求购发布-pointName
 }

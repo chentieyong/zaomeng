@@ -199,6 +199,7 @@ public class MessageHeader implements Serializable {
         taxCodeIsNull(10131),//纳税人识别号不能为空
         memberInvoiceDefineIDIsNull(10132),//会员发票id为空
         memberInvoiceDefineIDIsError(10133),//会员发票不存在
+        pointNumberLess(10134),//积分个数不足
         ;
         public int code;
 
