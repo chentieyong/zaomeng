@@ -200,6 +200,7 @@ public class MessageHeader implements Serializable {
         memberInvoiceDefineIDIsNull(10132),//会员发票id为空
         memberInvoiceDefineIDIsError(10133),//会员发票不存在
         pointNumberLess(10134),//积分个数不足
+        pointNameIsNull(10135),//积分名称为空
         ;
         public int code;
 

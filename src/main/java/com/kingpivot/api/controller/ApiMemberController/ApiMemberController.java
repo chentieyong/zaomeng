@@ -1115,10 +1115,15 @@ public class ApiMemberController extends ApiBaseController {
             return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
         }
 
+        String memberID = request.getParameter("memberID");
+        if (StringUtils.isEmpty(memberID)) {
+            memberID = member.getId();
+        }
+
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("isValid", Constants.ISVALID_YES);
         paramMap.put("isLock", Constants.ISLOCK_NO);
-        paramMap.put("recommandID", member.getId());
+        paramMap.put("recommandID", memberID);
 
         List<Sort.Order> orders = new ArrayList<Sort.Order>();
         orders.add(new Sort.Order(Sort.Direction.DESC, "createdTime"));

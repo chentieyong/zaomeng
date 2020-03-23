@@ -10,6 +10,7 @@ import com.kingpivot.base.memberstatistics.model.MemberStatistics;
 import com.kingpivot.base.memberstatistics.service.MemberStatisticsService;
 import com.kingpivot.base.point.model.Point;
 import com.kingpivot.base.point.service.PointService;
+import com.kingpivot.base.pointapplication.service.PointApplicationService;
 import com.kingpivot.base.support.MemberLogDTO;
 import com.kingpivot.common.jms.SendMessageService;
 import com.kingpivot.common.jms.dto.memberLog.MemberLogRequestBase;
@@ -53,6 +54,8 @@ public class ApiPointController extends ApiBaseController {
     private PointService pointService;
     @Autowired
     private MemberStatisticsService memberStatisticsService;
+    @Autowired
+    private PointApplicationService pointApplicationService;
 
     @ApiOperation(value = "获取我的积分列表", notes = "获取我的积分列表")
     @ApiImplicitParams({
@@ -119,5 +122,44 @@ public class ApiPointController extends ApiBaseController {
         rsMap.put("data", messagePage);
         rsMap.put("point", memberStatisticsService.getMemberPoint(member.getId()));
         return MessagePacket.newSuccess(rsMap, "getMyPointList success!");
+    }
+
+    @ApiOperation(value = "获取使用积分个数", notes = "获取使用积分个数")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query", name = "sessionID", value = "登录标识", dataType = "String"),
+            @ApiImplicitParam(paramType = "query", name = "pointName", value = "积分类型名称", dataType = "String"),})
+    @RequestMapping(value = "/getUsePointNumber")
+    public MessagePacket getUsePointNumber(HttpServletRequest request) {
+        String sessionID = request.getParameter("sessionID");
+        if (StringUtils.isEmpty(sessionID)) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        Member member = (Member) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBER_KEY.key, sessionID));
+        if (member == null) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        MemberLogDTO memberLogDTO = (MemberLogDTO) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBERLOG_KEY.key, sessionID));
+        if (memberLogDTO == null) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        String pointName = request.getParameter("pointName");
+        if (StringUtils.isEmpty(pointName)) {
+            return MessagePacket.newFail(MessageHeader.Code.pointNameIsNull, "积分名称不能为空");
+        }
+        int number = pointApplicationService.getNumberByAppIdAndPointName(member.getApplicationID(), pointName);
+
+        String description = String.format("%s获取使用积分个数", member.getName());
+        UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));
+        MemberLogRequestBase base = MemberLogRequestBase.BALANCE()
+                .sessionID(sessionID)
+                .description(description)
+                .userAgent(userAgent == null ? null : userAgent.getBrowserType())
+                .operateType(Memberlog.MemberOperateType.GETUSEPOINTNUMBER.getOname())
+                .build();
+        sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
+
+        Map<String, Object> rsMap = Maps.newHashMap();
+        rsMap.put("data", number);
+        return MessagePacket.newSuccess(rsMap, "获取使用积分个数 success!");
     }
 }
