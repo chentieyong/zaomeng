@@ -9,29 +9,37 @@ import javax.persistence.*;
 @Table(name = "memberstatistics")
 public class MemberStatistics extends BaseModel<String> {
     @Id
-    @GeneratedValue(generator="system-uuid")
-    @GenericGenerator(name="system-uuid",strategy="uuid")
-    @Column(length=36)
+    @GeneratedValue(generator = "system-uuid")
+    @GenericGenerator(name = "system-uuid", strategy = "uuid")
+    @Column(length = 36)
     private String id;//主键
 
-    @Column(length=100)
+    @Column(length = 100)
     private String name;//名称
 
-    @Column(length=36)
+    @Column(length = 36)
     private String memberID;//会员ID
 
-    @Column(length=36)
+    @Column(length = 36)
     private String applicationID;//应用ID
 
+    @Column()
     private Integer point = 0;//现实积分
 
+    @Column()
     private Integer pointTotalUsed = 0;//累计消耗积分
 
+    @Column()
     private Integer pointTotal = 0;//累计积分
 
+    @Column()
     private Double cashBalance = 0d;//现金余额"
 
+    @Column()
     private Double cashTotalRecharge = 0d;//累计充值"
+
+    @Column(name = "cashTotalIncome", columnDefinition = "double default 0")
+    private double cashTotalIncome = 0d;//累计收入
 
     @Override
     public String getId() {
@@ -104,5 +112,13 @@ public class MemberStatistics extends BaseModel<String> {
 
     public void setPointTotalUsed(Integer pointTotalUsed) {
         this.pointTotalUsed = pointTotalUsed;
+    }
+
+    public double getCashTotalIncome() {
+        return cashTotalIncome;
+    }
+
+    public void setCashTotalIncome(double cashTotalIncome) {
+        this.cashTotalIncome = cashTotalIncome;
     }
 }

@@ -10,6 +10,7 @@ public class MemberStatisticsInfoDto {
     private Integer pointTotal = 0;//累计积分
     private Double cashBalance = 0d;//现金余额"
     private Double cashTotalRecharge = 0d;//累计充值"
+    private double cashTotalIncome = 0d;//累计收入
     private int memberBonusNum;
     private String rankName;
     private String rankUrl;
@@ -108,5 +109,13 @@ public class MemberStatisticsInfoDto {
 
     public void setRankUrl(String rankUrl) {
         this.rankUrl = rankUrl;
+    }
+
+    public double getCashTotalIncome() {
+        return cashTotalIncome;
+    }
+
+    public void setCashTotalIncome(double cashTotalIncome) {
+        this.cashTotalIncome = cashTotalIncome;
     }
 }
