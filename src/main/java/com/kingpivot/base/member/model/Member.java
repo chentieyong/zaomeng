@@ -101,6 +101,15 @@ public class Member extends BaseModel<String> implements Serializable {
     @Column(length = 36)
     private String xianID;//县id
 
+    @Column(length = 200)
+    private String address;//地址
+
+    @Column(length = 100)
+    private String mapX;//经度
+
+    @Column(length = 100)
+    private String mapY;//纬度
+
     @Override
     public String getId() {
         return id;
@@ -324,5 +333,29 @@ public class Member extends BaseModel<String> implements Serializable {
 
     public void setXianID(String xianID) {
         this.xianID = xianID;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getMapX() {
+        return mapX;
+    }
+
+    public void setMapX(String mapX) {
+        this.mapX = mapX;
+    }
+
+    public String getMapY() {
+        return mapY;
+    }
+
+    public void setMapY(String mapY) {
+        this.mapY = mapY;
     }
 }

@@ -75,6 +75,13 @@ public class MemberLoginDto {
 
     private String xianName;//县id
 
+    private String address;//地址
+
+    private String mapX;//经度
+
+    private String mapY;//纬度
+
+
     public String getId() {
         return id;
     }
@@ -353,5 +360,29 @@ public class MemberLoginDto {
 
     public void setXianName(String xianName) {
         this.xianName = xianName;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getMapX() {
+        return mapX;
+    }
+
+    public void setMapX(String mapX) {
+        this.mapX = mapX;
+    }
+
+    public String getMapY() {
+        return mapY;
+    }
+
+    public void setMapY(String mapY) {
+        this.mapY = mapY;
     }
 }

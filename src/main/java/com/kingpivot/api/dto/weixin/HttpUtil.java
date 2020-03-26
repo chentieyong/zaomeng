@@ -23,6 +23,10 @@ public abstract class HttpUtil {
 
     private static final String JIXINTONG_CHARSET = "GB2312";
 
+    public static String doGet(String url) throws IOException {
+        return doGet(url, null);
+    }
+
     public static String doGet(String url, Map<String, String> params) throws IOException {
         String result = null;
         InputStream instream = null;

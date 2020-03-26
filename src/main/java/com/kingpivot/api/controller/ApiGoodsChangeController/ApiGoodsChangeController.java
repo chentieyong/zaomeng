@@ -1,16 +1,16 @@
-package com.kingpivot.api.controller.ApiBuyNeedController;
+package com.kingpivot.api.controller.ApiGoodsChangeController;
 
 import com.google.common.collect.Maps;
-import com.kingpivot.api.dto.buyNeed.BuyNeedDetailDto;
-import com.kingpivot.api.dto.buyNeed.BuyNeedListDto;
-import com.kingpivot.base.buyNeed.model.BuyNeed;
-import com.kingpivot.base.buyNeed.service.BuyNeedService;
+import com.kingpivot.api.dto.goodsChange.GoodsChangeDetailDto;
+import com.kingpivot.api.dto.goodsChange.GoodsChangeListDto;
 import com.kingpivot.base.config.Config;
 import com.kingpivot.base.config.RedisKey;
 import com.kingpivot.base.config.UserAgent;
+import com.kingpivot.base.goodsChange.service.GoodsChangeService;
 import com.kingpivot.base.member.model.Member;
 import com.kingpivot.base.memberlog.model.Memberlog;
 import com.kingpivot.base.pointapplication.service.PointApplicationService;
+import com.kingpivot.base.goodsChange.model.GoodsChange;
 import com.kingpivot.base.support.MemberLogDTO;
 import com.kingpivot.common.KingBase;
 import com.kingpivot.common.jms.SendMessageService;
@@ -47,36 +47,36 @@ import java.util.Map;
 
 @RequestMapping("/api")
 @RestController
-@Api(description = "产品求购(找产品)管理接口")
-public class ApiBuyNeedController extends ApiBaseController {
-
+@Api(description = "商品交换管理接口")
+public class ApiGoodsChangeController extends ApiBaseController {
     @Resource
     private SendMessageService sendMessageService;
     @Autowired
     private RedisTemplate redisTemplate;
     @Autowired
-    private BuyNeedService buyNeedService;
+    private GoodsChangeService goodsChangeService;
     @Autowired
     private KingBase kingBase;
     @Autowired
     private PointApplicationService pointApplicationService;
 
-    @ApiOperation(value = "submitOneBuyNeed", notes = "提交一个产品求购")
+    @ApiOperation(value = "submitOneGoodsChange", notes = "提交一个产品互换")
     @ApiImplicitParams({
             @ApiImplicitParam(paramType = "query", name = "sessionID", value = "登录标识", dataType = "String"),
             @ApiImplicitParam(paramType = "query", name = "name", value = "名称", dataType = "String"),
             @ApiImplicitParam(paramType = "query", name = "description", value = "说明", dataType = "String"),
             @ApiImplicitParam(paramType = "query", name = "beginDate", value = "开始日期", dataType = "String"),
             @ApiImplicitParam(paramType = "query", name = "endDate", value = "结束日期", dataType = "String"),
-            @ApiImplicitParam(paramType = "query", name = "beginAmount", value = "开始价格", dataType = "double"),
-            @ApiImplicitParam(paramType = "query", name = "endAmount", value = "结束价格", dataType = "String"),
-            @ApiImplicitParam(paramType = "query", name = "fromWhere", value = "产地", dataType = "String"),
+            @ApiImplicitParam(paramType = "query", name = "amount", value = "产品互换价格", dataType = "double"),
             @ApiImplicitParam(paramType = "query", name = "priceUnit", value = "价格单位", dataType = "String"),
-            @ApiImplicitParam(paramType = "query", name = "qty", value = "数量", dataType = "String"),
+            @ApiImplicitParam(paramType = "query", name = "deliveryFeeType", value = "邮费类型", dataType = "String"),
+            @ApiImplicitParam(paramType = "query", name = "faceImage", value = "押题图", dataType = "String"),
+            @ApiImplicitParam(paramType = "query", name = "listImage", value = "列表图", dataType = "String"),
+            @ApiImplicitParam(paramType = "query", name = "address", value = "地址", dataType = "String"),
             @ApiImplicitParam(paramType = "query", name = "urls", value = "附件图", dataType = "String"),
     })
-    @RequestMapping(value = "/submitOneBuyNeed")
-    public MessagePacket submitOneProduct(HttpServletRequest request) {
+    @RequestMapping(value = "/submitOneGoodsChange")
+    public MessagePacket submitOneGoodsChange(HttpServletRequest request) {
         String sessionID = request.getParameter("sessionID");
         if (StringUtils.isEmpty(sessionID)) {
             return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
@@ -92,7 +92,7 @@ public class ApiBuyNeedController extends ApiBaseController {
 
         //积分是否足够
         if(!kingBase.pointLess(member, pointApplicationService.getNumberByAppIdAndPointName(
-                member.getApplicationID(), Config.BUYNEED_OBJECTDEFIPOST))){
+                member.getApplicationID(), Config.GOODSCHANGE_POINT_USENAME))){
             return MessagePacket.newFail(MessageHeader.Code.pointNumberLess, "积分个数不足");
         }
 
@@ -104,53 +104,57 @@ public class ApiBuyNeedController extends ApiBaseController {
         String beginDate = request.getParameter("beginDate");//开始日期
         String endDate = request.getParameter("endDate");//结束日期
         String days = request.getParameter("days");//发布在线天数
-        String beginAmount = request.getParameter("beginAmount");
-        String endAmount = request.getParameter("endAmount");
-        String fromWhere = request.getParameter("fromWhere");
+        String amount = request.getParameter("amount");//产品互换价格
         String priceUnit = request.getParameter("priceUnit");//价格单位
-        String qty = request.getParameter("qty");//数量
+        String address = request.getParameter("address");//发货地址
+        String deliveryFeeType = request.getParameter("deliveryFeeType");//1包邮2不包邮
+        String faceImage = request.getParameter("faceImage");//押题图
+        String listImage = request.getParameter("listImage");//列表图
         String urls = request.getParameter("urls");//附件图
 
-        BuyNeed buyNeed = new BuyNeed();
-        buyNeed.setApplicationID(member.getApplicationID());
-        buyNeed.setName(name);
-        buyNeed.setDescription(description);
-        buyNeed.setMemberID(member.getId());
+        GoodsChange goodsChange = new GoodsChange();
+        goodsChange.setApplicationID(member.getApplicationID());
+        goodsChange.setName(name);
+        goodsChange.setDescription(description);
+        goodsChange.setMemberID(member.getId());
         if (StringUtils.isEmpty(beginDate)) {
-            buyNeed.setBeginDate(new Timestamp(System.currentTimeMillis()));
+            goodsChange.setBeginDate(new Timestamp(System.currentTimeMillis()));
         } else {
-            buyNeed.setBeginDate(TimeTest.strToDate(beginDate));
+            goodsChange.setBeginDate(TimeTest.strToDate(beginDate));
         }
         if (StringUtils.isNotBlank(endDate)) {
-            buyNeed.setEndDate(TimeTest.strToDate(endDate));
+            goodsChange.setEndDate(TimeTest.strToDate(endDate));
         } else if (StringUtils.isNotBlank(days)) {
-            buyNeed.setEndDate(TimeTest.timeAddDay(new Timestamp(System.currentTimeMillis()), Integer.parseInt(days)));
+            goodsChange.setEndDate(TimeTest.timeAddDay(new Timestamp(System.currentTimeMillis()), Integer.parseInt(days)));
         } else {
-            buyNeed.setEndDate(TimeTest.timeAddDay(new Timestamp(System.currentTimeMillis()), 7));
+            goodsChange.setEndDate(TimeTest.timeAddDay(new Timestamp(System.currentTimeMillis()), 7));
         }
-        if (StringUtils.isNotBlank(beginAmount)) {
-            buyNeed.setBeginAmount(Integer.parseInt(beginAmount));
-        }
-        if (StringUtils.isNotBlank(endAmount)) {
-            buyNeed.setEndAmount(Integer.parseInt(endAmount));
-        }
-        if (StringUtils.isNotBlank(fromWhere)) {
-            buyNeed.setFromWhere(fromWhere);
+        if (StringUtils.isNotBlank(amount)) {
+            goodsChange.setAmount(Double.parseDouble(amount));
         }
         if (StringUtils.isNotBlank(priceUnit)) {
-            buyNeed.setPriceUnit(priceUnit);
+            goodsChange.setPriceUnit(priceUnit);
         }
-        if (StringUtils.isNotBlank(qty)) {
-            buyNeed.setQty(Integer.parseInt(qty));
+        if (StringUtils.isNotBlank(deliveryFeeType)) {
+            goodsChange.setDeliveryFeeType(Integer.parseInt(deliveryFeeType));
         }
-        buyNeedService.save(buyNeed);
+        if (StringUtils.isNotBlank(faceImage)) {
+            goodsChange.setFaceImage(faceImage);
+        }
+        if (StringUtils.isNotBlank(listImage)) {
+            goodsChange.setListImage(listImage);
+        }
+        if (StringUtils.isNotBlank(address)) {
+            goodsChange.setAddress(address);
+        }
+        goodsChangeService.save(goodsChange);
 
         if (StringUtils.isNotBlank(urls)) {
             //新增附件图
             sendMessageService.sendAddAttachmentMessage(JacksonHelper.toJson(new AddAttachmentDto.Builder()
-                    .objectID(buyNeed.getId())
-                    .objectDefineID(Config.BUYNEED_OBJECTDEFIPOST)
-                    .objectName(buyNeed.getName())
+                    .objectID(goodsChange.getId())
+                    .objectDefineID(Config.GOODSCHANGE_OBJECTDEFIPOST)
+                    .objectName(goodsChange.getName())
                     .fileType(1)
                     .showType(1)
                     .urls(urls)
@@ -159,34 +163,34 @@ public class ApiBuyNeedController extends ApiBaseController {
 
         //发送消耗积分
         sendMessageService.sendUsePointMessage(JacksonHelper.toJson(new UsePointRequest.Builder()
-                .objectDefineID(Config.BUYNEED_OBJECTDEFIPOST)
+                .objectDefineID(Config.GOODSCHANGE_OBJECTDEFIPOST)
                 .memberID(member.getId())
-                .pointName(Config.BUYNEED_POINT_USENAME)
+                .pointName(Config.GOODSCHANGE_POINT_USENAME)
                 .build()));
 
-        String desc = String.format("%s提交一个产品求购", member.getName());
+        String desc = String.format("%s提交一个产品互换", member.getName());
         UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));
         MemberLogRequestBase base = MemberLogRequestBase.BALANCE()
                 .sessionID(sessionID)
                 .description(desc)
                 .userAgent(userAgent == null ? null : userAgent.getBrowserType())
-                .operateType(Memberlog.MemberOperateType.SUBMITONEPBUYNEED.getOname())
+                .operateType(Memberlog.MemberOperateType.SUBMITONEGOODSCHANGE.getOname())
                 .build();
         sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
 
         Map<String, Object> rsMap = Maps.newHashMap();
-        rsMap.put("data", buyNeed.getId());
+        rsMap.put("data", goodsChange.getId());
 
-        return MessagePacket.newSuccess(rsMap, "submitOneBuyNeed success!");
+        return MessagePacket.newSuccess(rsMap, "submitOneGoodsChange success!");
     }
 
-    @ApiOperation(value = "getBuyNeedList", notes = "获取产品求购列表")
+    @ApiOperation(value = "getGoodsChangeList", notes = "获取产品互换列表")
     @ApiImplicitParams({
             @ApiImplicitParam(paramType = "query", name = "applicationID", value = "应用id", dataType = "String"),
             @ApiImplicitParam(paramType = "query", name = "currentPage", value = "分页，页码从1开始", dataType = "int"),
             @ApiImplicitParam(paramType = "query", name = "pageNumber", value = "每一页大小", dataType = "int")})
-    @RequestMapping(value = "/getBuyNeedList")
-    public MessagePacket getBuyNeedList(HttpServletRequest request) {
+    @RequestMapping(value = "/getGoodsChangeList")
+    public MessagePacket getGoodsChangeList(HttpServletRequest request) {
         String applicationID = request.getParameter("applicationID");
         if (StringUtils.isEmpty(applicationID)) {
             return MessagePacket.newFail(MessageHeader.Code.applicationIdIsNull, "applicationID不能为空");
@@ -207,34 +211,34 @@ public class ApiBuyNeedController extends ApiBaseController {
 
         Pageable pageable = new PageRequest(page.getOffset(), page.getPageSize(), new Sort(orders));
 
-        Page<BuyNeed> rs = buyNeedService.list(paramMap, pageable);
-        List<BuyNeedListDto> list = null;
+        Page<GoodsChange> rs = goodsChangeService.list(paramMap, pageable);
+        List<GoodsChangeListDto> list = null;
         if (rs != null && rs.getSize() != 0) {
-            list = BeanMapper.mapList(rs.getContent(), BuyNeedListDto.class);
+            list = BeanMapper.mapList(rs.getContent(), GoodsChangeListDto.class);
             page.setTotalSize((int) rs.getTotalElements());
         }
         Map<String, Object> rsMap = Maps.newHashMap();
         MessagePage messagePage = new MessagePage(page, list);
         rsMap.put("data", messagePage);
-        return MessagePacket.newSuccess(rsMap, "getBuyNeedList success!");
+        return MessagePacket.newSuccess(rsMap, "getGoodsChangeList success!");
     }
 
-    @ApiOperation(value = "getBuyNeedDetail", notes = "获取产品求购详情")
+    @ApiOperation(value = "getGoodsChangeDetail", notes = "获取产品互换详情")
     @ApiImplicitParams({
-            @ApiImplicitParam(paramType = "query", name = "buyNeedID", value = "产品求购id", dataType = "String")})
-    @RequestMapping(value = "/getBuyNeedDetail")
-    public MessagePacket getBuyNeedDetail(HttpServletRequest request) {
-        String buyNeedID = request.getParameter("buyNeedID");
-        if (StringUtils.isEmpty(buyNeedID)) {
-            return MessagePacket.newFail(MessageHeader.Code.buyNeedIDIsNull, "buyNeedID不能为空");
+            @ApiImplicitParam(paramType = "query", name = "goodsChangeID", value = "产品互换id", dataType = "String")})
+    @RequestMapping(value = "/getGoodsChangeDetail")
+    public MessagePacket getGoodsChangeDetail(HttpServletRequest request) {
+        String goodsChangeID = request.getParameter("goodsChangeID");
+        if (StringUtils.isEmpty(goodsChangeID)) {
+            return MessagePacket.newFail(MessageHeader.Code.goodsChangeIDIsNull, "goodsChangeID不能为空");
         }
-        BuyNeed buyNeed = buyNeedService.findById(buyNeedID);
-        if (buyNeed == null) {
-            return MessagePacket.newFail(MessageHeader.Code.buyNeedIDIsError, "buyNeedID不正确");
+        GoodsChange goodsChange = goodsChangeService.findById(goodsChangeID);
+        if (goodsChange == null) {
+            return MessagePacket.newFail(MessageHeader.Code.goodsChangeIDIsError, "goodsChangeID不正确");
         }
-        BuyNeedDetailDto data = BeanMapper.map(buyNeed, BuyNeedDetailDto.class);
+        GoodsChangeDetailDto data = BeanMapper.map(goodsChange, GoodsChangeDetailDto.class);
         Map<String, Object> rsMap = Maps.newHashMap();
         rsMap.put("data", data);
-        return MessagePacket.newSuccess(rsMap, "getBuyNeedDetail success!");
+        return MessagePacket.newSuccess(rsMap, "getGoodsChangeDetail success!");
     }
 }

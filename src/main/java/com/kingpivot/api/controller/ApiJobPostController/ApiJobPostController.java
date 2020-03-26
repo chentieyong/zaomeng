@@ -92,7 +92,7 @@ public class ApiJobPostController extends ApiBaseController {
 
         //积分是否足够
         if(!kingBase.pointLess(member, pointApplicationService.getNumberByAppIdAndPointName(
-                member.getApplicationID(), Config.CAPITALNEED_POINT_USENAME))){
+                member.getApplicationID(), Config.JOBPOST_POINT_USENAME))){
             return MessagePacket.newFail(MessageHeader.Code.pointNumberLess, "积分个数不足");
         }
 

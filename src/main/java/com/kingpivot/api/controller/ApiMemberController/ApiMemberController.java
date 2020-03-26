@@ -39,6 +39,7 @@ import com.kingpivot.base.support.MemberLogDTO;
 import com.kingpivot.base.weiXinAppMember.model.WeiXinAppMember;
 import com.kingpivot.base.weiXinAppMember.service.WeiXinAppMemberService;
 import com.kingpivot.common.KingBase;
+import com.kingpivot.common.gaodeUtil.GaodeUtil;
 import com.kingpivot.common.jms.SendMessageService;
 import com.kingpivot.common.jms.dto.memberBalance.MemberBalanceRequest;
 import com.kingpivot.common.jms.dto.memberLog.MemberLogRequestBase;
@@ -622,6 +623,9 @@ public class ApiMemberController extends ApiBaseController {
         String description = request.getParameter("description");
         String shiID = request.getParameter("shiID");
         String xianID = request.getParameter("xianID");
+        String address = request.getParameter("address");
+        String mapX = request.getParameter("mapX");
+        String mapY = request.getParameter("mapY");
         if (StringUtils.isEmpty(sessionID)) {
             return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
         }
@@ -671,6 +675,21 @@ public class ApiMemberController extends ApiBaseController {
         }
         if (StringUtils.isNotBlank(xianID)) {
             updateMember.setXianID(xianID);
+        }
+        if (StringUtils.isNotBlank(address)) {
+            if (StringUtils.isNotBlank(mapX) && StringUtils.isNotBlank(mapY)) {
+                updateMember.setMapX(mapX);
+                updateMember.setMapY(mapY);
+            } else {
+                String[] locations = GaodeUtil.getLocations(address, "");
+                if (locations == null || locations.length != 2) {
+                    return MessagePacket.newFail(MessageHeader.Code.addressIsError, "地址异常");
+                } else {
+                    updateMember.setMapX(locations[0]);
+                    updateMember.setMapY(locations[1]);
+                }
+            }
+            updateMember.setAddress(address);
         }
         memberService.save(updateMember);
         putSession(request, updateMember);
