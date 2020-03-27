@@ -204,6 +204,10 @@ public class MessageHeader implements Serializable {
         addressIsError(10136),//地址异常
         goodsChangeIDIsNull(10137),//产品互换id为空
         goodsChangeIDIsError(10138),//产品互换不存在
+        lotteryIDIsNull(10139),//抽奖id为空
+        lotteryIDIsError(10140),//抽奖不存在
+        lotteryTimeError(10141),//抽奖时间异常
+        lotteryGradeIsEmpty(10142),//抽奖等级数据为空
         ;
         public int code;
 
