@@ -16,6 +16,7 @@ public class Config {
     public static final String STORY_OBJECTDEFINEID = "ff8080816fb1a833016fefb931cb00aa";//故事对象定义id
     public static final String CAPITALPOST_OBJECTDEFINEID = "00000000700f54dc0170104488620006";//资金投出(资源发布)对象定义id
     public static final String CAPITALNEED_OBJECTDEFINEID = "00000000700f54dc0170104c44d7000b";//资金需求对象定义id
+    public static final String LOTTERY_OBJECTDEFINEID = "00000000711b61fd01711fd860ca0017";//抽奖对象定义id
     public static final String JOBNEED_OBJECTDEFINEID = "00000000700f54dc017010537833000d";//职位求职对象定义id
     public static final String JOBPOST_OBJECTDEFINEID = "00000000700f54dc017010575625000f";//职位需求对象定义id
     public static final String FRIENDNEED_OBJECTDEFIPOST = "00000000700f54dc01701061b0280011";//交友需求对象定义id
@@ -33,6 +34,7 @@ public class Config {
 
     public static final String CAPITALPOST_POINT_USENAME = "资金投出发布";//资金投出发布-pointName
     public static final String CAPITALNEED_POINT_USENAME = "资金需求发布";//资金需求发布-pointName
+    public static final String JOINLOTTERY_GET_POINT_USENAME = "抽奖获取积分";//抽奖获取积分-pointName
     public static final String JOBNEED_POINT_USENAME = "职位求职发布";//职位求职发布-pointName
     public static final String JOBPOST_POINT_USENAME = "职位需求发布";//职位需求发布-pointName
     public static final String FRIENDNEED_POINT_USENAME = "交友需求发布";//交友需求发布-pointName

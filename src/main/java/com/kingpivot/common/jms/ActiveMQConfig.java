@@ -33,6 +33,9 @@ public class ActiveMQConfig {
     @Value("${sendUsePointQueueName}")
     private String sendUsePointQueueName;
 
+    @Value("${sendGetPointQueueName}")
+    private String sendGetPointQueueName;
+
     @Value("${sendMemberBalanceQueueName}")
     private String sendMemberBalanceQueueName;
 
@@ -78,6 +81,11 @@ public class ActiveMQConfig {
     @Bean
     public Queue sendUsePointQueueName() {
         return new ActiveMQQueue(sendUsePointQueueName);
+    }
+
+    @Bean
+    public Queue sendGetPointQueueName() {
+        return new ActiveMQQueue(sendGetPointQueueName);
     }
 
     @Bean

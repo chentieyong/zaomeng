@@ -2,9 +2,15 @@ package com.kingpivot.common;
 
 import com.kingpivot.base.cart.model.Cart;
 import com.kingpivot.base.cart.service.CartService;
+import com.kingpivot.base.lottery.model.Lottery;
+import com.kingpivot.base.lotteryGrade.model.LotteryGrade;
 import com.kingpivot.base.member.model.Member;
+import com.kingpivot.base.memberLottery.model.MemberLottery;
+import com.kingpivot.base.memberLottery.service.MemberLotteryService;
 import com.kingpivot.base.memberPayment.model.MemberPayment;
 import com.kingpivot.base.memberPayment.service.MemberPaymentService;
+import com.kingpivot.base.memberRaffle.model.MemberRaffle;
+import com.kingpivot.base.memberRaffle.service.MemberRaffleService;
 import com.kingpivot.base.memberstatistics.model.MemberStatistics;
 import com.kingpivot.base.memberstatistics.service.MemberStatisticsService;
 import com.kingpivot.base.sequenceDefine.service.SequenceDefineService;
@@ -33,6 +39,10 @@ public class KingBase {
     private SequenceDefineService sequenceDefineService;
     @Autowired
     private MemberStatisticsService memberStatisticsService;
+    @Autowired
+    private MemberRaffleService memberRaffleService;
+    @Autowired
+    private MemberLotteryService memberLotteryService;
 
     private static final Logger logger = LoggerFactory.getLogger(KingBase.class);
 
@@ -106,5 +116,34 @@ public class KingBase {
             return false;
         }
         return true;
+    }
+
+    public void addMemberRaffle(Member member, LotteryGrade lotteryGrade, int giveType, int status) {
+        MemberRaffle memberRaffle = new MemberRaffle();
+        memberRaffle.setApplicationID(member.getApplicationID());
+        memberRaffle.setName(String.format("会员%s中奖", member.getName()));
+        memberRaffle.setRaffleID(lotteryGrade.getRaffleID());
+        memberRaffle.setMemberID(member.getId());
+        memberRaffle.setGiveType(giveType);
+        if (status == 2) {
+            memberRaffle.setGiveTime(new Timestamp(System.currentTimeMillis()));
+        }
+        memberRaffle.setStatus(status);
+        memberRaffleService.save(memberRaffle);
+    }
+
+    public void addMemberLottery(Member member, Lottery lottery, String myCode, int resultType) {
+        MemberLottery memberLottery = new MemberLottery();
+        memberLottery.setName(String.format("会员%s抽奖", member.getName()));
+        memberLottery.setApplicationID(member.getApplicationID());
+        memberLottery.setMemberID(member.getId());
+        memberLottery.setJoinTime(new Timestamp(System.currentTimeMillis()));
+        memberLottery.setMyCode(myCode);
+        if (resultType == 2) {
+            memberLottery.setGiveTime(new Timestamp(System.currentTimeMillis()));
+        }
+        memberLottery.setLotteryID(lottery.getId());
+        memberLottery.setResultType(resultType);
+        memberLotteryService.save(memberLottery);
     }
 }

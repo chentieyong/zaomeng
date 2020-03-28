@@ -19,7 +19,7 @@ public class MemberBalanceRequest {
         private String memberID;//会员id
         private String applicationID;
         private String siteID;
-        private Integer operateType;//1湖北手工补资金  -1其他
+        private Integer operateType;//1湖北手工补资金2抽奖获取余额  -1其他
         private String objectID;//操作对象id
         private String objectDefineID;
         private String objectName;

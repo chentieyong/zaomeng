@@ -39,7 +39,7 @@ public class MemberRaffle extends BaseModel<String> {
     private Member member;
 
     @Column(name = "giveType", columnDefinition = "int default 1")
-    private int giveType = 1;//奖励发放形式 1自提  2快递
+    private int giveType = 1;//奖励发放形式 1自提2快递3其他
 
     @Column()
     private Timestamp applyDoorTime;//预约领取时间

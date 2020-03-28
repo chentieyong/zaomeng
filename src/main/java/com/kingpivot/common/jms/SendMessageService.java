@@ -56,4 +56,11 @@ public interface SendMessageService {
      * @param msg
      */
     void sendUsePointMessage(String msg);
+
+    /**
+     * 获取积分消息
+     *
+     * @param msg
+     */
+    void sendGetPointMessage(String msg);
 }

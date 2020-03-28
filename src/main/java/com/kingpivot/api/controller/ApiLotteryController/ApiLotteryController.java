@@ -3,6 +3,7 @@ package com.kingpivot.api.controller.ApiLotteryController;
 import com.google.common.collect.Maps;
 import com.kingpivot.api.dto.lottery.LotteryDetailDto;
 import com.kingpivot.api.dto.lottery.lotteryListDto;
+import com.kingpivot.base.config.Config;
 import com.kingpivot.base.config.RedisKey;
 import com.kingpivot.base.config.UserAgent;
 import com.kingpivot.base.lottery.model.Lottery;
@@ -11,10 +12,14 @@ import com.kingpivot.base.lotteryGrade.model.LotteryGrade;
 import com.kingpivot.base.lotteryGrade.service.LotteryGradeService;
 import com.kingpivot.base.member.model.Member;
 import com.kingpivot.base.memberLottery.service.MemberLotteryService;
+import com.kingpivot.base.memberRaffle.model.MemberRaffle;
 import com.kingpivot.base.memberlog.model.Memberlog;
 import com.kingpivot.base.support.MemberLogDTO;
+import com.kingpivot.common.KingBase;
 import com.kingpivot.common.jms.SendMessageService;
+import com.kingpivot.common.jms.dto.memberBalance.MemberBalanceRequest;
 import com.kingpivot.common.jms.dto.memberLog.MemberLogRequestBase;
+import com.kingpivot.common.jms.dto.point.GetPointRequest;
 import com.kingpivot.common.util.Constants;
 import com.kingpivot.common.utils.*;
 import com.kingpivot.protocol.ApiBaseController;
@@ -39,6 +44,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.*;
 
@@ -59,6 +65,8 @@ public class ApiLotteryController extends ApiBaseController {
     private RedisTemplate redisTemplate;
     @Autowired
     private LotteryGradeService lotteryGradeService;
+    @Autowired
+    private KingBase kingBase;
 
     @ApiOperation(value = "getLotteryList", notes = "抽奖列表")
     @ApiImplicitParams({
@@ -196,10 +204,39 @@ public class ApiLotteryController extends ApiBaseController {
         lotteryGrade.setGetNumber(lotteryGrade.getGetNumber() + 1);
         lotteryGradeService.save(lotteryGrade);
 
-        if (lotteryGrade.getRaffle().getCash() != 0) {
-            logger.info("获奖润积分=[{}]", lotteryGrade.getRaffle().getCash());
-        } else if (lotteryGrade.getRaffle().getPoint() != 0) {
+        if (lotteryGrade.getRaffle().getPoint() != 0) {
             logger.info("获奖云积分=[{}]", lotteryGrade.getRaffle().getPoint());
+            //队列发放云积分
+            sendMessageService.sendUsePointMessage(JacksonHelper.toJson(new GetPointRequest.Builder()
+                    .objectDefineID(Config.LOTTERY_OBJECTDEFINEID)
+                    .memberID(member.getId())
+                    .pointName(Config.JOINLOTTERY_GET_POINT_USENAME)
+                    .build()));
+
+            //添加中奖记录
+            kingBase.addMemberRaffle(member, lotteryGrade, 3, 2);
+            //添加会员抽奖记录
+            kingBase.addMemberLottery(member, lottery, String.valueOf(myCode), 2);
+        } else if (lotteryGrade.getRaffle().getCash() != 0) {
+            logger.info("获奖润积分=[{}]", lotteryGrade.getRaffle().getCash());
+            //队列发放润积分
+            sendMessageService.sendMemberBalance(JacksonHelper.toJson(new MemberBalanceRequest.Builder()
+                    .memberID(member.getId())
+                    .applicationID(member.getApplicationID())
+                    .siteID(memberLogDTO.getSiteId())
+                    .operateType(2)
+                    .objectDefineID(Config.LOTTERY_OBJECTDEFINEID)
+                    .objectName(lottery.getName())
+                    .objectID(lottery.getId())
+                    .amount(new BigDecimal(lotteryGrade.getRaffle().getCash()))
+                    .description(String.format("%s抽奖获取润余额", member.getName()))
+                    .type(2)
+                    .build()));
+
+            //添加中奖记录
+            kingBase.addMemberRaffle(member, lotteryGrade, 3, 2);
+            //添加会员抽奖记录
+            kingBase.addMemberLottery(member, lottery, String.valueOf(myCode), 2);
         }
 
         String desc = String.format("%s参加一个抽奖", member.getName());
