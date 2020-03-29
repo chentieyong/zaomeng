@@ -4,11 +4,13 @@ public class GetPointRequest {
     private String memberID;
     private String objectDefineID;
     private String pointName;
+    private int point;
 
     public static class Builder {
         private String memberID;
         private String objectDefineID;
         private String pointName;
+        private int point;
 
         public Builder objectDefineID(String val) {
             objectDefineID = val;
@@ -25,6 +27,11 @@ public class GetPointRequest {
             return this;
         }
 
+        public Builder point(int val) {
+            point = val;
+            return this;
+        }
+
         public GetPointRequest build() {
             return new GetPointRequest(this);
         }
@@ -37,6 +44,7 @@ public class GetPointRequest {
         this.objectDefineID = builder.objectDefineID;
         this.memberID = builder.memberID;
         this.pointName = builder.pointName;
+        this.point = builder.point;
     }
 
     public String getMemberID() {
@@ -61,5 +69,13 @@ public class GetPointRequest {
 
     public void setPointName(String pointName) {
         this.pointName = pointName;
+    }
+
+    public int getPoint() {
+        return point;
+    }
+
+    public void setPoint(int point) {
+        this.point = point;
     }
 }

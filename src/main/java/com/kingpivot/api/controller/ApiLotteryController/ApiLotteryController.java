@@ -207,12 +207,12 @@ public class ApiLotteryController extends ApiBaseController {
         if (lotteryGrade.getRaffle().getPoint() != 0) {
             logger.info("获奖云积分=[{}]", lotteryGrade.getRaffle().getPoint());
             //队列发放云积分
-            sendMessageService.sendUsePointMessage(JacksonHelper.toJson(new GetPointRequest.Builder()
+            sendMessageService.sendGetPointMessage(JacksonHelper.toJson(new GetPointRequest.Builder()
                     .objectDefineID(Config.LOTTERY_OBJECTDEFINEID)
                     .memberID(member.getId())
                     .pointName(Config.JOINLOTTERY_GET_POINT_USENAME)
+                    .point(lotteryGrade.getRaffle().getPoint())
                     .build()));
-
             //添加中奖记录
             kingBase.addMemberRaffle(member, lotteryGrade, 3, 2);
             //添加会员抽奖记录
