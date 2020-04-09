@@ -268,4 +268,47 @@ public class ApiMemberMajorController extends ApiBaseController {
 
         return MessagePacket.newSuccess(rsMap, "deleteOneMemberMajor success!");
     }
+
+    @ApiOperation(value = "getMemberIsHaveMajor", notes = "获取是否申请专业")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query", name = "sessionID", value = "登录标识", dataType = "String"),
+            @ApiImplicitParam(paramType = "query", name = "majorID", value = "专业id", dataType = "String")
+    })
+    @RequestMapping(value = "/getMemberIsHaveMajor")
+    public MessagePacket getMemberIsHaveMajor(HttpServletRequest request) {
+        String sessionID = request.getParameter("sessionID");
+        if (StringUtils.isEmpty(sessionID)) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        Member member = (Member) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBER_KEY.key, sessionID));
+        if (member == null) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        MemberLogDTO memberLogDTO = (MemberLogDTO) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBERLOG_KEY.key, sessionID));
+        if (memberLogDTO == null) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        String majorID = request.getParameter("majorID");
+        if (StringUtils.isEmpty(majorID)) {
+            return MessagePacket.newFail(MessageHeader.Code.majorIDIsNull, "majorID不能为空");
+        }
+
+        MemberMajor memberMajor = memberMajorService.getMemberMajorByMajorIdAndMemberId(majorID, member.getId());
+        Map<String, Object> rsMap = Maps.newConcurrentMap();
+        rsMap.put("applyType", 0);
+        if (memberMajor != null && memberMajor.getStatus() != 3) {
+            rsMap.put("applyType", 1);
+        }
+
+        String desc = String.format("%s获取是否申请专业", member.getName());
+        UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));
+        MemberLogRequestBase base = MemberLogRequestBase.BALANCE()
+                .sessionID(sessionID)
+                .description(desc)
+                .userAgent(userAgent == null ? null : userAgent.getBrowserType())
+                .operateType(Memberlog.MemberOperateType.GETMEMBERISHAVEMAJOR.getOname())
+                .build();
+        sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
+        return MessagePacket.newSuccess(rsMap, "getMemberIsHaveMajor success!");
+    }
 }
