@@ -20,6 +20,7 @@ import com.kingpivot.common.jms.SendMessageService;
 import com.kingpivot.common.jms.dto.memberBalance.MemberBalanceRequest;
 import com.kingpivot.common.jms.dto.memberLog.MemberLogRequestBase;
 import com.kingpivot.common.jms.dto.point.GetPointRequest;
+import com.kingpivot.common.jms.dto.point.UsePointRequest;
 import com.kingpivot.common.util.Constants;
 import com.kingpivot.common.utils.*;
 import com.kingpivot.protocol.ApiBaseController;
@@ -156,14 +157,24 @@ public class ApiLotteryController extends ApiBaseController {
         if (lottery == null) {
             return MessagePacket.newFail(MessageHeader.Code.lotteryIDIsError, "lotteryID不正确");
         }
+
+        if (lottery.getUsePoint() != 0) {
+            //积分是否足够
+            if (!kingBase.pointLess(member, lottery.getUsePoint())) {
+                return MessagePacket.newFail(MessageHeader.Code.pointNumberLess, "积分个数不足");
+            }
+        }
+
         if (lottery.getBeginTime() == null || lottery.getEndTime() == null) {
             return MessagePacket.newFail(MessageHeader.Code.lotteryTimeError, "抽奖时间异常");
         }
+
         Timestamp curTime = new Timestamp(System.currentTimeMillis());
         if (lottery.getBeginTime().getTime() > curTime.getTime()
                 || lottery.getEndTime().getTime() < curTime.getTime()) {
             return MessagePacket.newFail(MessageHeader.Code.lotteryTimeError, "不在抽奖时间范围内");
         }
+
         List<LotteryGrade> lotteryGradeList = lotteryGradeService.getLotteryGradeByLotteryID(lotteryID);
         if (lotteryGradeList == null || lotteryGradeList.size() == 0) {
             return MessagePacket.newFail(MessageHeader.Code.lotteryGradeIsEmpty, "抽奖等级数据为空");
@@ -180,63 +191,41 @@ public class ApiLotteryController extends ApiBaseController {
 
         //产生伪随机数
         final int myCode = (int) (Math.random() * total);
+        String result = "集中开奖";
+        if (lottery.getDoType() == 2) {
 
-        logger.info("myCode=[{}]", myCode);
-        logger.info("codeList=[{}]", Arrays.toString(codeList.toArray()));
+            logger.info("myCode=[{}]", myCode);
+            logger.info("codeList=[{}]", Arrays.toString(codeList.toArray()));
 
-        //判断是否中奖
-        LotteryGrade lotteryGrade = null;
-        int curTotal = 0;
-        int nextTotal = 0;
-        for (int i = 1; i < codeList.size(); i++) {
-            curTotal = nextTotal;
-            nextTotal = curTotal + codeList.get(i).intValue();
-            if (myCode >= curTotal && myCode <= nextTotal) {
-                lotteryGrade = lotteryGradeList.get(i - 1);
-                break;
+            //判断是否中奖
+            LotteryGrade lotteryGrade = null;
+            int curTotal = 0;
+            int nextTotal = 0;
+            for (int i = 1; i < codeList.size(); i++) {
+                curTotal = nextTotal;
+                nextTotal = curTotal + codeList.get(i).intValue();
+                if (myCode >= curTotal && myCode <= nextTotal) {
+                    lotteryGrade = lotteryGradeList.get(i - 1);
+                    break;
+                }
             }
+            if (lotteryGrade.getNumber() < lotteryGrade.getGetNumber() + 1) {
+                lotteryGrade = lotteryGradeList.get(lotteryGradeList.size() - 1);
+            }
+            //立即开奖
+            result = kingBase.joinOneLottery(lottery, lotteryGrade, member, memberLogDTO, String.valueOf(myCode));
+        } else if (lottery.getDoType() == 1) {
+            //集中开奖
+            kingBase.addMemberLottery(member, lottery, String.valueOf(myCode), 1);
         }
 
-        if (lotteryGrade.getNumber() < lotteryGrade.getGetNumber() + 1) {
-            lotteryGrade = lotteryGradeList.get(lotteryGradeList.size() - 1);
-        }
-
-        lotteryGrade.setGetNumber(lotteryGrade.getGetNumber() + 1);
-        lotteryGradeService.save(lotteryGrade);
-
-        if (lotteryGrade.getRaffle().getPoint() != 0) {
-            logger.info("获奖云积分=[{}]", lotteryGrade.getRaffle().getPoint());
-            //队列发放云积分
-            sendMessageService.sendGetPointMessage(JacksonHelper.toJson(new GetPointRequest.Builder()
+        if (lottery.getUsePoint() != 0) {
+            //抽奖消耗积分
+            sendMessageService.sendUsePointMessage(JacksonHelper.toJson(new UsePointRequest.Builder()
                     .objectDefineID(Config.LOTTERY_OBJECTDEFINEID)
                     .memberID(member.getId())
-                    .pointName(Config.JOINLOTTERY_GET_POINT_USENAME)
-                    .point(lotteryGrade.getRaffle().getPoint())
+                    .pointName(Config.JOIN_LOTTERY_POINT_USENAME)
                     .build()));
-            //添加中奖记录
-            kingBase.addMemberRaffle(member, lotteryGrade, 3, 2);
-            //添加会员抽奖记录
-            kingBase.addMemberLottery(member, lottery, String.valueOf(myCode), 2);
-        } else if (lotteryGrade.getRaffle().getCash() != 0) {
-            logger.info("获奖润积分=[{}]", lotteryGrade.getRaffle().getCash());
-            //队列发放润积分
-            sendMessageService.sendMemberBalance(JacksonHelper.toJson(new MemberBalanceRequest.Builder()
-                    .memberID(member.getId())
-                    .applicationID(member.getApplicationID())
-                    .siteID(memberLogDTO.getSiteId())
-                    .operateType(2)
-                    .objectDefineID(Config.LOTTERY_OBJECTDEFINEID)
-                    .objectName(lottery.getName())
-                    .objectID(lottery.getId())
-                    .amount(new BigDecimal(lotteryGrade.getRaffle().getCash()))
-                    .description(String.format("%s抽奖获取润余额", member.getName()))
-                    .type(2)
-                    .build()));
-
-            //添加中奖记录
-            kingBase.addMemberRaffle(member, lotteryGrade, 3, 2);
-            //添加会员抽奖记录
-            kingBase.addMemberLottery(member, lottery, String.valueOf(myCode), 2);
         }
 
         String desc = String.format("%s参加一个抽奖", member.getName());
@@ -250,7 +239,7 @@ public class ApiLotteryController extends ApiBaseController {
         sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
 
         Map<String, Object> rsMap = Maps.newHashMap();
-        rsMap.put("data", lotteryGrade.getName());
+        rsMap.put("data", result);
         return MessagePacket.newSuccess(rsMap, "joinOneLottery success!");
     }
 

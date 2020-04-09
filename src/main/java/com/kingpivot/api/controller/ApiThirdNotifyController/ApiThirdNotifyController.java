@@ -1,5 +1,12 @@
 package com.kingpivot.api.controller.ApiThirdNotifyController;
 
+import com.kingpivot.base.config.Config;
+import com.kingpivot.base.major.model.Major;
+import com.kingpivot.base.major.service.MajorService;
+import com.kingpivot.base.member.model.Member;
+import com.kingpivot.base.member.service.MemberService;
+import com.kingpivot.base.memberMajor.model.MemberMajor;
+import com.kingpivot.base.memberMajor.service.MemberMajorService;
 import com.kingpivot.base.memberOrder.model.MemberOrder;
 import com.kingpivot.base.memberOrder.service.MemberOrderService;
 import com.kingpivot.base.memberOrderGoods.model.MemberOrderGoods;
@@ -39,6 +46,12 @@ public class ApiThirdNotifyController extends ApiBaseController {
     private MemberOrderGoodsService memberOrderGoodsService;
     @Resource
     private SendMessageService sendMessageService;
+    @Autowired
+    private MemberService memberService;
+    @Autowired
+    private MemberMajorService memberMajorService;
+    @Autowired
+    private MajorService majorService;
 
     @ApiOperation(value = "微信订单支付回调", notes = "微信订单支付回调")
     @RequestMapping("/weiXinPayMemberOrderNotify")
@@ -61,6 +74,7 @@ public class ApiThirdNotifyController extends ApiBaseController {
             String result_code = map.get("result_code");
             String total_fee = map.get("total_fee");
             String transaction_id = map.get("transaction_id");
+            String attach = map.get("attach");
 
             MemberPayment memberPayment = memberPaymentService.findById(out_trade_no);
             if (null == memberPayment || memberPayment.getStatus() != 1) {
@@ -94,8 +108,39 @@ public class ApiThirdNotifyController extends ApiBaseController {
                         memberOrderGoods.setStatus(4);
                         memberOrderGoodsService.save(memberOrderGoods);
                     }
-                    //发送支付成功消息队列
-                    sendMessageService.sendZmPaySuccessMessage(memberOrder.getId());
+                }
+
+                /**
+                 * 额外业务处理
+                 */
+                if (StringUtils.isNotBlank(attach)) {
+                    switch (attach) {
+                        case "申请网站":
+                            Member member = memberService.findById(memberPayment.getMemberID());
+                            Major major = majorService.findById(Config.HB_SHOPMAJOR_ID);
+                            if (member != null && major != null) {
+                                MemberMajor memberMajor = new MemberMajor();
+                                memberMajor.setName(String.format("%s申请%s", member.getName(), major.getName()));
+                                memberMajor.setMemberID(member.getId());
+                                memberMajor.setApplicationID(member.getApplicationID());
+                                memberMajor.setPhone(member.getPhone());
+                                memberMajor.setDescription(memberMajor.getName());
+                                memberMajor.setMajorID(major.getId());
+                                if (StringUtils.isNotBlank(member.getShengID())) {
+                                    memberMajor.setShengID(member.getShengID());
+                                }
+                                if (StringUtils.isNotBlank(member.getShiID())) {
+                                    memberMajor.setShiID(member.getShiID());
+                                }
+                                if (StringUtils.isNotBlank(member.getXianID())) {
+                                    memberMajor.setXianID(member.getXianID());
+                                }
+                                memberMajorService.applyOneMajor(memberMajor, major);
+                            }
+                            break;
+                        default:
+                            break;
+                    }
                 }
                 //支付成功
                 resXml = "<xml>" + "<return_code><![CDATA[SUCCESS]]></return_code>"

@@ -41,8 +41,11 @@ public class Config {
     public static final String PRODUCT_POINT_USENAME = "产品发布";//产品发布-pointName
     public static final String GOODSCHANGE_POINT_USENAME = "产品互换";//产品互换-pointName
     public static final String BUYNEED_POINT_USENAME = "产品求购发布";//产品求购发布-pointName
+    public static final String JOIN_LOTTERY_POINT_USENAME = "抽奖消耗积分";
 
     public static String GAODE_WEBAPI_KEY = "193d69e4dbb74686e4bc949710a493b2";//高德key
     public static String TENXUNMAP_KEY = "X4LBZ-4AWCG-OA6Q7-IS3A6-CALX2-KFBED";//腾讯key
     public static String TENXUNMAP_URL = "http://apis.map.qq.com/ws/geocoder/v1/";//腾讯api_url
+
+    public static final String HB_SHOPMAJOR_ID = "00000000700458b20170047fa77a0004";//湖北一名惊人e店主专业
 }

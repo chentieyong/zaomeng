@@ -2,8 +2,10 @@ package com.kingpivot.common;
 
 import com.kingpivot.base.cart.model.Cart;
 import com.kingpivot.base.cart.service.CartService;
+import com.kingpivot.base.config.Config;
 import com.kingpivot.base.lottery.model.Lottery;
 import com.kingpivot.base.lotteryGrade.model.LotteryGrade;
+import com.kingpivot.base.lotteryGrade.service.LotteryGradeService;
 import com.kingpivot.base.member.model.Member;
 import com.kingpivot.base.memberLottery.model.MemberLottery;
 import com.kingpivot.base.memberLottery.service.MemberLotteryService;
@@ -16,13 +18,23 @@ import com.kingpivot.base.memberstatistics.service.MemberStatisticsService;
 import com.kingpivot.base.sequenceDefine.service.SequenceDefineService;
 import com.kingpivot.base.sms.model.SMS;
 import com.kingpivot.base.sms.service.SMSService;
+import com.kingpivot.base.support.MemberLogDTO;
+import com.kingpivot.common.jms.SendMessageService;
+import com.kingpivot.common.jms.dto.memberBalance.MemberBalanceRequest;
+import com.kingpivot.common.jms.dto.point.GetPointRequest;
+import com.kingpivot.common.utils.JacksonHelper;
 import com.kingpivot.common.utils.TimeTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by apple on 15/12/17.
@@ -43,6 +55,10 @@ public class KingBase {
     private MemberRaffleService memberRaffleService;
     @Autowired
     private MemberLotteryService memberLotteryService;
+    @Autowired
+    private LotteryGradeService lotteryGradeService;
+    @Resource
+    private SendMessageService sendMessageService;
 
     private static final Logger logger = LoggerFactory.getLogger(KingBase.class);
 
@@ -145,5 +161,46 @@ public class KingBase {
         memberLottery.setLotteryID(lottery.getId());
         memberLottery.setResultType(resultType);
         memberLotteryService.save(memberLottery);
+    }
+
+    public String joinOneLottery(Lottery lottery, LotteryGrade lotteryGrade,
+                                 Member member, MemberLogDTO memberLogDTO, String myCode) {
+        lotteryGrade.setGetNumber(lotteryGrade.getGetNumber() + 1);
+        lotteryGradeService.save(lotteryGrade);
+
+        if (lotteryGrade.getRaffle().getPoint() != 0) {
+            logger.info("获奖云积分=[{}]", lotteryGrade.getRaffle().getPoint());
+            //队列发放云积分
+            sendMessageService.sendGetPointMessage(JacksonHelper.toJson(new GetPointRequest.Builder()
+                    .objectDefineID(Config.LOTTERY_OBJECTDEFINEID)
+                    .memberID(member.getId())
+                    .pointName(Config.JOINLOTTERY_GET_POINT_USENAME)
+                    .point(lotteryGrade.getRaffle().getPoint())
+                    .build()));
+            //添加中奖记录
+            addMemberRaffle(member, lotteryGrade, 3, 2);
+            //添加会员抽奖记录
+            addMemberLottery(member, lottery, myCode, 2);
+        } else if (lotteryGrade.getRaffle().getCash() != 0) {
+            logger.info("获奖润积分=[{}]", lotteryGrade.getRaffle().getCash());
+            //队列发放润积分
+            sendMessageService.sendMemberBalance(JacksonHelper.toJson(new MemberBalanceRequest.Builder()
+                    .memberID(member.getId())
+                    .applicationID(member.getApplicationID())
+                    .siteID(memberLogDTO.getSiteId())
+                    .operateType(2)
+                    .objectDefineID(Config.LOTTERY_OBJECTDEFINEID)
+                    .objectName(lottery.getName())
+                    .objectID(lottery.getId())
+                    .amount(new BigDecimal(lotteryGrade.getRaffle().getCash()))
+                    .description(String.format("%s抽奖获取润余额", member.getName()))
+                    .type(2)
+                    .build()));
+            //添加中奖记录
+            addMemberRaffle(member, lotteryGrade, 3, 2);
+            //添加会员抽奖记录
+            addMemberLottery(member, lottery, myCode, 2);
+        }
+        return lotteryGrade.getName();
     }
 }

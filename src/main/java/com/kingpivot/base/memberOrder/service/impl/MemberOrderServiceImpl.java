@@ -72,8 +72,8 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
     @Transactional(rollbackFor = Exception.class)
     public String createMemberOrder(Member member, GoodsShop goodsShop, String objectFeatureItemID1,
                                     int qty, String contactName, String contactPhone, String address,
-                                    String memberBonusID) {
-        double price = 0d;
+                                    String memberBonusID, String orderType) {
+        double price = goodsShop.getRealPrice();
         if (StringUtils.isNotBlank(objectFeatureItemID1)) {
             double val = objectFeatureDataDao.getObjectFetureData(goodsShop.getId(), objectFeatureItemID1);
             if (val != 0) {
@@ -119,6 +119,9 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
         }
         memberOrder.setCreatedTime(memberOrder.getApplyTime());
         memberOrder.setModifiedTime(memberOrder.getApplyTime());
+        if (StringUtils.isNotBlank(orderType)) {
+            memberOrder.setOrderType(Integer.parseInt(orderType));
+        }
         memberOrderDao.save(memberOrder);
 
         if (memberBonus != null) {

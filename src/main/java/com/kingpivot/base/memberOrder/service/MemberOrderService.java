@@ -26,7 +26,9 @@ public interface MemberOrderService extends BaseService<MemberOrder, String> {
      * @param memberBonusID
      * @return
      */
-    String createMemberOrder(Member member, GoodsShop goodsShop, String objectFeatureItemID1, int qty, String contactName, String contactPhone, String address, String memberBonusID);
+    String createMemberOrder(Member member, GoodsShop goodsShop, String objectFeatureItemID1,
+                             int qty, String contactName, String contactPhone,
+                             String address, String memberBonusID, String orderType);
 
     /**
      * 单店铺生成订单

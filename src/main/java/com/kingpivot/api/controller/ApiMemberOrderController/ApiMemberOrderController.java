@@ -130,8 +130,10 @@ public class ApiMemberOrderController extends ApiBaseController {
 
         String objectFeatureItemID1 = request.getParameter("objectFeatureItemID1");
         String memberBonusID = request.getParameter("memberBonusID");
+        String orderType = request.getParameter("orderType");
 
-        String memberPaymentID = memberOrderService.createMemberOrder(member, goodsShop, objectFeatureItemID1, Integer.parseInt(qty), contactName, contactPhone, address, memberBonusID);
+        String memberPaymentID = memberOrderService.createMemberOrder(member, goodsShop, objectFeatureItemID1,
+                Integer.parseInt(qty), contactName, contactPhone, address, memberBonusID, orderType);
 
         String description = String.format("%s店铺商品生成订单", member.getName());
 

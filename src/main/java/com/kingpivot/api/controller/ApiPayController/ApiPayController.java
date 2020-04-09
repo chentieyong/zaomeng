@@ -24,9 +24,7 @@ import com.kingpivot.common.KingBase;
 import com.kingpivot.common.jms.SendMessageService;
 import com.kingpivot.common.jms.dto.memberLog.MemberLogRequestBase;
 import com.kingpivot.common.util.MapUtil;
-import com.kingpivot.common.utils.JacksonHelper;
-import com.kingpivot.common.utils.NumberUtils;
-import com.kingpivot.common.utils.UserAgentUtil;
+import com.kingpivot.common.utils.*;
 import com.kingpivot.common.weixinPay.PayOrderResponseInfo;
 import com.kingpivot.common.weixinPay.WechatPayInfo;
 import com.kingpivot.common.weixinPay.WechatPayUtils;
@@ -38,6 +36,8 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -52,6 +52,8 @@ import java.util.Map;
 @RestController
 @Api(description = "支付管理接口")
 public class ApiPayController extends ApiBaseController {
+
+    Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Resource
     private SendMessageService sendMessageService;
@@ -68,7 +70,7 @@ public class ApiPayController extends ApiBaseController {
     @Autowired
     private KingBase kingBase;
 
-    @ApiOperation(value = "app申请订单支付", notes = "app申请订单支付")
+    @ApiOperation(value = "申请订单支付", notes = "申请订单支付")
     @ApiImplicitParams({
             @ApiImplicitParam(paramType = "query", name = "sessionID", value = "登录标识", dataType = "String"),
             @ApiImplicitParam(paramType = "query", name = "payWayID", value = "支付机构id", dataType = "String"),
@@ -95,6 +97,8 @@ public class ApiPayController extends ApiBaseController {
         String payWayID = request.getParameter("payWayID");
         String memberOrderID = request.getParameter("memberOrderID");
         String memberPaymentID = request.getParameter("memberPaymentID");
+        String openid = request.getParameter("openid");
+        String body = request.getParameter("body");
 
         if (StringUtils.isEmpty(payWayID)) {
             return MessagePacket.newFail(MessageHeader.Code.paywayIDNotNull, "paywayID不能为空！");
@@ -200,9 +204,48 @@ public class ApiPayController extends ApiBaseController {
             } else {
                 return MessagePacket.newFail(MessageHeader.Code.wecharterror, payOrderResponseInfo.getReturn_msg());
             }
+        } else if (payway.getSupportType() == 3) {//微信
+            WechatPayInfo payInfo = new WechatPayInfo();
+            payInfo.setAppid(payway.getServerPassword());
+            payInfo.setMch_id(payway.getPartnerID());
+            payInfo.setNonce_str(WechatPayUtils.buildRandom());
+            payInfo.setBody(body);
+            payInfo.setAttach(body);
+            Double total_fee = NumberUtils.keepPrecision(amount * 100d, 2);
+            payInfo.setTotal_fee(total_fee.intValue());
+            payInfo.setSpbill_create_ip(WebUtil.getRemortIP(request));
+            payInfo.setOut_trade_no(outTradeNo);
+            payInfo.setNotify_url(payway.getOrderNotifyURL());
+            payInfo.setTrade_type("JSAPI");
+            payInfo.setOpenid(openid);
+            payInfo.setSign(WechatPayUtils.createSign(MapUtil.beanToMap(payInfo), payway.getPrivateKey()));
+            String result = "";
+            try {
+                result = WechatPayUtils.doGenOrder(XStreamUtil.getXstream(WechatPayInfo.class).toXML(payInfo));
+                logger.info("微信报文={}", result);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            PayOrderResponseInfo payOrderResponseInfo = (PayOrderResponseInfo) XStreamUtil.getXstream(PayOrderResponseInfo.class).fromXML(result);
+
+            if (payOrderResponseInfo != null && !payOrderResponseInfo.getResult_code().equals("SUCCESS")) {
+                return MessagePacket.newFail(MessageHeader.Code.illegalParameter, payOrderResponseInfo.getErr_code_des());
+            }
+
+            param.put("appId", payway.getServerPassword());
+            param.put("timeStamp", String.format("%s", System.currentTimeMillis()).substring(0, 10));
+            param.put("nonceStr", WechatPayUtils.buildRandom());
+            param.put("package", "prepay_id=" + payOrderResponseInfo.getPrepay_id());
+            param.put("signType", "MD5");
+            String sign = WechatPayUtils.createSign(param, payway.getPrivateKey());
+            param.put("packageValue", "prepay_id=" + payOrderResponseInfo.getPrepay_id());
+            param.put("paySign", sign);
+            String userAgent = request.getHeader("user-agent");
+            char agent = userAgent.charAt(userAgent.indexOf("MicroMessenger") + 15);
+            param.put("agent", agent);
         }
 
-        String description = String.format("%sApp申请订单支付", member.getName());
+        String description = String.format("%s申请订单支付", member.getName());
 
         UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));
         MemberLogRequestBase base = MemberLogRequestBase.BALANCE()
