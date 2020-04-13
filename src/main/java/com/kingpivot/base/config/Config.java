@@ -42,7 +42,7 @@ public class Config {
     public static final String PRODUCT_POINT_USENAME = "产品发布";//产品发布-pointName
     public static final String GOODSCHANGE_POINT_USENAME = "产品互换";//产品互换-pointName
     public static final String BUYNEED_POINT_USENAME = "产品求购发布";//产品求购发布-pointName
-    public static final String HELPNEED_POINT_USENAME = "帮助需求";//帮助需求发布-pointName
+    public static final String HELPNEED_POINT_USENAME = "帮助需求发布";//帮助需求发布-pointName
     public static final String JOIN_LOTTERY_POINT_USENAME = "抽奖消耗积分";
 
     public static String GAODE_WEBAPI_KEY = "193d69e4dbb74686e4bc949710a493b2";//高德key
