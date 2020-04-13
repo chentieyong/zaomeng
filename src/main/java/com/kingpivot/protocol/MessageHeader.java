@@ -208,6 +208,8 @@ public class MessageHeader implements Serializable {
         lotteryIDIsError(10140),//抽奖不存在
         lotteryTimeError(10141),//抽奖时间异常
         lotteryGradeIsEmpty(10142),//抽奖等级数据为空
+        helpNeedIDIsNull(10143),//帮助需求id为空
+        helpNeedIDIsError(10144),//帮助需求不存在
         ;
         public int code;
 

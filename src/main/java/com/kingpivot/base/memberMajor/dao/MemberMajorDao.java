@@ -19,7 +19,7 @@ public interface MemberMajorDao extends BaseDao<MemberMajor, String> {
     MemberMajor getMemberMajorByMajorIdAndMemberId(String majorID, String memberID);
 
     @Query(value = "SELECT GROUP_CONCAT(tb_major.`name`) FROM memberMajor tb_mb_major LEFT JOIN major" +
-            " tb_major ON tb_mb_major.majorID=tb_major.id WHERE tb_mb_major.memberID=?1 and tb_mb_major.status=2 AND tb_mb_major.isValid=1" +
+            " tb_major ON tb_mb_major.majorID=tb_major.id WHERE tb_mb_major.memberID=?1 and tb_major.orderSeq!=1 and tb_mb_major.status=2 AND tb_mb_major.isValid=1" +
             " AND tb_mb_major.isLock=0",nativeQuery = true)
     String getMajorNameByMemberId(String memberId);
 }
