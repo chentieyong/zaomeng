@@ -38,11 +38,7 @@ public class GoodsChangeListDto {
 
     private double amount = 1;//产品价格
 
-    private String priceUnit;//价格单位
-
-    private String address;//发货地址
-
-    private int deliveryFeeType = 1;//1包邮2不包邮
+    private String priceUnit;
 
     private String faceImage;//押题图
 
@@ -157,22 +153,6 @@ public class GoodsChangeListDto {
 
     public void setPriceUnit(String priceUnit) {
         this.priceUnit = priceUnit;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public int getDeliveryFeeType() {
-        return deliveryFeeType;
-    }
-
-    public void setDeliveryFeeType(int deliveryFeeType) {
-        this.deliveryFeeType = deliveryFeeType;
     }
 
     public String getFaceImage() {

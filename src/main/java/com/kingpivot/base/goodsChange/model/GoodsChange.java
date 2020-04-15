@@ -44,16 +44,10 @@ public class GoodsChange extends BaseModel<String> {
     private Timestamp endDate;//结束日期
 
     @Column(name = "amount", columnDefinition = "double default 1")
-    private double amount = 1;//数量
+    private double amount = 1;//价格
 
-    @Column(length = 100)
-    private String priceUnit;//价格单位
-
-    @Column(length = 100)
-    private String address;//发货地址
-
-    @Column(name = "deliveryFeeType", columnDefinition = "int default 1")
-    private int deliveryFeeType = 1;//1包邮2不包邮
+    @Column(length = 50)
+    private String priceUnit;
 
     @Column(length = 100)
     private String faceImage;//押题图
@@ -143,22 +137,6 @@ public class GoodsChange extends BaseModel<String> {
 
     public void setPriceUnit(String priceUnit) {
         this.priceUnit = priceUnit;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public int getDeliveryFeeType() {
-        return deliveryFeeType;
-    }
-
-    public void setDeliveryFeeType(int deliveryFeeType) {
-        this.deliveryFeeType = deliveryFeeType;
     }
 
     public String getFaceImage() {

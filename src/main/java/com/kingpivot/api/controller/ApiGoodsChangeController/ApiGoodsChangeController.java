@@ -91,8 +91,8 @@ public class ApiGoodsChangeController extends ApiBaseController {
         }
 
         //积分是否足够
-        if(!kingBase.pointLess(member, pointApplicationService.getNumberByAppIdAndPointName(
-                member.getApplicationID(), Config.GOODSCHANGE_POINT_USENAME))){
+        if (!kingBase.pointLess(member, pointApplicationService.getNumberByAppIdAndPointName(
+                member.getApplicationID(), Config.GOODSCHANGE_POINT_USENAME))) {
             return MessagePacket.newFail(MessageHeader.Code.pointNumberLess, "积分个数不足");
         }
 
@@ -100,21 +100,20 @@ public class ApiGoodsChangeController extends ApiBaseController {
         if (StringUtils.isEmpty(name)) {
             return MessagePacket.newFail(MessageHeader.Code.nameIsNull, "name不能为空");
         }
+        String shortName = request.getParameter("shortName");//简称
         String description = request.getParameter("description");//说明
         String beginDate = request.getParameter("beginDate");//开始日期
         String endDate = request.getParameter("endDate");//结束日期
         String days = request.getParameter("days");//发布在线天数
-        String amount = request.getParameter("amount");//产品互换价格
-        String priceUnit = request.getParameter("priceUnit");//价格单位
-        String address = request.getParameter("address");//发货地址
-        String deliveryFeeType = request.getParameter("deliveryFeeType");//1包邮2不包邮
+        String amount = request.getParameter("amount");//价格
+        String priceUnit = request.getParameter("priceUnit");//价格规格
         String faceImage = request.getParameter("faceImage");//押题图
         String listImage = request.getParameter("listImage");//列表图
-        String urls = request.getParameter("urls");//附件图
 
         GoodsChange goodsChange = new GoodsChange();
         goodsChange.setApplicationID(member.getApplicationID());
         goodsChange.setName(name);
+        goodsChange.setShortName(shortName);
         goodsChange.setDescription(description);
         goodsChange.setMemberID(member.getId());
         if (StringUtils.isEmpty(beginDate)) {
@@ -132,34 +131,16 @@ public class ApiGoodsChangeController extends ApiBaseController {
         if (StringUtils.isNotBlank(amount)) {
             goodsChange.setAmount(Double.parseDouble(amount));
         }
-        if (StringUtils.isNotBlank(priceUnit)) {
-            goodsChange.setPriceUnit(priceUnit);
-        }
-        if (StringUtils.isNotBlank(deliveryFeeType)) {
-            goodsChange.setDeliveryFeeType(Integer.parseInt(deliveryFeeType));
-        }
         if (StringUtils.isNotBlank(faceImage)) {
             goodsChange.setFaceImage(faceImage);
         }
         if (StringUtils.isNotBlank(listImage)) {
             goodsChange.setListImage(listImage);
         }
-        if (StringUtils.isNotBlank(address)) {
-            goodsChange.setAddress(address);
+        if(StringUtils.isNotBlank(priceUnit)){
+            goodsChange.setPriceUnit(priceUnit);
         }
         goodsChangeService.save(goodsChange);
-
-        if (StringUtils.isNotBlank(urls)) {
-            //新增附件图
-            sendMessageService.sendAddAttachmentMessage(JacksonHelper.toJson(new AddAttachmentDto.Builder()
-                    .objectID(goodsChange.getId())
-                    .objectDefineID(Config.GOODSCHANGE_OBJECTDEFIPOST)
-                    .objectName(goodsChange.getName())
-                    .fileType(1)
-                    .showType(1)
-                    .urls(urls)
-                    .build()));
-        }
 
         //发送消耗积分
         sendMessageService.sendUsePointMessage(JacksonHelper.toJson(new UsePointRequest.Builder()
@@ -182,6 +163,94 @@ public class ApiGoodsChangeController extends ApiBaseController {
         rsMap.put("data", goodsChange.getId());
 
         return MessagePacket.newSuccess(rsMap, "submitOneGoodsChange success!");
+    }
+
+    @ApiOperation(value = "updateOneGoodsChange", notes = "修改一个产品互换")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query", name = "sessionID", value = "登录标识", dataType = "String"),
+            @ApiImplicitParam(paramType = "query", name = "goodsChangeID", value = "商品置换id", dataType = "String"),
+            @ApiImplicitParam(paramType = "query", name = "name", value = "名称", dataType = "String"),
+            @ApiImplicitParam(paramType = "query", name = "description", value = "说明", dataType = "String"),
+            @ApiImplicitParam(paramType = "query", name = "beginDate", value = "开始日期", dataType = "String"),
+            @ApiImplicitParam(paramType = "query", name = "endDate", value = "结束日期", dataType = "String"),
+            @ApiImplicitParam(paramType = "query", name = "amount", value = "产品互换价格", dataType = "double"),
+            @ApiImplicitParam(paramType = "query", name = "priceUnit", value = "价格单位", dataType = "String"),
+            @ApiImplicitParam(paramType = "query", name = "deliveryFeeType", value = "邮费类型", dataType = "String"),
+            @ApiImplicitParam(paramType = "query", name = "faceImage", value = "押题图", dataType = "String"),
+            @ApiImplicitParam(paramType = "query", name = "listImage", value = "列表图", dataType = "String"),
+            @ApiImplicitParam(paramType = "query", name = "address", value = "地址", dataType = "String"),
+            @ApiImplicitParam(paramType = "query", name = "urls", value = "附件图", dataType = "String"),
+    })
+    @RequestMapping(value = "/updateOneGoodsChange")
+    public MessagePacket updateOneGoodsChange(HttpServletRequest request) {
+        String sessionID = request.getParameter("sessionID");
+        if (StringUtils.isEmpty(sessionID)) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        Member member = (Member) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBER_KEY.key, sessionID));
+        if (member == null) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        MemberLogDTO memberLogDTO = (MemberLogDTO) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBERLOG_KEY.key, sessionID));
+        if (memberLogDTO == null) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+
+        String goodsChangeID = request.getParameter("goodsChangeID");
+        if (StringUtils.isEmpty(goodsChangeID)) {
+            return MessagePacket.newFail(MessageHeader.Code.goodsChangeIDIsNull, "goodsChangeID不能为空");
+        }
+        GoodsChange goodsChange = goodsChangeService.findById(goodsChangeID);
+        if (goodsChange == null) {
+            return MessagePacket.newFail(MessageHeader.Code.goodsChangeIDIsError, "goodsChangeID不正确");
+        }
+
+        String name = request.getParameter("name");
+        if (StringUtils.isEmpty(name)) {
+            return MessagePacket.newFail(MessageHeader.Code.nameIsNull, "name不能为空");
+        }
+        String shortName = request.getParameter("shortName");//简称
+        String description = request.getParameter("description");//说明
+        String amount = request.getParameter("amount");//价格
+        String priceUnit = request.getParameter("priceUnit");//价格规格
+        String faceImage = request.getParameter("faceImage");//押题图
+        String listImage = request.getParameter("listImage");//列表图
+
+        if(StringUtils.isNotBlank(name)){
+            goodsChange.setName(name);
+        }
+        if(StringUtils.isNotBlank(shortName)){
+            goodsChange.setShortName(shortName);
+        }
+        if(StringUtils.isNotBlank(description)){
+            goodsChange.setDescription(description);
+        }
+        if (StringUtils.isNotBlank(amount)) {
+            goodsChange.setAmount(Double.parseDouble(amount));
+        }
+        if (StringUtils.isNotBlank(faceImage)) {
+            goodsChange.setFaceImage(faceImage);
+        }
+        if (StringUtils.isNotBlank(listImage)) {
+            goodsChange.setListImage(listImage);
+        }
+        if(StringUtils.isNotBlank(priceUnit)){
+            goodsChange.setPriceUnit(priceUnit);
+        }
+        goodsChangeService.save(goodsChange);
+
+        String desc = String.format("%s修改一个产品互换", member.getName());
+        UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));
+        MemberLogRequestBase base = MemberLogRequestBase.BALANCE()
+                .sessionID(sessionID)
+                .description(desc)
+                .userAgent(userAgent == null ? null : userAgent.getBrowserType())
+                .operateType(Memberlog.MemberOperateType.UPDATEONEGOODSCHANGE.getOname())
+                .build();
+        sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
+        Map<String, Object> rsMap = Maps.newHashMap();
+        rsMap.put("data", goodsChange.getId());
+        return MessagePacket.newSuccess(rsMap, "updateOneGoodsChange success!");
     }
 
     @ApiOperation(value = "getGoodsChangeList", notes = "获取产品互换列表")
