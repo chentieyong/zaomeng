@@ -28,8 +28,9 @@ public abstract class BaseServiceImpl<T extends BaseModel<ID>, ID extends Serial
             Timestamp current = new Timestamp(System.currentTimeMillis());
             if (baseModel.getId() == null) {
                 baseModel.setCreatedTime(current);
+            } else {
+                baseModel.setModifiedTime(current);
             }
-            baseModel.setModifiedTime(current);
         }
         return getDAO().save(t);
     }

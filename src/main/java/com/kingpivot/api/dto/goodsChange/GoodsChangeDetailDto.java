@@ -46,6 +46,10 @@ public class GoodsChangeDetailDto {
 
     private int status = 1;//1新
 
+    private Timestamp modifiedTime;//最后修改时间
+
+    private String modifiedTimeStr;//最后修改时间
+
     public String getId() {
         return id;
     }
@@ -209,5 +213,24 @@ public class GoodsChangeDetailDto {
 
     public void setEndDateStr(String endDateStr) {
         this.endDateStr = endDateStr;
+    }
+
+    public Timestamp getModifiedTime() {
+        return modifiedTime;
+    }
+
+    public void setModifiedTime(Timestamp modifiedTime) {
+        this.modifiedTime = modifiedTime;
+        if (modifiedTime != null) {
+            this.modifiedTimeStr = TimeTest.toDateTimeFormat(modifiedTime);
+        }
+    }
+
+    public String getModifiedTimeStr() {
+        return modifiedTimeStr;
+    }
+
+    public void setModifiedTimeStr(String modifiedTimeStr) {
+        this.modifiedTimeStr = modifiedTimeStr;
     }
 }
