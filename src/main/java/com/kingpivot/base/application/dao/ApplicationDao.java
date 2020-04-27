@@ -12,6 +12,7 @@ import javax.persistence.Table;
 @Table(name = "application")
 @Qualifier("applicationDao")
 public interface ApplicationDao extends BaseDao<Application, String> {
+
     @Query(value = "SELECT `name` FROM application WHERE id=?1", nativeQuery = true)
     String getNameByAppid(String id);
 }
