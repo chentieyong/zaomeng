@@ -47,10 +47,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RequestMapping("/api")
 @RestController
@@ -260,6 +257,7 @@ public class ApiMemberOrderController extends ApiBaseController {
         paramMap.put("memberID", member.getId());
         paramMap.put("isValid", Constants.ISVALID_YES);
         paramMap.put("isLock", Constants.ISLOCK_NO);
+        paramMap.put("orderType", 1);
         paramMap.put("status:ne", 2);
         String status = request.getParameter("status");
         if (StringUtils.isNotBlank(status)) {

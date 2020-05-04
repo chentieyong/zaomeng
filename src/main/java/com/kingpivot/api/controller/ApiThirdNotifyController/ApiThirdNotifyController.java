@@ -94,28 +94,29 @@ public class ApiThirdNotifyController extends ApiBaseController {
                 memberPayment.setAmount(NumberUtils.keepPrecision(Double.parseDouble(total_fee) / 100, 2));
                 memberPaymentService.save(memberPayment);
 
-                List<MemberOrder> memberOrderList = memberOrderService.getMemberOrderByMemberPayMentID(memberPayment.getId());
-                for (MemberOrder memberOrder : memberOrderList) {
-                    memberOrder.setPayTime(memberPayment.getPayTime());
-                    memberOrder.setPayTotal(memberOrder.getPriceAfterDiscount());
-                    memberOrder.setPaySequence(transaction_id);
-                    memberOrder.setStatus(6);
-                    memberOrder.setPayFrom(2);
-                    memberOrderService.save(memberOrder);
-
-                    List<MemberOrderGoods> memberOrderGoodsList = memberOrderGoodsService.getMemberOrderGoodsByMemberOrderID(memberOrder.getId());
-                    for (MemberOrderGoods memberOrderGoods : memberOrderGoodsList) {
-                        memberOrderGoods.setStatus(4);
-                        memberOrderGoodsService.save(memberOrderGoods);
-                    }
-                }
-
                 /**
                  * 额外业务处理
                  */
+                List<MemberOrder> memberOrderList = null;
                 if (StringUtils.isNotBlank(attach)) {
                     switch (attach) {
                         case "申请网站":
+                            memberOrderList = memberOrderService.getMemberOrderByMemberPayMentID(memberPayment.getId());
+                            for (MemberOrder memberOrder : memberOrderList) {
+                                memberOrder.setPayTime(memberPayment.getPayTime());
+                                memberOrder.setPayTotal(memberOrder.getPriceAfterDiscount());
+                                memberOrder.setPaySequence(transaction_id);
+                                memberOrder.setStatus(6);
+                                memberOrder.setPayFrom(2);
+                                memberOrderService.save(memberOrder);
+
+                                List<MemberOrderGoods> memberOrderGoodsList = memberOrderGoodsService.getMemberOrderGoodsByMemberOrderID(memberOrder.getId());
+                                for (MemberOrderGoods memberOrderGoods : memberOrderGoodsList) {
+                                    memberOrderGoods.setStatus(4);
+                                    memberOrderGoodsService.save(memberOrderGoods);
+                                }
+                            }
+
                             Member member = memberService.findById(memberPayment.getMemberID());
                             Major major = majorService.findById(Config.HB_SHOPMAJOR_ID);
                             if (member != null && major != null) {
@@ -136,6 +137,23 @@ public class ApiThirdNotifyController extends ApiBaseController {
                                     memberMajor.setXianID(member.getXianID());
                                 }
                                 memberMajorService.applyOneMajor(memberMajor, major);
+                            }
+                            break;
+                        case "购买商品":
+                            memberOrderList = memberOrderService.getMemberOrderByMemberPayMentID(memberPayment.getId());
+                            for (MemberOrder memberOrder : memberOrderList) {
+                                memberOrder.setPayTime(memberPayment.getPayTime());
+                                memberOrder.setPayTotal(memberOrder.getPriceAfterDiscount());
+                                memberOrder.setPaySequence(transaction_id);
+                                memberOrder.setStatus(4);
+                                memberOrder.setPayFrom(2);
+                                memberOrderService.save(memberOrder);
+
+                                List<MemberOrderGoods> memberOrderGoodsList = memberOrderGoodsService.getMemberOrderGoodsByMemberOrderID(memberOrder.getId());
+                                for (MemberOrderGoods memberOrderGoods : memberOrderGoodsList) {
+                                    memberOrderGoods.setStatus(4);
+                                    memberOrderGoodsService.save(memberOrderGoods);
+                                }
                             }
                             break;
                         default:
