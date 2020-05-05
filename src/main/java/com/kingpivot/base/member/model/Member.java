@@ -110,6 +110,9 @@ public class Member extends BaseModel<String> implements Serializable {
     @Column(length = 100)
     private String mapY;//纬度
 
+    @Column(length = 36)
+    private String titleID;//性别
+
     @Override
     public String getId() {
         return id;
@@ -357,5 +360,13 @@ public class Member extends BaseModel<String> implements Serializable {
 
     public void setMapY(String mapY) {
         this.mapY = mapY;
+    }
+
+    public String getTitleID() {
+        return titleID;
+    }
+
+    public void setTitleID(String titleID) {
+        this.titleID = titleID;
     }
 }

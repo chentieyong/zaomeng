@@ -81,6 +81,8 @@ public class MemberLoginDto {
 
     private String mapY;//纬度
 
+    private String titleID;
+
 
     public String getId() {
         return id;
@@ -384,5 +386,13 @@ public class MemberLoginDto {
 
     public void setMapY(String mapY) {
         this.mapY = mapY;
+    }
+
+    public String getTitleID() {
+        return titleID;
+    }
+
+    public void setTitleID(String titleID) {
+        this.titleID = titleID;
     }
 }

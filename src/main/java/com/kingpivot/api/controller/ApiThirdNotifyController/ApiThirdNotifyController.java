@@ -14,9 +14,11 @@ import com.kingpivot.base.memberOrderGoods.service.MemberOrderGoodsService;
 import com.kingpivot.base.memberPayment.model.MemberPayment;
 import com.kingpivot.base.memberPayment.service.MemberPaymentService;
 import com.kingpivot.common.jms.SendMessageService;
+import com.kingpivot.common.jms.dto.memberOrder.HbShopBuyGoodsRequest;
 import com.kingpivot.common.util.JsonUtil;
 import com.kingpivot.common.util.MapUtil;
 import com.kingpivot.common.util.XmlUtils;
+import com.kingpivot.common.utils.JacksonHelper;
 import com.kingpivot.common.utils.NumberUtils;
 import com.kingpivot.protocol.ApiBaseController;
 import io.swagger.annotations.Api;
@@ -153,6 +155,16 @@ public class ApiThirdNotifyController extends ApiBaseController {
                                 for (MemberOrderGoods memberOrderGoods : memberOrderGoodsList) {
                                     memberOrderGoods.setStatus(4);
                                     memberOrderGoodsService.save(memberOrderGoods);
+                                }
+
+                                //发送处理分润
+                                switch (memberOrder.getApplicationID()) {
+                                    case Config.HB_APPLICATION_ID://湖北我的商城购物
+                                        sendMessageService.sendHbShopBuyGoodsMessage(
+                                                JacksonHelper.toJson(new HbShopBuyGoodsRequest.Builder()
+                                                        .memberOrderID(memberOrder.getId())
+                                                        .build()));
+                                        break;
                                 }
                             }
                             break;

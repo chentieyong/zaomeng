@@ -30,6 +30,8 @@ public class SendMessageServiceImpl implements SendMessageService {
     private Queue sendUsePointQueueName;
     @Autowired
     private Queue sendGetPointQueueName;
+    @Autowired
+    private Queue sendHbShopBuyGoodsQueueName;
 
     @Override
     public void sendMemberLogMessage(String msg) {
@@ -74,5 +76,10 @@ public class SendMessageServiceImpl implements SendMessageService {
     @Override
     public void sendGetPointMessage(String msg) {
         jms.convertAndSend(sendGetPointQueueName, msg);
+    }
+
+    @Override
+    public void sendHbShopBuyGoodsMessage(String msg) {
+        jms.convertAndSend(sendHbShopBuyGoodsQueueName, msg);
     }
 }

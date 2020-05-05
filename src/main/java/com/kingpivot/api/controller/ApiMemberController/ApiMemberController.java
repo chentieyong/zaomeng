@@ -623,6 +623,7 @@ public class ApiMemberController extends ApiBaseController {
         String description = request.getParameter("description");
         String shiID = request.getParameter("shiID");
         String xianID = request.getParameter("xianID");
+        String titleID = request.getParameter("titleID");
         String address = request.getParameter("address");
         String mapX = request.getParameter("mapX");
         String mapY = request.getParameter("mapY");
@@ -675,6 +676,9 @@ public class ApiMemberController extends ApiBaseController {
         }
         if (StringUtils.isNotBlank(xianID)) {
             updateMember.setXianID(xianID);
+        }
+        if (StringUtils.isNotBlank(titleID)) {
+            updateMember.setTitleID(titleID);
         }
         if (StringUtils.isNotBlank(address)) {
             if (StringUtils.isNotBlank(mapX) && StringUtils.isNotBlank(mapY)) {

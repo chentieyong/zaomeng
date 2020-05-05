@@ -31,6 +31,7 @@ public class Config {
     public static String QINIU_LOOKHEAD = "http://qn.wgclm.com/";
     public static final String RECOMMAND_FULL_ERROR_CODE = "RECOMMAND_FULL_ERROR";//会员推荐异常语句code
     public static final String RECOMMAND_MEMBER_NAME = "推荐会员";//推荐会员name
+    public static final String HB_APPLICATION_ID = "ff8080816fb1a833016fea8c907c0056";//湖北应用id
 
 
     public static final String CAPITALPOST_POINT_USENAME = "资金投出发布";//资金投出发布-pointName

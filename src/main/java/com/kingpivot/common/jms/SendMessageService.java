@@ -63,4 +63,11 @@ public interface SendMessageService {
      * @param msg
      */
     void sendGetPointMessage(String msg);
+
+    /**
+     * 湖北商城购物分润消息
+     *
+     * @param msg
+     */
+    void sendHbShopBuyGoodsMessage(String msg);
 }

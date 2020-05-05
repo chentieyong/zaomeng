@@ -39,6 +39,9 @@ public class ActiveMQConfig {
     @Value("${sendMemberBalanceQueueName}")
     private String sendMemberBalanceQueueName;
 
+    @Value("${sendHbShopBuyGoodsQueueName}")
+    private String sendHbShopBuyGoodsQueueName;
+
     @Value("${spring.activemq.user}")
     private String usrName;
 
@@ -91,6 +94,11 @@ public class ActiveMQConfig {
     @Bean
     public Queue sendMemberBalanceQueueName() {
         return new ActiveMQQueue(sendMemberBalanceQueueName);
+    }
+
+    @Bean
+    public Queue sendHbShopBuyGoodsQueueName() {
+        return new ActiveMQQueue(sendHbShopBuyGoodsQueueName);
     }
 
     @Bean
