@@ -82,12 +82,12 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
         }
 
         double rate = 1d;
-        if (StringUtils.isNotBlank(member.getRankID())) {
-            Rank rank = rankDao.findOne(member.getRankID());
-            if (rank != null && rank.getDepositeRate() != null && rank.getDepositeRate() != 0) {
-                rate = price * rank.getDepositeRate().doubleValue();
-            }
-        }
+//        if (StringUtils.isNotBlank(member.getRankID())) {
+//            Rank rank = rankDao.findOne(member.getRankID());
+//            if (rank != null && rank.getDepositeRate() != null && rank.getDepositeRate() != 0) {
+//                rate = price * rank.getDepositeRate().doubleValue();
+//            }
+//        }
 
         MemberOrder memberOrder = new MemberOrder();
         memberOrder.setOrderCode(sequenceDefineService.genCode("orderSeq", memberOrder.getId()));
@@ -164,12 +164,12 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
                                             String contactPhone, String address,
                                             String memberBonusID) {
         double rate = 1d;
-        if (StringUtils.isNotBlank(member.getRankID())) {
-            Rank rank = rankDao.findOne(member.getRankID());
-            if (rank != null && rank.getDepositeRate() != null && rank.getDepositeRate() != 0) {
-                rate = rank.getDepositeRate().doubleValue();
-            }
-        }
+//        if (StringUtils.isNotBlank(member.getRankID())) {
+//            Rank rank = rankDao.findOne(member.getRankID());
+//            if (rank != null && rank.getDepositeRate() != null && rank.getDepositeRate() != 0) {
+//                rate = rank.getDepositeRate().doubleValue();
+//            }
+//        }
 
         double priceStandTotal = 0d;
         double priceTotal = 0d;
