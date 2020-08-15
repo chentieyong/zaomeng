@@ -17,6 +17,9 @@ public class Attachment extends BaseModel<String> {
     @Column(length = 36)
     private String objectID;//对象ID"
 
+    @Column(length = 36)
+    private String ObjectDefineID;//"
+
     @Column(length = 100)
     private String name;
 
@@ -65,5 +68,13 @@ public class Attachment extends BaseModel<String> {
 
     public void setOrderSeq(int orderSeq) {
         this.orderSeq = orderSeq;
+    }
+
+    public String getObjectDefineID() {
+        return ObjectDefineID;
+    }
+
+    public void setObjectDefineID(String objectDefineID) {
+        ObjectDefineID = objectDefineID;
     }
 }

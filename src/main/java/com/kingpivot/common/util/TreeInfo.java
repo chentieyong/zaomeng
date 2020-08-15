@@ -25,6 +25,8 @@ public class TreeInfo implements Serializable, Comparator<TreeInfo> {
 
     private String functionUrl;
 
+    private String description;
+
     private List nodes = new ArrayList();
 
     public TreeInfo() {
@@ -115,4 +117,11 @@ public class TreeInfo implements Serializable, Comparator<TreeInfo> {
         return o1.getOrderSeq().compareTo(o2.getOrderSeq());
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 }

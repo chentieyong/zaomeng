@@ -43,6 +43,8 @@ public class GoodsShop extends BaseModel<String> {
     private String largerImage;//大图
     @Column(length = 100)
     private String littleImage;//小图
+    @Column(length = 100)
+    private String videoURL;//视频
     @Column()
     private String unitDescription;//规格说明
     @Column()
@@ -297,5 +299,13 @@ public class GoodsShop extends BaseModel<String> {
 
     public void setIsReturn(Integer isReturn) {
         this.isReturn = isReturn;
+    }
+
+    public String getVideoURL() {
+        return videoURL;
+    }
+
+    public void setVideoURL(String videoURL) {
+        this.videoURL = videoURL;
     }
 }

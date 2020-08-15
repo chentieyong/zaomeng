@@ -16,6 +16,7 @@ public class GoodsShopDetailDto {
     private String description;//描述
     private String largerImage;//大图
     private String littleImage;//小图
+    private String videoURL;//视频
     private Double standPrice = 0.00d;//标准价格
     private Double realPrice = 0.0d;//销售价格
     private Float stockNumber = 0.00f;//当前库存
@@ -116,6 +117,14 @@ public class GoodsShopDetailDto {
 
     public void setLittleImage(String littleImage) {
         this.littleImage = littleImage;
+    }
+
+    public String getVideoURL() {
+        return videoURL;
+    }
+
+    public void setVideoURL(String videoURL) {
+        this.videoURL = videoURL;
     }
 
     public Double getStandPrice() {

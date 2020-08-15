@@ -8,6 +8,7 @@ public class GoodsShopListDto {
     private Integer orderSeq;//排序号
     private String largerImage;//大图
     private String littleImage;//小图
+    private String videoURL;//视频
     private Double standPrice = 0.00d;//标准价格
     private String priceUnit;//价格单位
     private Double realPrice = 0.0d;//销售价格
@@ -136,5 +137,13 @@ public class GoodsShopListDto {
 
     public void setObjectFeatureItemID1(String objectFeatureItemID1) {
         this.objectFeatureItemID1 = objectFeatureItemID1;
+    }
+
+    public String getVideoURL() {
+        return videoURL;
+    }
+
+    public void setVideoURL(String videoURL) {
+        this.videoURL = videoURL;
     }
 }

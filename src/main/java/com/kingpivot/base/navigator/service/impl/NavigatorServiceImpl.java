@@ -48,6 +48,7 @@ public class NavigatorServiceImpl extends BaseServiceImpl<Navigator, String> imp
             }
             treeInfo.setIsLeaf((Integer) obj[7]);
             treeInfo.setFunctionUrl((String) obj[8]);
+            treeInfo.setDescription((String) obj[9]);
             treeInfoList.add(treeInfo);
         }
         if (!treeInfoList.isEmpty()) {

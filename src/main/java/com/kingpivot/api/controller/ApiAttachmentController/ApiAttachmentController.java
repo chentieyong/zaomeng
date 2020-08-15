@@ -51,6 +51,7 @@ public class ApiAttachmentController extends ApiBaseController {
     public MessagePacket getObjectAttachmentList(HttpServletRequest request) {
         String objectID = request.getParameter("objectID");
         String name = request.getParameter("name");
+        String objectDefineID = request.getParameter("objectDefineID");
 
         if (StringUtils.isEmpty(objectID)) {
             return MessagePacket.newFail(MessageHeader.Code.objectIdIsNull, "objectID不能为空");
@@ -64,6 +65,9 @@ public class ApiAttachmentController extends ApiBaseController {
         }
         if (StringUtils.isNotBlank(name)) {
             paramMap.put("name", name);
+        }
+        if (StringUtils.isNotBlank(objectDefineID)) {
+            paramMap.put("ObjectDefineID", objectDefineID);
         }
 
         List<Sort.Order> orders = new ArrayList<Sort.Order>();
@@ -116,7 +120,6 @@ public class ApiAttachmentController extends ApiBaseController {
                 .urls(urls)
                 .delUrls(delUrls)
                 .build()));
-
         Map<String, Object> rsMap = Maps.newHashMap();
         rsMap.put("data", TimeTest.getTimeStr());
         return MessagePacket.newSuccess(rsMap, "addObjectAttachment success!");
