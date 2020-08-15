@@ -23,6 +23,9 @@ public class Attachment extends BaseModel<String> {
     @Column(length = 100)
     private String name;
 
+    @Column(length = 2000)
+    private String description;//描述
+
     @Column(length = 100)
     private String url;//文件URL"
 
@@ -76,5 +79,13 @@ public class Attachment extends BaseModel<String> {
 
     public void setObjectDefineID(String objectDefineID) {
         ObjectDefineID = objectDefineID;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

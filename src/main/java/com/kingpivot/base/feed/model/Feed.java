@@ -14,20 +14,41 @@ public class Feed extends BaseModel<String> {
     @Column(length = 36)
     private String id;//主键
 
+    @Column(length = 36)
+    private String applicationID;//应用ID
+
     @Column(length = 20)
     private String title;//标题
 
-    @Column(length = 36)
-    private String memberID;//会员ID
+    @Column(length = 20)
+    private String sex;//性别
 
-    @Column(length = 36)
-    private String applicationID;//应用ID
+    @Column(length = 200)
+    private String companyName;//公司名称
+
+    @Column(length = 200)
+    private String industryName;//行业名称
+
+    @Column(length = 200)
+    private String departmentName;//部门名称
+
+    @Column(length = 200)
+    private String jobName;//职位名称
+
+    @Column(length = 20)
+    private String email;//邮箱
+
+    @Column(length = 20)
+    private String contacts;//联系人
+
+    @Column(length = 20)
+    private String contact;//联系方式
 
     @Column(length = 200)
     private String contant;//内容
 
-    @Column(length = 20)
-    private String contact;//联系方式
+    @Column(length = 36)
+    private String memberID;//会员ID
 
     @Override
     public String getId() {
@@ -38,6 +59,14 @@ public class Feed extends BaseModel<String> {
         this.id = id;
     }
 
+    public String getApplicationID() {
+        return applicationID;
+    }
+
+    public void setApplicationID(String applicationID) {
+        this.applicationID = applicationID;
+    }
+
     public String getTitle() {
         return title;
     }
@@ -46,20 +75,60 @@ public class Feed extends BaseModel<String> {
         this.title = title;
     }
 
-    public String getMemberID() {
-        return memberID;
+    public String getSex() {
+        return sex;
     }
 
-    public void setMemberID(String memberID) {
-        this.memberID = memberID;
+    public void setSex(String sex) {
+        this.sex = sex;
     }
 
-    public String getApplicationID() {
-        return applicationID;
+    public String getCompanyName() {
+        return companyName;
     }
 
-    public void setApplicationID(String applicationID) {
-        this.applicationID = applicationID;
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+
+    public String getIndustryName() {
+        return industryName;
+    }
+
+    public void setIndustryName(String industryName) {
+        this.industryName = industryName;
+    }
+
+    public String getDepartmentName() {
+        return departmentName;
+    }
+
+    public void setDepartmentName(String departmentName) {
+        this.departmentName = departmentName;
+    }
+
+    public String getJobName() {
+        return jobName;
+    }
+
+    public void setJobName(String jobName) {
+        this.jobName = jobName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getContact() {
+        return contact;
+    }
+
+    public void setContact(String contact) {
+        this.contact = contact;
     }
 
     public String getContant() {
@@ -70,11 +139,19 @@ public class Feed extends BaseModel<String> {
         this.contant = contant;
     }
 
-    public String getContact() {
-        return contact;
+    public String getMemberID() {
+        return memberID;
     }
 
-    public void setContact(String contact) {
-        this.contact = contact;
+    public void setMemberID(String memberID) {
+        this.memberID = memberID;
+    }
+
+    public String getContacts() {
+        return contacts;
+    }
+
+    public void setContacts(String contacts) {
+        this.contacts = contacts;
     }
 }

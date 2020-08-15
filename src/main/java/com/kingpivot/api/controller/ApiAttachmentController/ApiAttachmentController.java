@@ -53,8 +53,8 @@ public class ApiAttachmentController extends ApiBaseController {
         String name = request.getParameter("name");
         String objectDefineID = request.getParameter("objectDefineID");
 
-        if (StringUtils.isEmpty(objectID)) {
-            return MessagePacket.newFail(MessageHeader.Code.objectIdIsNull, "objectID不能为空");
+        if (StringUtils.isEmpty(objectID) && StringUtils.isEmpty(objectDefineID)) {
+            return MessagePacket.newFail(MessageHeader.Code.objectIdIsNull, "objectID和objectDefineID不能同时为空不能为空");
         }
 
         Map<String, Object> paramMap = new HashMap<>();
