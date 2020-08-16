@@ -211,6 +211,7 @@ public class MessageHeader implements Serializable {
         helpNeedIDIsNull(10143),//帮助需求id为空
         helpNeedIDIsError(10144),//帮助需求不存在
         contactsIsNull(10145),//contacts不能为空
+        viewUrlIsNull(10146),//viewUrl不能为空
         ;
         public int code;
 
