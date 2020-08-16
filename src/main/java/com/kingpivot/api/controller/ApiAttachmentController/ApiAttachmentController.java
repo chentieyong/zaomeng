@@ -64,7 +64,7 @@ public class ApiAttachmentController extends ApiBaseController {
             paramMap.put("objectID", objectID);
         }
         if (StringUtils.isNotBlank(name)) {
-            paramMap.put("name", name);
+            paramMap.put("name:like", name);
         }
         if (StringUtils.isNotBlank(objectDefineID)) {
             paramMap.put("ObjectDefineID", objectDefineID);
