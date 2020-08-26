@@ -25,6 +25,9 @@ public class Article extends BaseModel<String> {
     private String content;//内容
 
     @Column(length = 36)
+    private String navigatorID;//导航ID
+
+    @Column(length = 36)
     private String categoryID;//类别ID
 
     @Column(length = 1000)
@@ -209,5 +212,13 @@ public class Article extends BaseModel<String> {
 
     public void setEndDate(Timestamp endDate) {
         this.endDate = endDate;
+    }
+
+    public String getNavigatorID() {
+        return navigatorID;
+    }
+
+    public void setNavigatorID(String navigatorID) {
+        this.navigatorID = navigatorID;
     }
 }
