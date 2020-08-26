@@ -49,8 +49,12 @@ public class ApiGoodsShopParameterController {
         if (StringUtils.isEmpty(goodsShopID)) {
             return MessagePacket.newFail(MessageHeader.Code.goodsShopIdIsNull, "goodsShopID不能为空");
         }
+        String goodsShopParameterDefineID = request.getParameter("goodsShopParameterDefineID");//产品参数定义ID
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("goodsShopID", goodsShopID);
+        if (StringUtils.isNotBlank(goodsShopParameterDefineID)) {
+            paramMap.put("goodsShopParameterDefineID", goodsShopParameterDefineID);
+        }
         paramMap.put("isValid", Constants.ISVALID_YES);
         paramMap.put("isLock", Constants.ISLOCK_NO);
 

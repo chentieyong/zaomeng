@@ -18,6 +18,8 @@ public class GoodsShopParameter extends BaseModel<String> {
     private String companyID;//公司ID
     @Column(length = 36)
     private String goodsShopID;//店铺ID
+    @Column(length = 36)
+    private String goodsShopParameterDefineID;//产品参数定义ID
     @Column(length = 100)
     private String name;//名称
     @Column(length = 20)
@@ -62,5 +64,13 @@ public class GoodsShopParameter extends BaseModel<String> {
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+    public String getGoodsShopParameterDefineID() {
+        return goodsShopParameterDefineID;
+    }
+
+    public void setGoodsShopParameterDefineID(String goodsShopParameterDefineID) {
+        this.goodsShopParameterDefineID = goodsShopParameterDefineID;
     }
 }
