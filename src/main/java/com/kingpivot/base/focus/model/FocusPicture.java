@@ -17,6 +17,12 @@ public class FocusPicture extends BaseModel<String> {
     @Column(length = 36)
     private String id;//主键
 
+    @Column(length = 100)
+    private String name;//名称
+
+    @Column(length = 200)
+    private String description;//
+
     @Column(length = 36)
     private String focusID;
 
@@ -33,6 +39,22 @@ public class FocusPicture extends BaseModel<String> {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getFocusID() {
