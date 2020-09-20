@@ -24,6 +24,8 @@ public class GoodsShopParameter extends BaseModel<String> {
     private String name;//名称
     @Column(length = 20)
     private String value;//值
+    @Column()
+    private Integer orderSeq;//序号
 
     @Override
     public String getId() {
@@ -72,5 +74,13 @@ public class GoodsShopParameter extends BaseModel<String> {
 
     public void setGoodsShopParameterDefineID(String goodsShopParameterDefineID) {
         this.goodsShopParameterDefineID = goodsShopParameterDefineID;
+    }
+
+    public Integer getOrderSeq() {
+        return orderSeq;
+    }
+
+    public void setOrderSeq(Integer orderSeq) {
+        this.orderSeq = orderSeq;
     }
 }

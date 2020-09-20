@@ -22,6 +22,8 @@ public class GoodsShopCase extends BaseModel<String> {
     private String name;//名称
     @Column(length = 2000)
     private String description;//描述
+    @Column()
+    private Integer orderSeq;//序号
     @Column(length = 200)
     private String faceImage;//押题图
 
@@ -72,5 +74,13 @@ public class GoodsShopCase extends BaseModel<String> {
 
     public void setFaceImage(String faceImage) {
         this.faceImage = faceImage;
+    }
+
+    public Integer getOrderSeq() {
+        return orderSeq;
+    }
+
+    public void setOrderSeq(Integer orderSeq) {
+        this.orderSeq = orderSeq;
     }
 }

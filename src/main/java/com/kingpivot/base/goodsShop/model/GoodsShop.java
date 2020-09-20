@@ -45,6 +45,8 @@ public class GoodsShop extends BaseModel<String> {
     private String littleImage;//小图
     @Column(length = 100)
     private String videoURL;//视频
+    @Column(length = 100)
+    private String videoImage;//视频封面
     @Column()
     private String unitDescription;//规格说明
     @Column()
@@ -307,5 +309,13 @@ public class GoodsShop extends BaseModel<String> {
 
     public void setVideoURL(String videoURL) {
         this.videoURL = videoURL;
+    }
+
+    public String getVideoImage() {
+        return videoImage;
+    }
+
+    public void setVideoImage(String videoImage) {
+        this.videoImage = videoImage;
     }
 }

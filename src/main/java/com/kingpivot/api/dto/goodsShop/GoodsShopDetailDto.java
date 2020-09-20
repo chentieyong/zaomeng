@@ -16,6 +16,7 @@ public class GoodsShopDetailDto {
     private String description;//描述
     private String largerImage;//大图
     private String littleImage;//小图
+    private String videoImage;
     private String videoURL;//视频
     private Double standPrice = 0.00d;//标准价格
     private Double realPrice = 0.0d;//销售价格
@@ -205,5 +206,13 @@ public class GoodsShopDetailDto {
 
     public void setUnitDescription(String unitDescription) {
         this.unitDescription = unitDescription;
+    }
+
+    public String getVideoImage() {
+        return videoImage;
+    }
+
+    public void setVideoImage(String videoImage) {
+        this.videoImage = videoImage;
     }
 }

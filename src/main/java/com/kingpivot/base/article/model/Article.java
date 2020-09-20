@@ -54,6 +54,9 @@ public class Article extends BaseModel<String> {
     @Column(length = 200)
     private String videoURL;//视频
 
+    @Column(length = 200)
+    private String videoImage;//视频
+
     @Column(columnDefinition = "INT default 0")
     private Integer readTimes;//阅读次数
 
@@ -220,5 +223,13 @@ public class Article extends BaseModel<String> {
 
     public void setNavigatorID(String navigatorID) {
         this.navigatorID = navigatorID;
+    }
+
+    public String getVideoImage() {
+        return videoImage;
+    }
+
+    public void setVideoImage(String videoImage) {
+        this.videoImage = videoImage;
     }
 }
