@@ -85,6 +85,8 @@ public class ApiThirdNotifyController extends ApiBaseController {
             if ("SUCCESS".equals(result_code) && attach.equals("店铺接单余额充值")) {
                 ShopRecharge shopRecharge = this.shopRechargeService.findById(out_trade_no);
                 if (shopRecharge != null && shopRecharge.getStatus() == 1) {
+                    shopRecharge.setTransactionId(transaction_id);
+                    shopRecharge.setRechargeTime(new Timestamp(System.currentTimeMillis()));
                     shopRecharge.setStatus(2);
                     shopRechargeService.doAuditShopRecharge(shopRecharge);
                 }

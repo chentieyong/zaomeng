@@ -19,6 +19,8 @@ import com.kingpivot.base.memberlog.model.Memberlog;
 import com.kingpivot.base.payway.model.PayWay;
 import com.kingpivot.base.payway.service.PayWayService;
 import com.kingpivot.base.sequenceDefine.service.SequenceDefineService;
+import com.kingpivot.base.shopRecharge.model.ShopRecharge;
+import com.kingpivot.base.shopRecharge.service.ShopRechargeService;
 import com.kingpivot.base.support.MemberLogDTO;
 import com.kingpivot.common.KingBase;
 import com.kingpivot.common.jms.SendMessageService;
@@ -63,7 +65,7 @@ public class ApiPayController extends ApiBaseController {
     @Autowired
     private PayWayService paywayService;
     @Autowired
-    private SequenceDefineService sequenceDefineService;
+    private ShopRechargeService shopRechargeService;
     @Autowired
     private MemberPaymentService memberPaymentService;
     @Autowired
@@ -287,7 +289,13 @@ public class ApiPayController extends ApiBaseController {
         if (StringUtils.isEmpty(outTradeNo)) {
             return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "外部流水号为空！");
         }
-        double amount = 0d;
+
+        ShopRecharge shopRecharge = shopRechargeService.findById(outTradeNo);
+        if (shopRecharge == null || shopRecharge.getIsValid() == 0) {
+            return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "外部流水号异常！");
+        }
+
+        double amount = shopRecharge.getRechargeAmount();
         if (amount <= 0) {
             return MessagePacket.newFail(MessageHeader.Code.cashBalanceZero, "金额异常，无法支付");
         }
