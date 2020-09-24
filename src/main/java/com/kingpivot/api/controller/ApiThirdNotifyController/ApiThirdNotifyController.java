@@ -13,6 +13,8 @@ import com.kingpivot.base.memberOrderGoods.model.MemberOrderGoods;
 import com.kingpivot.base.memberOrderGoods.service.MemberOrderGoodsService;
 import com.kingpivot.base.memberPayment.model.MemberPayment;
 import com.kingpivot.base.memberPayment.service.MemberPaymentService;
+import com.kingpivot.base.shopRecharge.model.ShopRecharge;
+import com.kingpivot.base.shopRecharge.service.ShopRechargeService;
 import com.kingpivot.common.jms.SendMessageService;
 import com.kingpivot.common.jms.dto.memberOrder.HbShopBuyGoodsRequest;
 import com.kingpivot.common.util.JsonUtil;
@@ -54,6 +56,8 @@ public class ApiThirdNotifyController extends ApiBaseController {
     private MemberMajorService memberMajorService;
     @Autowired
     private MajorService majorService;
+    @Autowired
+    private ShopRechargeService shopRechargeService;
 
     @ApiOperation(value = "微信订单支付回调", notes = "微信订单支付回调")
     @RequestMapping("/weiXinPayMemberOrderNotify")
@@ -77,6 +81,17 @@ public class ApiThirdNotifyController extends ApiBaseController {
             String total_fee = map.get("total_fee");
             String transaction_id = map.get("transaction_id");
             String attach = map.get("attach");
+
+            if ("SUCCESS".equals(result_code) && attach.equals("店铺接单余额充值")) {
+                ShopRecharge shopRecharge = this.shopRechargeService.findById(out_trade_no);
+                if (shopRecharge != null && shopRecharge.getStatus() == 1) {
+                    shopRecharge.setStatus(2);
+                    shopRechargeService.doAuditShopRecharge(shopRecharge);
+                }
+                resXml = "<xml>" + "<return_code><![CDATA[SUCCESS]]></return_code>"
+                        + "<return_msg><![CDATA[OK]]></return_msg>" + "</xml> ";
+                return resXml;
+            }
 
             MemberPayment memberPayment = memberPaymentService.findById(out_trade_no);
             if (null == memberPayment || memberPayment.getStatus() != 1) {

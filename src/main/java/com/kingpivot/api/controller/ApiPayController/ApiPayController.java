@@ -25,6 +25,7 @@ import com.kingpivot.common.jms.SendMessageService;
 import com.kingpivot.common.jms.dto.memberLog.MemberLogRequestBase;
 import com.kingpivot.common.util.MapUtil;
 import com.kingpivot.common.utils.*;
+import com.kingpivot.common.weixinPay.CodePayOrderResponseInfo;
 import com.kingpivot.common.weixinPay.PayOrderResponseInfo;
 import com.kingpivot.common.weixinPay.WechatPayInfo;
 import com.kingpivot.common.weixinPay.WechatPayUtils;
@@ -151,6 +152,10 @@ public class ApiPayController extends ApiBaseController {
             amount = memberOrder.getPriceAfterDiscount();
         }
 
+        if (amount <= 0) {
+            return MessagePacket.newFail(MessageHeader.Code.cashBalanceZero, "金额异常，无法支付");
+        }
+
         Map<String, Object> param = Maps.newHashMap();
 
         if (payway.getSupportType() == 1) {//app支付宝
@@ -258,5 +263,60 @@ public class ApiPayController extends ApiBaseController {
         sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
 
         return MessagePacket.newSuccess(param, "appApplyMemberOrderPay success!");
+    }
+
+    @ApiOperation(value = "获取微信支付二维码url", notes = "获取微信支付二维码url")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query", name = "sessionID", value = "登录标识", dataType = "String"),
+            @ApiImplicitParam(paramType = "query", name = "payWayID", value = "支付机构id", dataType = "String"),
+            @ApiImplicitParam(paramType = "query", name = "body", value = "说明", dataType = "String"),
+            @ApiImplicitParam(paramType = "query", name = "memberPaymentID", value = "会员支付id", dataType = "String"),
+            @ApiImplicitParam(paramType = "query", name = "memberOrderID", value = "订单id", dataType = "String")})
+    @RequestMapping(value = "/getWeixinQrcodePayUrl")
+    public MessagePacket getWeixinQrcodePayUrl(HttpServletRequest request) {
+        String payWayID = request.getParameter("payWayID");
+        String body = request.getParameter("body");
+        if (StringUtils.isEmpty(payWayID)) {
+            return MessagePacket.newFail(MessageHeader.Code.paywayIDNotNull, "paywayID不能为空！");
+        }
+        PayWay payway = paywayService.findById(payWayID);
+        if (payway == null) {
+            return MessagePacket.newFail(MessageHeader.Code.paywayIDIsError, "paywayID不正确！");
+        }
+        String outTradeNo = request.getParameter("outTradeNo");
+        if (StringUtils.isEmpty(outTradeNo)) {
+            return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "外部流水号为空！");
+        }
+        double amount = 0d;
+        if (amount <= 0) {
+            return MessagePacket.newFail(MessageHeader.Code.cashBalanceZero, "金额异常，无法支付");
+        }
+        WechatPayInfo payInfo = new WechatPayInfo();
+        payInfo.setAppid(payway.getServerPassword());
+        payInfo.setMch_id(payway.getPartnerID());
+        payInfo.setNonce_str(WechatPayUtils.buildRandom());
+        payInfo.setBody(body);
+        payInfo.setAttach(body);
+        Double total_fee = NumberUtils.keepPrecision(amount * 100d, 2);
+        payInfo.setTotal_fee(total_fee.intValue());
+        payInfo.setSpbill_create_ip(WebUtil.getRemortIP(request));
+        payInfo.setOut_trade_no(outTradeNo);
+        payInfo.setNotify_url(payway.getOrderNotifyURL());
+        payInfo.setTrade_type("NATIVE");
+        payInfo.setSign(WechatPayUtils.createSign(MapUtil.beanToMap(payInfo), payway.getPrivateKey()));
+        String result = "";
+        try {
+            result = WechatPayUtils.doGenOrder(XStreamUtil.getXstream(WechatPayInfo.class).toXML(payInfo));
+            logger.info("微信报文={}", result);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        CodePayOrderResponseInfo responseInfo = (CodePayOrderResponseInfo) XStreamUtil.getXstream(CodePayOrderResponseInfo.class).fromXML(result);
+        if (responseInfo != null && !responseInfo.getResult_code().equals("SUCCESS")) {
+            return MessagePacket.newFail(MessageHeader.Code.illegalParameter, responseInfo.getErr_code_des());
+        }
+        Map<String, Object> rsMap = Maps.newHashMap();
+        rsMap.put("code_url", responseInfo.getCode_url());
+        return MessagePacket.newSuccess(rsMap, "getWeixinQrcodePayUrl success!");
     }
 }

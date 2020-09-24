@@ -212,6 +212,7 @@ public class MessageHeader implements Serializable {
         helpNeedIDIsError(10144),//帮助需求不存在
         contactsIsNull(10145),//contacts不能为空
         viewUrlIsNull(10146),//viewUrl不能为空
+        cashBalanceZero(10147),//金额为0
         ;
         public int code;
 
