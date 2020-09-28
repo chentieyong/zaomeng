@@ -87,7 +87,7 @@ public class ApiArticleController extends ApiBaseController {
         paramMap.put("isLock", Constants.ISLOCK_NO);
 
         List<Sort.Order> orders = new ArrayList<Sort.Order>();
-        orders.add(new Sort.Order(Sort.Direction.ASC, "createdTime"));
+        orders.add(new Sort.Order(Sort.Direction.ASC, "orderSeq"));
 
         Object currentPage = request.getParameter("currentPage");
         Object pageNumber = request.getParameter("pageNumber");

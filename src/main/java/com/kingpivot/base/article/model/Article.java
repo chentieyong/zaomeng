@@ -45,6 +45,9 @@ public class Article extends BaseModel<String> {
     @Column
     private Integer isPublish = 0;
 
+    @Column
+    private Integer orderSeq = 0;
+
     @Column(length = 100)
     private String listImage;//列表图
 
@@ -231,5 +234,13 @@ public class Article extends BaseModel<String> {
 
     public void setVideoImage(String videoImage) {
         this.videoImage = videoImage;
+    }
+
+    public Integer getOrderSeq() {
+        return orderSeq;
+    }
+
+    public void setOrderSeq(Integer orderSeq) {
+        this.orderSeq = orderSeq;
     }
 }
