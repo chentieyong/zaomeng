@@ -2,7 +2,9 @@ package com.kingpivot.api.controller.ApiFileController;
 
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
+import com.kingpivot.api.dto.weixin.WeiXinUtils;
 import com.kingpivot.base.config.Config;
+import com.kingpivot.common.utils.WeiXinViolationCheckUtil;
 import com.kingpivot.protocol.ApiBaseController;
 import com.kingpivot.protocol.MessageHeader;
 import com.kingpivot.protocol.MessagePacket;
@@ -25,6 +27,7 @@ import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import com.qiniu.storage.Configuration;
 
@@ -40,6 +43,16 @@ public class ApiFileController extends ApiBaseController {
     public MessagePacket uploadFile(@RequestParam MultipartFile file) throws IOException {
         if (file == null || file.isEmpty()) {
             return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "文件为空");
+        }
+        try {
+            Map map = WeiXinViolationCheckUtil.checkImgOrMsg(file, null, WeiXinUtils.getToken("wx54a9fdc8e3903401", "a1946ea07aa4c109a379253efa6a765c").getAccess_token());
+            if (!"0".equals(map.get("img"))) {
+                return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "图片非法，禁止上传");
+            }
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
         //构造一个带指定Zone对象的配置类
         Configuration cfg = new Configuration(Zone.zone0());
