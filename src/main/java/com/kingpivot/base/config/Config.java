@@ -28,7 +28,7 @@ public class Config {
     public static String QINIU_SECRETKEY = "Khq3bQQL_Bp6HwYAxiBqz2gferqtXdHs_Ts-m2I1";
     public static String QINIU_BUCKETNAME = "zaomeng";
     public static String QINIU_ACCESSKEY = "QaWF6IgWIeH5V-Kf9BOl825RvzFf2vWRnykN3V7A";
-    public static String QINIU_LOOKHEAD = "http://qn.wgclm.com/";
+    public static String QINIU_LOOKHEAD = "http://cty.yimjrwp.com/";
     public static final String RECOMMAND_FULL_ERROR_CODE = "RECOMMAND_FULL_ERROR";//会员推荐异常语句code
     public static final String RECOMMAND_MEMBER_NAME = "推荐会员";//推荐会员name
     public static final String HB_APPLICATION_ID = "ff8080816fb1a833016fea8c907c0056";//湖北应用id
