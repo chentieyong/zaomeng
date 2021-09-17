@@ -67,6 +67,7 @@ public class ApiMemberWishController extends ApiBaseController {
         } else {
             memberWish.setName(String.format("会员%s许愿", member.getName()));
         }
+        memberWish.setMemberID(memberID);
         memberWish.setApplicationID(member.getApplicationID());
         memberWish.setDescription(description);
         memberWishService.save(memberWish);
