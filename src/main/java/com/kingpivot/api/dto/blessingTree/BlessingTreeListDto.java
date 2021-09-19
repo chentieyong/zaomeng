@@ -6,6 +6,7 @@ public class BlessingTreeListDto {
     private String id;//祈福树ID
     private String name;
     private String description;//描述
+    private String backImage;//背景图
     private String faceImage;//押题图
     private List<BlessingTreeDetailListDto> blessingTreeDetailList;
 
@@ -31,6 +32,14 @@ public class BlessingTreeListDto {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getBackImage() {
+        return backImage;
+    }
+
+    public void setBackImage(String backImage) {
+        this.backImage = backImage;
     }
 
     public String getFaceImage() {
