@@ -14,12 +14,14 @@ import java.util.Map;
 public class WeiXinUtils {
 
     public static final String CHARSET = "UTF-8";
+    public static final String DEFAULT_APPID = "wx54a9fdc8e3903401";
+    public static final String DEFAULT_APPSECRET = "a1946ea07aa4c109a379253efa6a765c";
 
     public static WeiXinToken getToken(String appID, String secret) {
         Map<String, String> param = new HashMap<>();
         param.put("grant_type", "client_credential");
-        param.put("appid", appID);
-        param.put("secret", secret);
+        param.put("appid", appID == null ? DEFAULT_APPID : appID);
+        param.put("secret", secret == null ? DEFAULT_APPSECRET : secret);
         WeiXinToken weiXinToken = null;
         try {
             String responseStr = HttpUtil.doGet(WeiXinUrlConstants.GET_TOKEN_URL, param);

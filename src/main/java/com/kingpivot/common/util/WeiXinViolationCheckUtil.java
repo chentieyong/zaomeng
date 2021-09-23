@@ -1,5 +1,7 @@
 package com.kingpivot.common.util;
 
+import com.kingpivot.api.dto.weixin.WeiXinToken;
+import com.kingpivot.api.dto.weixin.WeiXinUtils;
 import com.kingpivot.common.weiXinViolationCheck.AccessTokenWX;
 import com.kingpivot.common.weiXinViolationCheck.CheckTask;
 import org.slf4j.Logger;
@@ -65,8 +67,4 @@ public class WeiXinViolationCheckUtil {
         }
         return resultMap;
     }
-
-//    public static void main(String[] args) throws ExecutionException, InterruptedException {
-//        Map map = checkImgOrMsg(null, "习近平666", "");
-//    }
 }

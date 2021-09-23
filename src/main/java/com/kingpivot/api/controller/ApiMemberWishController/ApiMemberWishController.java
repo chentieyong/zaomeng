@@ -2,11 +2,14 @@ package com.kingpivot.api.controller.ApiMemberWishController;
 
 import com.google.common.collect.Maps;
 import com.kingpivot.api.dto.memberWish.MemberWishListDto;
+import com.kingpivot.api.dto.weixin.WeiXinToken;
+import com.kingpivot.api.dto.weixin.WeiXinUtils;
 import com.kingpivot.base.member.model.Member;
 import com.kingpivot.base.member.service.MemberService;
 import com.kingpivot.base.memberWish.model.MemberWish;
 import com.kingpivot.base.memberWish.service.MemberWishService;
 import com.kingpivot.common.util.Constants;
+import com.kingpivot.common.util.WeiXinViolationCheckUtil;
 import com.kingpivot.common.utils.*;
 import com.kingpivot.protocol.ApiBaseController;
 import com.kingpivot.protocol.MessageHeader;
@@ -60,6 +63,16 @@ public class ApiMemberWishController extends ApiBaseController {
 
         String name = request.getParameter("name");
         String description = request.getParameter("description");//说明
+
+        try {
+            WeiXinToken token = WeiXinUtils.getToken(null, null);
+            Map map = WeiXinViolationCheckUtil.checkImgOrMsg(null, description, token.getAccess_token());
+            if (!"0".equals(map.get("content"))) {
+                return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "文字非法，禁止上传");
+            }
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
 
         MemberWish memberWish = new MemberWish();
         if (StringUtils.isNotBlank(name)) {
