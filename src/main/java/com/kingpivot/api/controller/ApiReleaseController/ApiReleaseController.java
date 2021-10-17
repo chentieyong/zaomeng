@@ -9,6 +9,7 @@ import com.kingpivot.base.config.Config;
 import com.kingpivot.base.goodsShop.model.GoodsShop;
 import com.kingpivot.base.goodsShop.service.GoodsShopService;
 import com.kingpivot.base.memberRank.service.MemberRankService;
+import com.kingpivot.base.objectFeatureData.model.ObjectFeatureData;
 import com.kingpivot.base.objectFeatureData.service.ObjectFeatureDataService;
 import com.kingpivot.base.objectFeatureItem.service.ObjectFeatureItemService;
 import com.kingpivot.base.release.model.Release;
@@ -117,7 +118,10 @@ public class ApiReleaseController extends ApiBaseController {
                                         if (obj != null) {
                                             releaseGoodsShopListDto.setUnitDescription((String) obj[0]);
                                             releaseGoodsShopListDto.setObjectFeatureItemID1((String) obj[1]);
-                                            releaseGoodsShopListDto.setShowPrice(objectFeatureDataService.getObjectFetureData(goodsShop.getId(), (String) obj[1]));
+                                            ObjectFeatureData objectFetureData = objectFeatureDataService.getObjectFetureData(goodsShop.getId(), (String) obj[1]);
+                                            if (objectFetureData != null) {
+                                                releaseGoodsShopListDto.setShowPrice(objectFetureData.getRealPrice());
+                                            }
                                         }
                                     }
                                     goodsShopList.add(releaseGoodsShopListDto);

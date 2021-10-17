@@ -17,6 +17,7 @@ import com.kingpivot.base.member.model.Member;
 import com.kingpivot.base.member.service.MemberService;
 import com.kingpivot.base.memberRank.service.MemberRankService;
 import com.kingpivot.base.memberlog.model.Memberlog;
+import com.kingpivot.base.objectFeatureData.model.ObjectFeatureData;
 import com.kingpivot.base.objectFeatureData.service.ObjectFeatureDataService;
 import com.kingpivot.base.objectFeatureItem.service.ObjectFeatureItemService;
 import com.kingpivot.base.support.MemberLogDTO;
@@ -254,7 +255,10 @@ public class ApiCollectController extends ApiBaseController {
                                         if (obj != null) {
                                             collectGoodsShopListDto.setUnitDescription((String) obj[0]);
                                             collectGoodsShopListDto.setObjectFeatureItemID1((String) obj[1]);
-                                            collectGoodsShopListDto.setShowPrice(objectFeatureDataService.getObjectFetureData(goodsShop.getId(), (String) obj[1]));
+                                            ObjectFeatureData objectFetureData = objectFeatureDataService.getObjectFetureData(goodsShop.getId(), (String) obj[1]);
+                                            if (objectFetureData != null) {
+                                                collectGoodsShopListDto.setShowPrice(objectFetureData.getRealPrice());
+                                            }
                                         }
                                     }
                                     goodsShopList.add(collectGoodsShopListDto);

@@ -40,6 +40,8 @@ public class ObjectFeatureData extends BaseModel<String> {
     private Double realPrice = 0.00d;//标准价格
     @Column()
     private Double standPrice = 0.00d;//标准价格
+    @Column
+    private Double memberPrice = 0.00d;//会员价格
 
     @Override
     public String getId() {
@@ -144,5 +146,13 @@ public class ObjectFeatureData extends BaseModel<String> {
 
     public void setStandPrice(Double standPrice) {
         this.standPrice = standPrice;
+    }
+
+    public Double getMemberPrice() {
+        return memberPrice;
+    }
+
+    public void setMemberPrice(Double memberPrice) {
+        this.memberPrice = memberPrice;
     }
 }

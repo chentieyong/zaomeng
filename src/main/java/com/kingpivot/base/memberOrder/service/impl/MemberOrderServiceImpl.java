@@ -18,6 +18,7 @@ import com.kingpivot.base.memberOrderGoods.service.MemberOrderGoodsService;
 import com.kingpivot.base.memberPayment.dao.MemberPaymentDao;
 import com.kingpivot.base.memberPayment.model.MemberPayment;
 import com.kingpivot.base.objectFeatureData.dao.ObjectFeatureDataDao;
+import com.kingpivot.base.objectFeatureData.model.ObjectFeatureData;
 import com.kingpivot.base.rank.dao.RankDao;
 import com.kingpivot.base.rank.model.Rank;
 import com.kingpivot.base.sequenceDefine.service.SequenceDefineService;
@@ -75,9 +76,9 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
                                     String memberBonusID, String orderType) {
         double price = goodsShop.getRealPrice();
         if (StringUtils.isNotBlank(objectFeatureItemID1)) {
-            double val = objectFeatureDataDao.getObjectFetureData(goodsShop.getId(), objectFeatureItemID1);
-            if (val != 0) {
-                price = val;
+            ObjectFeatureData val = objectFeatureDataDao.getObjectFetureData(goodsShop.getId(), objectFeatureItemID1);
+            if (val != null) {
+                price = val.getRealPrice();
             }
         }
 

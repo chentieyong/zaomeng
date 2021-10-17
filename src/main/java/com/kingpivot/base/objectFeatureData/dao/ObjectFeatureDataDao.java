@@ -13,6 +13,6 @@ import javax.persistence.Table;
 @Qualifier("objectFeatureDataDao")
 public interface ObjectFeatureDataDao extends BaseDao<ObjectFeatureData, String> {
 
-    @Query(value = "SELECT realPrice FROM objectFeatureData WHERE objectID=?1 and objectFeatureItemID1=?2 and isValid=1 and isLock=0 limit 1", nativeQuery = true)
-    Double getObjectFetureData(String objectID, String objectFeatureItemID1);
+    @Query(value = "SELECT * FROM objectFeatureData WHERE objectID=?1 and objectFeatureItemID1=?2 and isValid=1 and isLock=0 limit 1", nativeQuery = true)
+    ObjectFeatureData getObjectFetureData(String objectID, String objectFeatureItemID1);
 }

@@ -13,6 +13,7 @@ import com.kingpivot.base.member.service.MemberService;
 import com.kingpivot.base.memberRank.service.MemberRankService;
 import com.kingpivot.base.memberSearch.model.MemberSearch;
 import com.kingpivot.base.memberSearch.service.MemberSearchService;
+import com.kingpivot.base.objectFeatureData.model.ObjectFeatureData;
 import com.kingpivot.base.objectFeatureData.service.ObjectFeatureDataService;
 import com.kingpivot.base.objectFeatureItem.service.ObjectFeatureItemService;
 import com.kingpivot.common.jms.SendMessageService;
@@ -113,7 +114,10 @@ public class ApiGoodsShopController extends ApiBaseController {
                     if (obj != null) {
                         goodsShop.setUnitDescription((String) obj[0]);
                         goodsShop.setObjectFeatureItemID1((String) obj[1]);
-                        goodsShop.setRealPrice(objectFeatureDataService.getObjectFetureData(goodsShop.getId(), (String) obj[1]));
+                        ObjectFeatureData objectFetureData = objectFeatureDataService.getObjectFetureData(goodsShop.getId(), (String) obj[1]);
+                        if (objectFetureData != null) {
+                            goodsShop.setRealPrice(objectFetureData.getRealPrice());
+                        }
                     }
                 }
             }

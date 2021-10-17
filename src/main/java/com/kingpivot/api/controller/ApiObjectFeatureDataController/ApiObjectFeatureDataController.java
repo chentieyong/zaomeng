@@ -2,6 +2,7 @@ package com.kingpivot.api.controller.ApiObjectFeatureDataController;
 
 import com.google.common.collect.Maps;
 import com.kingpivot.api.dto.objectFeatureData.ApiObjectFeatureDataDto;
+import com.kingpivot.base.objectFeatureData.model.ObjectFeatureData;
 import com.kingpivot.base.objectFeatureData.service.ObjectFeatureDataService;
 import com.kingpivot.protocol.ApiBaseController;
 import com.kingpivot.protocol.MessageHeader;
@@ -39,10 +40,11 @@ public class ApiObjectFeatureDataController extends ApiBaseController {
         if (StringUtils.isEmpty(objectFeatureItemID1)) {
             return MessagePacket.newFail(MessageHeader.Code.objectFeatureItemID1IsNull, "objectFeatureItemID1不能为空");
         }
-        double val = objectFeatureDataService.getObjectFetureData(objectID, objectFeatureItemID1);
+        ObjectFeatureData val = objectFeatureDataService.getObjectFetureData(objectID, objectFeatureItemID1);
         ApiObjectFeatureDataDto apiObjectFeatureDataDto = new ApiObjectFeatureDataDto();
-        if (val != 0) {
-            apiObjectFeatureDataDto.setShowPrice(val);
+        if (val != null) {
+            apiObjectFeatureDataDto.setShowPrice(val.getRealPrice());
+            apiObjectFeatureDataDto.setMemberPrice(val.getMemberPrice());
         }
         Map<String, Object> rsMap = Maps.newHashMap();
         rsMap.put("data", apiObjectFeatureDataDto);
