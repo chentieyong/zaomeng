@@ -113,9 +113,6 @@ public class Member extends BaseModel<String> implements Serializable {
     @Column(length = 36)
     private String titleID;//性别
 
-    @Column(name = "isShow", columnDefinition = "int default 2")
-    private int isMember = 2;//是否显示 1显示2隐藏
-
     @Override
     public String getId() {
         return id;
