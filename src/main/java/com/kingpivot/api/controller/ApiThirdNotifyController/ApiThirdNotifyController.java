@@ -17,6 +17,7 @@ import com.kingpivot.base.shopRecharge.model.ShopRecharge;
 import com.kingpivot.base.shopRecharge.service.ShopRechargeService;
 import com.kingpivot.common.jms.SendMessageService;
 import com.kingpivot.common.jms.dto.memberOrder.HbShopBuyGoodsRequest;
+import com.kingpivot.common.jms.dto.memberOrder.ShopBuyGoodsRequest;
 import com.kingpivot.common.util.JsonUtil;
 import com.kingpivot.common.util.MapUtil;
 import com.kingpivot.common.util.XmlUtils;
@@ -179,6 +180,12 @@ public class ApiThirdNotifyController extends ApiBaseController {
                                     case Config.HB_APPLICATION_ID://湖北我的商城购物
                                         sendMessageService.sendHbShopBuyGoodsMessage(
                                                 JacksonHelper.toJson(new HbShopBuyGoodsRequest.Builder()
+                                                        .memberOrderID(memberOrder.getId())
+                                                        .build()));
+                                        break;
+                                    default:
+                                        sendMessageService.sendShopBuyGoodsMessage(
+                                                JacksonHelper.toJson(new ShopBuyGoodsRequest.Builder()
                                                         .memberOrderID(memberOrder.getId())
                                                         .build()));
                                         break;

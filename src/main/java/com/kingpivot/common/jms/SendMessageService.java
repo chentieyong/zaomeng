@@ -70,4 +70,11 @@ public interface SendMessageService {
      * @param msg
      */
     void sendHbShopBuyGoodsMessage(String msg);
+
+    /**
+     * 普通商城购物分润消息
+     *
+     * @param msg
+     */
+    void sendShopBuyGoodsMessage(String msg);
 }
