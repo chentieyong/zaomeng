@@ -183,10 +183,11 @@ public class ApiThirdNotifyController extends ApiBaseController {
                                                         .memberOrderID(memberOrder.getId())
                                                         .build()));
                                         break;
-                                    default:
+                                    case Config.HEIYANGBANG_APPLICATION_ID://黑羊帮
                                         sendMessageService.sendShopBuyGoodsMessage(
                                                 JacksonHelper.toJson(new ShopBuyGoodsRequest.Builder()
                                                         .memberOrderID(memberOrder.getId())
+                                                        .encourageDefineID(Config.HEIYANGBANG_BUYGOODS_ENCOURAGE_DEFINE_ID)
                                                         .build()));
                                         break;
                                 }

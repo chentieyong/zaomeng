@@ -32,6 +32,8 @@ public class Config {
     public static final String RECOMMAND_FULL_ERROR_CODE = "RECOMMAND_FULL_ERROR";//会员推荐异常语句code
     public static final String RECOMMAND_MEMBER_NAME = "推荐会员";//推荐会员name
     public static final String HB_APPLICATION_ID = "ff8080816fb1a833016fea8c907c0056";//湖北应用id
+    public static final String HEIYANGBANG_APPLICATION_ID = "8a2f462a66cac9130166ccd9c99304f4";//黑羊帮应用id
+    public static final String HEIYANGBANG_BUYGOODS_ENCOURAGE_DEFINE_ID = "000000007bdd5c53017c8e5d430b0051";//黑羊帮分销定义id
 
 
     public static final String CAPITALPOST_POINT_USENAME = "资金投出发布";//资金投出发布-pointName
