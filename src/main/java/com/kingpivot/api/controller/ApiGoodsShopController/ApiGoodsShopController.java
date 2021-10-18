@@ -117,6 +117,7 @@ public class ApiGoodsShopController extends ApiBaseController {
                         ObjectFeatureData objectFetureData = objectFeatureDataService.getObjectFetureData(goodsShop.getId(), (String) obj[1]);
                         if (objectFetureData != null) {
                             goodsShop.setRealPrice(objectFetureData.getRealPrice());
+                            goodsShop.setMemberPrice(objectFetureData.getMemberPrice());
                         }
                     }
                 }

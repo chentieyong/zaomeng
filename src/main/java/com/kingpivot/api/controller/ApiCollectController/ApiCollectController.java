@@ -258,6 +258,7 @@ public class ApiCollectController extends ApiBaseController {
                                             ObjectFeatureData objectFetureData = objectFeatureDataService.getObjectFetureData(goodsShop.getId(), (String) obj[1]);
                                             if (objectFetureData != null) {
                                                 collectGoodsShopListDto.setShowPrice(objectFetureData.getRealPrice());
+                                                collectGoodsShopListDto.setMemberPrice(objectFetureData.getMemberPrice());
                                             }
                                         }
                                     }

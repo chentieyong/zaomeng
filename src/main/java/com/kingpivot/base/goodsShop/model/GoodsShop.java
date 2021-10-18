@@ -77,6 +77,8 @@ public class GoodsShop extends BaseModel<String> {
     private Integer startingNumber = 1;//起订量
     @Column(name = "isReturn", columnDefinition = "int default 0")
     private Integer isReturn = 0;//是否支持退货
+    @Column()
+    private Double memberPrice = 0.0d;//会员价
 
     @Override
     public String getId() {
@@ -317,5 +319,13 @@ public class GoodsShop extends BaseModel<String> {
 
     public void setVideoImage(String videoImage) {
         this.videoImage = videoImage;
+    }
+
+    public Double getMemberPrice() {
+        return memberPrice;
+    }
+
+    public void setMemberPrice(Double memberPrice) {
+        this.memberPrice = memberPrice;
     }
 }

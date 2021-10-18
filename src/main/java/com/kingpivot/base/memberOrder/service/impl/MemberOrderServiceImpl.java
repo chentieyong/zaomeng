@@ -74,11 +74,12 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
     public String createMemberOrder(Member member, GoodsShop goodsShop, String objectFeatureItemID1,
                                     int qty, String contactName, String contactPhone, String address,
                                     String memberBonusID, String orderType) {
-        double price = goodsShop.getRealPrice();
+        boolean memberPrice = kingBase.checkMemberCard(member.getId());
+        double price = memberPrice ? goodsShop.getMemberPrice() : goodsShop.getRealPrice();
         if (StringUtils.isNotBlank(objectFeatureItemID1)) {
             ObjectFeatureData val = objectFeatureDataDao.getObjectFetureData(goodsShop.getId(), objectFeatureItemID1);
             if (val != null) {
-                price = val.getRealPrice();
+                price = memberPrice ? val.getMemberPrice() : val.getRealPrice();
             }
         }
 

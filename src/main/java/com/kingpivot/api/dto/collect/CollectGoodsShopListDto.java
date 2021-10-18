@@ -6,6 +6,7 @@ public class CollectGoodsShopListDto {
     private String objectName;
     private String listImage;
     private double showPrice = 0.0d;//显示价格
+    private double memberPrice = 0.0d;//会员价格
     private int stockNumber = 0;//当前库存
     private int stockOut = 0;//销售总数
     private String unitDescription;
@@ -81,5 +82,13 @@ public class CollectGoodsShopListDto {
 
     public void setObjectFeatureItemID1(String objectFeatureItemID1) {
         this.objectFeatureItemID1 = objectFeatureItemID1;
+    }
+
+    public double getMemberPrice() {
+        return memberPrice;
+    }
+
+    public void setMemberPrice(double memberPrice) {
+        this.memberPrice = memberPrice;
     }
 }

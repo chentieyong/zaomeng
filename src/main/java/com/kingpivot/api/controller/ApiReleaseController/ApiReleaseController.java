@@ -121,6 +121,7 @@ public class ApiReleaseController extends ApiBaseController {
                                             ObjectFeatureData objectFetureData = objectFeatureDataService.getObjectFetureData(goodsShop.getId(), (String) obj[1]);
                                             if (objectFetureData != null) {
                                                 releaseGoodsShopListDto.setShowPrice(objectFetureData.getRealPrice());
+                                                releaseGoodsShopListDto.setMemberPrice(objectFetureData.getMemberPrice());
                                             }
                                         }
                                     }

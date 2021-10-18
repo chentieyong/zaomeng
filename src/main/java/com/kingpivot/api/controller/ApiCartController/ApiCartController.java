@@ -11,6 +11,7 @@ import com.kingpivot.base.config.UserAgent;
 import com.kingpivot.base.goodsShop.model.GoodsShop;
 import com.kingpivot.base.goodsShop.service.GoodsShopService;
 import com.kingpivot.base.member.model.Member;
+import com.kingpivot.base.memberCard.service.MemberCardService;
 import com.kingpivot.base.memberRank.service.MemberRankService;
 import com.kingpivot.base.memberlog.model.Memberlog;
 import com.kingpivot.base.objectFeatureData.model.ObjectFeatureData;
@@ -117,14 +118,17 @@ public class ApiCartController extends ApiBaseController {
         if (StringUtils.isEmpty(objectFeatureItemID1)) {
             objectFeatureItemID1 = null;
         }
+
+        boolean memberPrice = kingBase.checkMemberCard(member.getId());
+
         CartGoods cartGoods = cartGoodsService.getCartGoodsByCartIDAndObjectFeatureItemID(cartID, goodsShopID, objectFeatureItemID1);
 
-        double price = goodsShop.getRealPrice();
+        double price = memberPrice ? goodsShop.getMemberPrice() : goodsShop.getRealPrice();
 
         if (StringUtils.isNotBlank(objectFeatureItemID1)) {
             ObjectFeatureData val = objectFeatureDataService.getObjectFetureData(goodsShopID, objectFeatureItemID1);
             if (val != null) {
-                price = val.getRealPrice();
+                price = memberPrice ? val.getMemberPrice() : val.getRealPrice();
             }
         }
 

@@ -13,6 +13,7 @@ public class GoodsShopListDto {
     private Double standPrice = 0.00d;//标准价格
     private String priceUnit;//价格单位
     private Double realPrice = 0.0d;//销售价格
+    private Double memberPrice = 0.0d;//会员价格
     private int stockNumber = 0;//当前库存
     private int stockOut = 0;//销售总数
     private Double showPrice = 0.0d;//显示价格
@@ -154,5 +155,13 @@ public class GoodsShopListDto {
 
     public void setVideoImage(String videoImage) {
         this.videoImage = videoImage;
+    }
+
+    public Double getMemberPrice() {
+        return memberPrice;
+    }
+
+    public void setMemberPrice(Double memberPrice) {
+        this.memberPrice = memberPrice;
     }
 }

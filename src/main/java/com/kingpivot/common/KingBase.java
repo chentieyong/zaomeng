@@ -7,6 +7,8 @@ import com.kingpivot.base.lottery.model.Lottery;
 import com.kingpivot.base.lotteryGrade.model.LotteryGrade;
 import com.kingpivot.base.lotteryGrade.service.LotteryGradeService;
 import com.kingpivot.base.member.model.Member;
+import com.kingpivot.base.memberCard.model.MemberCard;
+import com.kingpivot.base.memberCard.service.MemberCardService;
 import com.kingpivot.base.memberLottery.model.MemberLottery;
 import com.kingpivot.base.memberLottery.service.MemberLotteryService;
 import com.kingpivot.base.memberPayment.model.MemberPayment;
@@ -59,6 +61,8 @@ public class KingBase {
     private LotteryGradeService lotteryGradeService;
     @Resource
     private SendMessageService sendMessageService;
+    @Autowired
+    private MemberCardService memberCardService;
 
     private static final Logger logger = LoggerFactory.getLogger(KingBase.class);
 
@@ -202,5 +206,10 @@ public class KingBase {
             addMemberLottery(member, lottery, myCode, 2);
         }
         return lotteryGrade.getName();
+    }
+
+    public boolean checkMemberCard(String memberID) {
+        MemberCard memberCard = memberCardService.getEffectiveMemberCard(memberID);
+        return memberCard != null;
     }
 }
