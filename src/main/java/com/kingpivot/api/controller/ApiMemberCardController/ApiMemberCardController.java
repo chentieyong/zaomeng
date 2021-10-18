@@ -3,6 +3,8 @@ package com.kingpivot.api.controller.ApiMemberCardController;
 import com.google.common.collect.Maps;
 import com.kingpivot.api.dto.memberBalance.MemberBalanceListDto;
 import com.kingpivot.api.dto.memberCard.MemberCardListDto;
+import com.kingpivot.base.cardDefine.model.CardDefine;
+import com.kingpivot.base.cardDefine.service.CardDefineService;
 import com.kingpivot.base.config.RedisKey;
 import com.kingpivot.base.config.UserAgent;
 import com.kingpivot.base.member.model.Member;
@@ -36,6 +38,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -52,6 +55,8 @@ public class ApiMemberCardController extends ApiBaseController {
     private RedisTemplate redisTemplate;
     @Autowired
     private MemberCardService memberCardService;
+    @Autowired
+    private CardDefineService cardDefineService;
 
     @ApiOperation(value = "getMemberCardList", notes = "获取会员卡列表")
     @ApiImplicitParams({
@@ -75,6 +80,7 @@ public class ApiMemberCardController extends ApiBaseController {
 
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("memberID", member.getId());
+        paramMap.put("status", Constants.ISVALID_YES);
         paramMap.put("isValid", Constants.ISVALID_YES);
         paramMap.put("isLock", Constants.ISLOCK_NO);
 
@@ -109,5 +115,56 @@ public class ApiMemberCardController extends ApiBaseController {
         MessagePage messagePage = new MessagePage(page, list);
         rsMap.put("data", messagePage);
         return MessagePacket.newSuccess(rsMap, "getMemberCardList success!");
+    }
+
+    @ApiOperation(value = "buyMemberCard", notes = "购买会员卡")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query", name = "sessionID", value = "登录标识", dataType = "String"),
+            @ApiImplicitParam(paramType = "query", name = "cardDefineID", value = "卡定义id", dataType = "String")})
+    @RequestMapping(value = "/buyMemberCard")
+    public MessagePacket buyMemberCard(HttpServletRequest request) {
+        String sessionID = request.getParameter("sessionID");
+        if (StringUtils.isEmpty(sessionID)) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        Member member = (Member) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBER_KEY.key, sessionID));
+        if (member == null) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        MemberLogDTO memberLogDTO = (MemberLogDTO) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBERLOG_KEY.key, sessionID));
+        if (memberLogDTO == null) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        String cardDefineID = request.getParameter("cardDefineID");
+        if (StringUtils.isEmpty(cardDefineID)) {
+            return MessagePacket.newFail(MessageHeader.Code.cardDefineIDIsNull, "卡定义id为空");
+        }
+        CardDefine cardDefine = cardDefineService.findById(cardDefineID);
+        if (cardDefine == null) {
+            return MessagePacket.newFail(MessageHeader.Code.cardDefineIDIsError, "卡定义id不正确");
+        }
+        //创建会员卡记录
+        MemberCard memberCard = new MemberCard();
+        memberCard.setApplicationID(member.getApplicationID());
+        memberCard.setName(cardDefine.getName());
+        memberCard.setMemberID(member.getId());
+        memberCard.setCardDefineID(cardDefine.getId());
+        memberCard.setBeginTime(TimeTest.timeToDate(new Timestamp(System.currentTimeMillis())));
+        memberCard.setEndTime(TimeTest.timeToEndDate(TimeTest.timeAddDay(memberCard.getBeginTime(), cardDefine.getEffectiveDays())));
+        memberCardService.save(memberCard);
+
+        String desc = String.format("%s购买会员卡", member.getName());
+        UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));
+        MemberLogRequestBase base = MemberLogRequestBase.BALANCE()
+                .sessionID(sessionID)
+                .description(desc)
+                .userAgent(userAgent == null ? null : userAgent.getBrowserType())
+                .operateType(Memberlog.MemberOperateType.BUYMEMBERCARD.getOname())
+                .build();
+        sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
+
+        Map<String, Object> rsMap = Maps.newHashMap();
+        rsMap.put("memberCardID", memberCard.getMemberID());
+        return MessagePacket.newSuccess(rsMap, "buyMemberCard success!");
     }
 }

@@ -213,6 +213,9 @@ public class MessageHeader implements Serializable {
         contactsIsNull(10145),//contacts不能为空
         viewUrlIsNull(10146),//viewUrl不能为空
         cashBalanceZero(10147),//金额为0
+        cardDefineIDIsNull(10148),//卡定义id为空
+        cardDefineIDIsError(10149),//卡定义id异常
+        memberCardIDIsError(10150),//会员卡id异常
         ;
         public int code;
 

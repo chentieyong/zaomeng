@@ -5,6 +5,8 @@ import com.kingpivot.base.major.model.Major;
 import com.kingpivot.base.major.service.MajorService;
 import com.kingpivot.base.member.model.Member;
 import com.kingpivot.base.member.service.MemberService;
+import com.kingpivot.base.memberCard.model.MemberCard;
+import com.kingpivot.base.memberCard.service.MemberCardService;
 import com.kingpivot.base.memberMajor.model.MemberMajor;
 import com.kingpivot.base.memberMajor.service.MemberMajorService;
 import com.kingpivot.base.memberOrder.model.MemberOrder;
@@ -59,6 +61,8 @@ public class ApiThirdNotifyController extends ApiBaseController {
     private MajorService majorService;
     @Autowired
     private ShopRechargeService shopRechargeService;
+    @Autowired
+    private MemberCardService memberCardService;
 
     @ApiOperation(value = "微信订单支付回调", notes = "微信订单支付回调")
     @RequestMapping("/weiXinPayMemberOrderNotify")
@@ -192,6 +196,21 @@ public class ApiThirdNotifyController extends ApiBaseController {
                                         break;
                                 }
                             }
+                            break;
+                        case "购买会员卡":
+                            MemberCard memberCard = memberCardService.findById(out_trade_no);
+                            if (null == memberCard || memberCard.getStatus() != 0) {
+                                resXml = "<xml>" + "<return_code><![CDATA[FAIL]]></return_code>"
+                                        + "<return_msg><![CDATA[报文为空]]></return_msg>" + "</xml> ";
+                                return resXml;
+                            }
+                            if (null != memberCard && memberCard.getStatus() == 1) {
+                                resXml = "<xml>" + "<return_code><![CDATA[SUCCESS]]></return_code>"
+                                        + "<return_msg><![CDATA[OK]]></return_msg>" + "</xml> ";
+                                return resXml;
+                            }
+                            memberCard.setStatus(1);
+                            memberCardService.save(memberCard);
                             break;
                         default:
                             break;

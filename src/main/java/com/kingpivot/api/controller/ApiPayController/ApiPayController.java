@@ -11,6 +11,8 @@ import com.kingpivot.base.config.Config;
 import com.kingpivot.base.config.RedisKey;
 import com.kingpivot.base.config.UserAgent;
 import com.kingpivot.base.member.model.Member;
+import com.kingpivot.base.memberCard.model.MemberCard;
+import com.kingpivot.base.memberCard.service.MemberCardService;
 import com.kingpivot.base.memberOrder.model.MemberOrder;
 import com.kingpivot.base.memberOrder.service.MemberOrderService;
 import com.kingpivot.base.memberPayment.model.MemberPayment;
@@ -72,6 +74,8 @@ public class ApiPayController extends ApiBaseController {
     private MemberOrderService memberOrderService;
     @Autowired
     private KingBase kingBase;
+    @Autowired
+    private MemberCardService memberCardService;
 
     @ApiOperation(value = "申请订单支付", notes = "申请订单支付")
     @ApiImplicitParams({
@@ -100,6 +104,7 @@ public class ApiPayController extends ApiBaseController {
         String payWayID = request.getParameter("payWayID");
         String memberOrderID = request.getParameter("memberOrderID");
         String memberPaymentID = request.getParameter("memberPaymentID");
+        String memberCardID = request.getParameter("memberCardID");
         String openid = request.getParameter("openid");
         String body = request.getParameter("body");
 
@@ -152,6 +157,16 @@ public class ApiPayController extends ApiBaseController {
             }
             outTradeNo = memberPaymentID;
             amount = memberOrder.getPriceAfterDiscount();
+        } else if (StringUtils.isNotBlank(memberCardID)) {
+            MemberCard memberCard = memberCardService.findById(memberCardID);
+            if (memberCard == null) {
+                return MessagePacket.newFail(MessageHeader.Code.memberCardIDIsError, "会员卡id异常！");
+            }
+            if (memberCard.getStatus() != 0) {
+                return MessagePacket.newFail(MessageHeader.Code.statusIsError, "会员卡状态异常，请重新下单！");
+            }
+            outTradeNo = memberCardID;
+            amount = memberCard.getCardDefine().getPrice();
         }
 
         if (amount <= 0) {

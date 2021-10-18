@@ -35,6 +35,8 @@ public class MemberCard extends BaseModel<String> {
     private Timestamp beginTime;
     @Column
     private Timestamp endTime;
+    @Column(name = "status",columnDefinition = "int default 0")
+    private int status = 0; //是否锁定 0新 1已付款
 
     @Override
     public String getId() {
@@ -107,5 +109,13 @@ public class MemberCard extends BaseModel<String> {
 
     public void setEndTime(Timestamp endTime) {
         this.endTime = endTime;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 }
