@@ -19,6 +19,7 @@ import com.kingpivot.base.memberPayment.dao.MemberPaymentDao;
 import com.kingpivot.base.memberPayment.model.MemberPayment;
 import com.kingpivot.base.objectFeatureData.dao.ObjectFeatureDataDao;
 import com.kingpivot.base.objectFeatureData.model.ObjectFeatureData;
+import com.kingpivot.base.parameter.dao.ParameterDao;
 import com.kingpivot.base.rank.dao.RankDao;
 import com.kingpivot.base.rank.model.Rank;
 import com.kingpivot.base.sequenceDefine.service.SequenceDefineService;
@@ -63,6 +64,8 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
     private MemberPaymentDao memberPaymentDao;
     @Autowired
     private ShopDao shopDao;
+    @Autowired
+    private ParameterDao parameterDao;
 
     @Override
     public BaseDao<MemberOrder, String> getDAO() {
@@ -103,6 +106,7 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
         memberOrder.setPriceStandTotal(NumberUtils.keepPrecision(price * qty, 2));
         memberOrder.setPriceTotal(NumberUtils.keepPrecision(price * qty * rate, 2));
         memberOrder.setPriceAfterDiscount(memberOrder.getPriceTotal());
+        editFare(memberOrder);
         memberOrder.setBonusAmount(0d);
         memberOrder.setContactName(contactPhone);
         memberOrder.setContactPhone(contactPhone);
@@ -199,6 +203,7 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
         memberOrder.setPriceStandTotal(NumberUtils.keepPrecision(priceStandTotal, 2));
         memberOrder.setPriceTotal(NumberUtils.keepPrecision(priceTotal * rate, 2));
         memberOrder.setPriceAfterDiscount(memberOrder.getPriceTotal());//优惠后金额
+        editFare(memberOrder);
 
         MemberBonus memberBonus = null;
         if (StringUtils.isNotBlank(memberBonusID)) {
@@ -209,7 +214,6 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
             }
         }
         memberOrder.setDiscountRate(rate);//折扣比例
-
         memberOrder.setContactName(contactName);
         memberOrder.setContactPhone(contactPhone);
         memberOrder.setAddress(address);
@@ -319,6 +323,7 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
             memberOrder.setPriceTotal(NumberUtils.keepPrecision(priceTotal, 2));
 
             memberOrder.setPriceAfterDiscount(NumberUtils.keepPrecision(memberOrder.getPriceTotal() - bonusAmountAvg, 2));
+            editFare(memberOrder);
             allTotal += memberOrder.getPriceAfterDiscount();
             memberOrder.setCreatedTime(new Timestamp(System.currentTimeMillis()));
             memberOrderDao.save(memberOrder);
@@ -372,5 +377,20 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
     @Override
     public void updateMemberOrderByMemberPaymentID(String paywayID, String memberPaymentID) {
         memberOrderDao.updateMemberOrderByMemberPaymentID(paywayID, memberPaymentID);
+    }
+
+    private void editFare(MemberOrder memberOrder) {
+        try {
+            String orderAmountFreeFare = parameterDao.getParemeterValueByCode("orderAmountFreeFare");
+            String orderFare = parameterDao.getParemeterValueByCode("orderFare");
+            if (StringUtils.isNotBlank(orderAmountFreeFare)
+                    && StringUtils.isNotBlank(orderFare)
+                    && Double.parseDouble(orderAmountFreeFare) != 0
+                    && memberOrder.getPriceAfterDiscount() < Integer.parseInt(orderAmountFreeFare)) {
+                memberOrder.setPriceAfterDiscount(NumberUtils.keepPrecision(memberOrder.getPriceAfterDiscount() + Double.parseDouble(orderFare), 2));
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 }
