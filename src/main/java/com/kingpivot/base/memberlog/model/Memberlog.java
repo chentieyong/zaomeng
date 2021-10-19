@@ -121,7 +121,7 @@ public class Memberlog extends BaseModel<String> {
         ,GETMEMBERINVOICEDEFINELIST("获取会员发票列表"),GETMEMBERINVOICEDEFINEDETAIL("获取会员发票详情"),GETUSEPOINTNUMBER("获取使用积分个数"),
         SUBMITONEGOODSCHANGE("提交一个产品互换"),JOINONELOTTERY("参加一个抽奖"),GETMEMBERISHAVEMAJOR("获取是否申请专业"),SUBMITONEHELPNEED("帮助需求"),
         UPDATEONEGOODSCHANGE("修改一个产品互换"),GETMEMBERBALANCELIST("获取会员资金列表"),GETMEMBERCARDLIST("获取会员卡列表"),GETCARDDEFINELIST("获取卡定义列表"),
-        BUYMEMBERCARD("购买会员卡");
+        BUYMEMBERCARD("购买会员卡"),SUBMITONEDISCUSS("提交一个评论");
         private String oname;
 
         MemberOperateType(String oname) {
