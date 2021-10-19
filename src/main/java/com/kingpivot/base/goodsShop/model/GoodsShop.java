@@ -51,8 +51,8 @@ public class GoodsShop extends BaseModel<String> {
     private String unitDescription;//规格说明
     @Column()
     private Integer publishStatus;//上架状态:1=不上架,2=预售,3=在售,4=无货
-//    @Column()
-//    private Double standPrice = 0.00d;//标准价格
+    @Column()
+    private Double standPrice = 0.00d;//标准价格
     @Column(length = 20)
     private String priceUnit;//价格单位
     @Column()
@@ -201,13 +201,13 @@ public class GoodsShop extends BaseModel<String> {
         this.publishStatus = publishStatus;
     }
 
-//    public Double getStandPrice() {
-//        return standPrice;
-//    }
-//
-//    public void setStandPrice(Double standPrice) {
-//        this.standPrice = standPrice;
-//    }
+    public Double getStandPrice() {
+        return standPrice;
+    }
+
+    public void setStandPrice(Double standPrice) {
+        this.standPrice = standPrice;
+    }
 
     public String getPriceUnit() {
         return priceUnit;
