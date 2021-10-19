@@ -20,6 +20,7 @@ public class GoodsShopDetailDto {
     private String videoURL;//视频
     private Double standPrice = 0.00d;//标准价格
     private Double realPrice = 0.0d;//销售价格
+    private Double memberPrice = 0.0d;//会员价
     private Float stockNumber = 0.00f;//当前库存
     private Float stockOut = 0.00f;//销售总数
     private String salesUnit;//销售单位
@@ -214,5 +215,13 @@ public class GoodsShopDetailDto {
 
     public void setVideoImage(String videoImage) {
         this.videoImage = videoImage;
+    }
+
+    public Double getMemberPrice() {
+        return memberPrice;
+    }
+
+    public void setMemberPrice(Double memberPrice) {
+        this.memberPrice = memberPrice;
     }
 }
