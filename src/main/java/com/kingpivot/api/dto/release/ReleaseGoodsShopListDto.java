@@ -6,6 +6,7 @@ public class ReleaseGoodsShopListDto implements Comparable<ReleaseGoodsShopListD
     private String listImage;
     private double showPrice = 0.0d;//显示价格
     private double memberPrice = 0.0d;//会员价格
+    private Double standPrice = 0.00d;//标准价格
     private int stockNumber = 0;//当前库存
     private int stockOut = 0;//销售总数
     private String unitDescription;
@@ -81,6 +82,14 @@ public class ReleaseGoodsShopListDto implements Comparable<ReleaseGoodsShopListD
 
     public void setMemberPrice(double memberPrice) {
         this.memberPrice = memberPrice;
+    }
+
+    public Double getStandPrice() {
+        return standPrice;
+    }
+
+    public void setStandPrice(Double standPrice) {
+        this.standPrice = standPrice;
     }
 
     @Override

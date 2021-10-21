@@ -108,6 +108,8 @@ public class ApiReleaseController extends ApiBaseController {
                                     releaseGoodsShopListDto.setObjectName(goodsShop.getName());
                                     releaseGoodsShopListDto.setListImage(goodsShop.getLittleImage());
                                     releaseGoodsShopListDto.setShowPrice(goodsShop.getRealPrice());
+                                    releaseGoodsShopListDto.setStandPrice(goodsShop.getStandPrice());
+                                    releaseGoodsShopListDto.setMemberPrice(goodsShop.getMemberPrice());
                                     releaseGoodsShopListDto.setStockNumber(goodsShop.getStockNumber());
                                     releaseGoodsShopListDto.setStockOut(goodsShop.getStockOut());
                                     releaseGoodsShopListDto.setUnitDescription(goodsShop.getUnitDescription());
