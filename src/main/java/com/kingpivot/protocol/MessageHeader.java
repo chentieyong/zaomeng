@@ -216,6 +216,7 @@ public class MessageHeader implements Serializable {
         cardDefineIDIsNull(10148),//卡定义id为空
         cardDefineIDIsError(10149),//卡定义id异常
         memberCardIDIsError(10150),//会员卡id异常
+        contentIsNull(10151),//描述为欧空
         ;
         public int code;
 

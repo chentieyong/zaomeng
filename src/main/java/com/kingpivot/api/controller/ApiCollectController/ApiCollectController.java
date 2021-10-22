@@ -245,6 +245,7 @@ public class ApiCollectController extends ApiBaseController {
                                     collectGoodsShopListDto.setObjectName(goodsShop.getName());
                                     collectGoodsShopListDto.setListImage(goodsShop.getLittleImage());
                                     collectGoodsShopListDto.setShowPrice(goodsShop.getRealPrice());
+                                    collectGoodsShopListDto.setMemberPrice(goodsShop.getMemberPrice());
                                     collectGoodsShopListDto.setStockNumber(goodsShop.getStockNumber());
                                     collectGoodsShopListDto.setStockOut(goodsShop.getStockOut());
                                     collectGoodsShopListDto.setUnitDescription(goodsShop.getUnitDescription());

@@ -85,9 +85,13 @@ public class ApiDiscussController {
         if (StringUtils.isEmpty(objectDefineID)) {
             return MessagePacket.newFail(MessageHeader.Code.objectDefineIDIsNull, "objectDefineID不能为空");
         }
+        String content = request.getParameter("content");
+        if(StringUtils.isEmpty(content)){
+            return MessagePacket.newFail(MessageHeader.Code.contentIsNull, "评论内容不能为空");
+        }
 
         Discuss discuss = new Discuss();
-        discuss.setDescription(objectDefineID);
+        discuss.setDescription(content);
         discuss.setApplicationID(member.getApplicationID());
         discuss.setMemberID(member.getId());
         discuss.setName(String.format("%s评论%s", member.getName(), objectName));

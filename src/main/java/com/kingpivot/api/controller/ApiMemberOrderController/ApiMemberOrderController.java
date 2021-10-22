@@ -8,8 +8,11 @@ import com.kingpivot.api.dto.memberOrder.MemberOrderListGoodsListDto;
 import com.kingpivot.base.cart.service.CartService;
 import com.kingpivot.base.cartGoods.model.CartGoods;
 import com.kingpivot.base.cartGoods.service.CartGoodsService;
+import com.kingpivot.base.config.Config;
 import com.kingpivot.base.config.RedisKey;
 import com.kingpivot.base.config.UserAgent;
+import com.kingpivot.base.discuss.model.Discuss;
+import com.kingpivot.base.discuss.service.DiscussService;
 import com.kingpivot.base.goodsShop.model.GoodsShop;
 import com.kingpivot.base.goodsShop.service.GoodsShopService;
 import com.kingpivot.base.member.model.Member;
@@ -71,6 +74,8 @@ public class ApiMemberOrderController extends ApiBaseController {
     private MemberBonusService memberBonusService;
     @Autowired
     private MemberOrderGoodsService memberOrderGoodsService;
+    @Autowired
+    private DiscussService discussService;
 
     @ApiOperation(value = "店铺商品生成订单", notes = "店铺商品生成订单")
     @ApiImplicitParams({
@@ -538,5 +543,74 @@ public class ApiMemberOrderController extends ApiBaseController {
         rsMap.put("data", TimeTest.toDateTimeFormat(memberOrder.getGetGoodsTime()));
 
         return MessagePacket.newSuccess(rsMap, "confirmMemberOrder success!");
+    }
+
+    /**
+     * 评价一个订单商品
+     *
+     * @param request
+     * @return
+     */
+    @ApiOperation(value = "评价一个订单商品", notes = "评价一个订单商品")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query", name = "sessionID", value = "登录标识", dataType = "String"),
+            @ApiImplicitParam(paramType = "query", name = "memberOrderID", value = "会员订单id", dataType = "String")})
+    @RequestMapping(value = "/discussMemberOrderGoods")
+    public MessagePacket discussMemberOrderGoods(HttpServletRequest request) {
+        String sessionID = request.getParameter("sessionID");
+        String memberOrderGoodsID = request.getParameter("memberOrderGoodsID");
+        if (StringUtils.isEmpty(sessionID)) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        Member member = (Member) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBER_KEY.key, sessionID));
+        if (member == null) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        MemberLogDTO memberLogDTO = (MemberLogDTO) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBERLOG_KEY.key, sessionID));
+        if (memberLogDTO == null) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        String content = request.getParameter("content");
+        if(StringUtils.isEmpty(content)){
+            return MessagePacket.newFail(MessageHeader.Code.contentIsNull, "评论内容不能为空");
+        }
+        if (StringUtils.isEmpty(memberOrderGoodsID)) {
+            return MessagePacket.newFail(MessageHeader.Code.memberOrderIDIsNull, "memberOrderID不能为空");
+        }
+        MemberOrderGoods memberOrderGoods = memberOrderGoodsService.findById(memberOrderGoodsID);
+        if (memberOrderGoods == null) {
+            return MessagePacket.newFail(MessageHeader.Code.memberOrderGoodsIDIsError, "memberOrderGoodsID不正确");
+        }
+        if (memberOrderGoods.getStatus() != 4) {
+            return MessagePacket.newFail(MessageHeader.Code.statusIsError, "状态不正确");
+        }
+
+        Discuss discuss = new Discuss();
+        discuss.setDescription(content);
+        discuss.setApplicationID(member.getApplicationID());
+        discuss.setMemberID(member.getId());
+        discuss.setName(String.format("%s评论%s", member.getName(), memberOrderGoods.getName()));
+        discuss.setObjectDefineID(Config.GOODSSHOP_OBJECTDEFINEID);
+        discuss.setObjectID(memberOrderGoods.getGoodsShopID());
+        discuss.setObjectName(memberOrderGoods.getName());
+        discussService.save(discuss);
+
+        memberOrderGoods.setStatus(5);
+        memberOrderGoodsService.save(memberOrderGoods);
+
+        String description = String.format("%s评价一个订单商品", member.getName());
+        UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));
+        MemberLogRequestBase base = MemberLogRequestBase.BALANCE()
+                .sessionID(sessionID)
+                .description(description)
+                .userAgent(userAgent == null ? null : userAgent.getBrowserType())
+                .operateType(Memberlog.MemberOperateType.DISCUSSMEMBERORDERGOODS.getOname())
+                .build();
+        sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
+
+        Map<String, Object> rsMap = Maps.newHashMap();
+        rsMap.put("data", discuss.getId());
+
+        return MessagePacket.newSuccess(rsMap, "discussMemberOrderGoods success!");
     }
 }
