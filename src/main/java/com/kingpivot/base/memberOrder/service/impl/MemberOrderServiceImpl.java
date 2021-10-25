@@ -387,6 +387,7 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
                     && StringUtils.isNotBlank(orderFare)
                     && Double.parseDouble(orderAmountFreeFare) != 0
                     && memberOrder.getPriceAfterDiscount() < Integer.parseInt(orderAmountFreeFare)) {
+                memberOrder.setPriceTotal(NumberUtils.keepPrecision(memberOrder.getPriceTotal() + Double.parseDouble(orderFare), 2));
                 memberOrder.setPriceAfterDiscount(NumberUtils.keepPrecision(memberOrder.getPriceAfterDiscount() + Double.parseDouble(orderFare), 2));
             }
         } catch (Exception ex) {

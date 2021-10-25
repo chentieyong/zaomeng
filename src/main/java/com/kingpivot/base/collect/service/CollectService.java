@@ -5,4 +5,6 @@ import com.kingpivot.common.service.BaseService;
 
 public interface CollectService extends BaseService<Collect, String> {
     String getCollectByObjectIDAndMemberID(String objectID,String memberID);
+
+    int getCollectNumByObjectDefineIDAndMemberID(String objectDefineID, String memberID);
 }

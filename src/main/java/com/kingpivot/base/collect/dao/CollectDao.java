@@ -12,6 +12,9 @@ import javax.persistence.Table;
 @Table(name = "collect")
 @Qualifier("collectDao")
 public interface CollectDao extends BaseDao<Collect, String> {
-    @Query(value = "SELECT id FROM collect WHERE objectID=?1 AND memberID=?2 AND isValid=1 AND isLock=0 limit 1",nativeQuery = true)
-    String getCollectByObjectIDAndMemberID(String objectID,String memberID);
+    @Query(value = "SELECT id FROM collect WHERE objectID=?1 AND memberID=?2 AND isValid=1 AND isLock=0 limit 1", nativeQuery = true)
+    String getCollectByObjectIDAndMemberID(String objectID, String memberID);
+
+    @Query(value = "SELECT COUNT(id) FROM collect WHERE objectDefineID=?1 AND memberID=?2 AND isValid=1 AND isLock=0", nativeQuery = true)
+    int getCollectNumByObjectDefineIDAndMemberID(String objectDefineID, String memberID);
 }

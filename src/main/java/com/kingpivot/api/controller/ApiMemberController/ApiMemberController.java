@@ -1042,6 +1042,7 @@ public class ApiMemberController extends ApiBaseController {
 
         MemberStatisticsInfoDto data = BeanMapper.map(memberStatistics, MemberStatisticsInfoDto.class);
         data.setMemberBonusNum(memberBonusService.getMemberBonusNum(1, member.getId()));
+        data.setGoodsShopCollectNum(collectService.getCollectNumByObjectDefineIDAndMemberID(Config.GOODSSHOP_OBJECTDEFINEID,member.getId()));
         if (StringUtils.isNotBlank(newMember.getRankID())) {
             Rank rank = rankService.findById(newMember.getRankID());
             if (rank != null) {

@@ -12,6 +12,7 @@ public class MemberStatisticsInfoDto {
     private Double cashTotalRecharge = 0d;//累计充值"
     private double cashTotalIncome = 0d;//累计收入
     private int memberBonusNum;
+    private int goodsShopCollectNum;
     private String rankName;
     private String rankUrl;
 
@@ -93,6 +94,14 @@ public class MemberStatisticsInfoDto {
 
     public void setMemberBonusNum(int memberBonusNum) {
         this.memberBonusNum = memberBonusNum;
+    }
+
+    public int getGoodsShopCollectNum() {
+        return goodsShopCollectNum;
+    }
+
+    public void setGoodsShopCollectNum(int goodsShopCollectNum) {
+        this.goodsShopCollectNum = goodsShopCollectNum;
     }
 
     public String getRankName() {

@@ -24,4 +24,9 @@ public class CollectServiceImpl extends BaseServiceImpl<Collect, String> impleme
     public String getCollectByObjectIDAndMemberID(String objectID, String memberID) {
         return collectDao.getCollectByObjectIDAndMemberID(objectID, memberID);
     }
+
+    @Override
+    public int getCollectNumByObjectDefineIDAndMemberID(String objectDefineID, String memberID) {
+        return collectDao.getCollectNumByObjectDefineIDAndMemberID(objectDefineID, memberID);
+    }
 }
