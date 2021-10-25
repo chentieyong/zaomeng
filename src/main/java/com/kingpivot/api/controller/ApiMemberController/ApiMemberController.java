@@ -7,6 +7,7 @@ import com.kingpivot.api.dto.member.MyChildrenMemberList;
 import com.kingpivot.api.dto.memberstatistics.MemberStatisticsInfoDto;
 import com.kingpivot.base.application.model.Application;
 import com.kingpivot.base.application.service.ApplicationService;
+import com.kingpivot.base.browse.service.BrowseService;
 import com.kingpivot.base.category.service.CategoryService;
 import com.kingpivot.base.city.service.CityService;
 import com.kingpivot.base.collect.service.CollectService;
@@ -128,6 +129,8 @@ public class ApiMemberController extends ApiBaseController {
     private CategoryService categoryService;
     @Autowired
     private MemberStatisticsTempService memberStatisticsTempService;
+    @Autowired
+    private BrowseService browseService;
 
     @ApiOperation(value = "同步会员资金", notes = "同步会员资金")
     @RequestMapping(value = "/synchronizedMemberStatistics")
@@ -1043,6 +1046,7 @@ public class ApiMemberController extends ApiBaseController {
         MemberStatisticsInfoDto data = BeanMapper.map(memberStatistics, MemberStatisticsInfoDto.class);
         data.setMemberBonusNum(memberBonusService.getMemberBonusNum(1, member.getId()));
         data.setGoodsShopCollectNum(collectService.getCollectNumByObjectDefineIDAndMemberID(Config.GOODSSHOP_OBJECTDEFINEID,member.getId()));
+        data.setGoodsShopBrowseNum(browseService.getBrowseNumByObjectDefineIDAndMemberID(Config.GOODSSHOP_OBJECTDEFINEID,member.getId()));
         if (StringUtils.isNotBlank(newMember.getRankID())) {
             Rank rank = rankService.findById(newMember.getRankID());
             if (rank != null) {
