@@ -3,6 +3,8 @@ package com.kingpivot.api.controller.ApiGoodsShopController;
 import com.google.common.collect.Maps;
 import com.kingpivot.api.dto.goodsShop.GoodsShopDetailDto;
 import com.kingpivot.api.dto.goodsShop.GoodsShopListDto;
+import com.kingpivot.base.browse.model.Browse;
+import com.kingpivot.base.browse.service.BrowseService;
 import com.kingpivot.base.collect.service.CollectService;
 import com.kingpivot.base.config.Config;
 import com.kingpivot.base.goodsShop.model.GoodsShop;
@@ -62,6 +64,8 @@ public class ApiGoodsShopController extends ApiBaseController {
     private ObjectFeatureItemService objectFeatureItemService;
     @Autowired
     private ObjectFeatureDataService objectFeatureDataService;
+    @Autowired
+    private BrowseService browseService;
 
     @ApiOperation(value = "获取商品列表", notes = "获取商品列表")
     @ApiImplicitParams({
@@ -162,10 +166,23 @@ public class ApiGoodsShopController extends ApiBaseController {
 
         GoodsShopDetailDto goodsShopDetailDto = BeanMapper.map(goodsShop, GoodsShopDetailDto.class);
         if (StringUtils.isNotBlank(memberID)) {
-            String collectID = collectService.getCollectByObjectIDAndMemberID(goodsShopID, memberID);
-            if (StringUtils.isNotBlank(collectID)) {
-                goodsShopDetailDto.setIsCollect(1);
-                goodsShopDetailDto.setCollectID(collectID);
+            Member member = memberService.findById(memberID);
+            if (member != null) {
+                String collectID = collectService.getCollectByObjectIDAndMemberID(goodsShopID, memberID);
+                if (StringUtils.isNotBlank(collectID)) {
+                    goodsShopDetailDto.setIsCollect(1);
+                    goodsShopDetailDto.setCollectID(collectID);
+                }
+
+                //添加browse记录
+                Browse browse = new Browse();
+                browse.setApplicationID(member.getApplicationID());
+                browse.setMemberID(member.getId());
+                browse.setName(String.format("%s浏览%s", member.getName(), goodsShop.getName()));
+                browse.setObjectDefineID(Config.GOODSSHOP_OBJECTDEFINEID);
+                browse.setObjectID(goodsShop.getId());
+                browse.setObjectName(goodsShop.getName());
+                browseService.save(browse);
             }
         }
         Map<String, Object> rsMap = Maps.newHashMap();
