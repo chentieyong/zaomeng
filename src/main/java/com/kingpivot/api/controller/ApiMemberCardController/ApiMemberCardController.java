@@ -80,7 +80,7 @@ public class ApiMemberCardController extends ApiBaseController {
 
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("memberID", member.getId());
-        paramMap.put("status", Constants.ISVALID_YES);
+        paramMap.put("status", 1);
         paramMap.put("isValid", Constants.ISVALID_YES);
         paramMap.put("isLock", Constants.ISLOCK_NO);
 
@@ -147,6 +147,8 @@ public class ApiMemberCardController extends ApiBaseController {
         MemberCard memberCard = new MemberCard();
         memberCard.setApplicationID(member.getApplicationID());
         memberCard.setName(cardDefine.getName());
+        memberCard.setFaceImage(cardDefine.getFaceImage());
+        memberCard.setListImage(memberCard.getListImage());
         memberCard.setMemberID(member.getId());
         memberCard.setCardDefineID(cardDefine.getId());
         memberCard.setBeginTime(TimeTest.timeToDate(new Timestamp(System.currentTimeMillis())));

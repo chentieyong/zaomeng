@@ -21,6 +21,10 @@ public class MemberCard extends BaseModel<String> {
     private String applicationID;
     @Column(length = 100)
     private String name;
+    @Column(length = 100)
+    private String listImage;
+    @Column(length = 100)
+    private String faceImage;
     @Column(length = 36)
     private String memberID;
     @ManyToOne(fetch = FetchType.LAZY)
@@ -61,6 +65,22 @@ public class MemberCard extends BaseModel<String> {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getListImage() {
+        return listImage;
+    }
+
+    public void setListImage(String listImage) {
+        this.listImage = listImage;
+    }
+
+    public String getFaceImage() {
+        return faceImage;
+    }
+
+    public void setFaceImage(String faceImage) {
+        this.faceImage = faceImage;
     }
 
     public String getMemberID() {
