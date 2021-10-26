@@ -22,4 +22,7 @@ public interface MemberBonusDao extends BaseDao<MemberBonus, String> {
 
     @Query(value = "SELECT COUNT(id) FROM memberbonus WHERE `status`=?1 AND memberID=?2 AND isValid=1 AND isLock=0", nativeQuery = true)
     int getMemberBonusNum(int status, String memberID);
+
+    @Query(value = "SELECT COUNT(1) FROM memberbonus WHERE memberID=?1 AND bonusID=?2 AND isValid=1 AND isLock=0", nativeQuery = true)
+    int getMyBonusByBonusId(String memberID, String bonusID);
 }

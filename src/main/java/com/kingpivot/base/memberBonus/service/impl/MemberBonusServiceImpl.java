@@ -12,23 +12,28 @@ import javax.annotation.Resource;
 @Service("memberBonusService")
 public class MemberBonusServiceImpl extends BaseServiceImpl<MemberBonus, String> implements MemberBonusService {
 
-	@Resource(name = "memberBonusDao")
-	private MemberBonusDao memberBonusDao;
+    @Resource(name = "memberBonusDao")
+    private MemberBonusDao memberBonusDao;
 
-	@Override
-	public BaseDao<MemberBonus, String> getDAO() {
-		return this.memberBonusDao;
-	}
+    @Override
+    public BaseDao<MemberBonus, String> getDAO() {
+        return this.memberBonusDao;
+    }
 
-	@Override
-	public void initMemberBonusByMemberOrderID(String memberOrderID) {
-		memberBonusDao.initMemberBonusByMemberOrderID(memberOrderID);
-	}
+    @Override
+    public void initMemberBonusByMemberOrderID(String memberOrderID) {
+        memberBonusDao.initMemberBonusByMemberOrderID(memberOrderID);
+    }
 
-	@Override
-	public int getMemberBonusNum(int status, String memberID) {
-		return memberBonusDao.getMemberBonusNum(status, memberID);
-	}
+    @Override
+    public int getMemberBonusNum(int status, String memberID) {
+        return memberBonusDao.getMemberBonusNum(status, memberID);
+    }
+
+    @Override
+    public int getMyBonusByBonusId(String memberID, String bonusID) {
+        return memberBonusDao.getMyBonusByBonusId(memberID, bonusID);
+    }
 }
 
 

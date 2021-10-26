@@ -9,9 +9,11 @@ public class CanGetBonusDefineListDto {
     private String name;//名称
     private String listImage;
     private String faceImage;
-    private double price;
+    private double price;//红包金额
+    private double startPrice;//开始金额
     private int maxNumber = 0;
     private int canGetNumber = 0;
+    private int myGetStatus = 0;
     private Timestamp startDate;//开始日期
     private String startDateStr;//开始日期Str
     private Timestamp endDate;//结束日期
@@ -57,6 +59,14 @@ public class CanGetBonusDefineListDto {
         this.price = price;
     }
 
+    public double getStartPrice() {
+        return startPrice;
+    }
+
+    public void setStartPrice(double startPrice) {
+        this.startPrice = startPrice;
+    }
+
     public int getMaxNumber() {
         return maxNumber;
     }
@@ -71,6 +81,14 @@ public class CanGetBonusDefineListDto {
 
     public void setCanGetNumber(int canGetNumber) {
         this.canGetNumber = canGetNumber;
+    }
+
+    public int getMyGetStatus() {
+        return myGetStatus;
+    }
+
+    public void setMyGetStatus(int myGetStatus) {
+        this.myGetStatus = myGetStatus;
     }
 
     public Timestamp getStartDate() {

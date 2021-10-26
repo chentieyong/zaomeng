@@ -7,6 +7,7 @@ import com.kingpivot.base.bonusDefine.service.BonusDefineService;
 import com.kingpivot.base.config.RedisKey;
 import com.kingpivot.base.config.UserAgent;
 import com.kingpivot.base.member.model.Member;
+import com.kingpivot.base.memberBonus.service.MemberBonusService;
 import com.kingpivot.base.memberlog.model.Memberlog;
 import com.kingpivot.base.support.MemberLogDTO;
 import com.kingpivot.common.jms.SendMessageService;
@@ -50,6 +51,8 @@ public class ApiBonusDefineController extends ApiBaseController {
     private RedisTemplate redisTemplate;
     @Autowired
     private BonusDefineService bonusDefineService;
+    @Autowired
+    private MemberBonusService memberBonusService;
 
     @ApiOperation(value = "获取可领红包定义列表", notes = "获取可领红包定义列表")
     @ApiImplicitParams({
@@ -91,6 +94,9 @@ public class ApiBonusDefineController extends ApiBaseController {
         List<CanGetBonusDefineListDto> list = null;
         if (rs != null && rs.getSize() != 0) {
             list = BeanMapper.mapList(rs.getContent(), CanGetBonusDefineListDto.class);
+            for (CanGetBonusDefineListDto obj : list) {
+                obj.setMyGetStatus(memberBonusService.getMyBonusByBonusId(member.getId(), obj.getId()) == 0 ? 0 : 1);
+            }
             page.setTotalSize((int) rs.getTotalElements());
         }
 
@@ -142,6 +148,11 @@ public class ApiBonusDefineController extends ApiBaseController {
 
         if (bonusDefine == null) {
             return MessagePacket.newFail(MessageHeader.Code.bonusIDIsError, "bonusDefineID不正确");
+        }
+
+        int myBonus = memberBonusService.getMyBonusByBonusId(member.getId(), bonusDefineID);
+        if (myBonus != 0) {
+            return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "红包不可重复领取~");
         }
 
         if ((bonusDefine.getCanGetNumber().intValue() + 1) > bonusDefine.getMaxNumber()) {
