@@ -19,7 +19,7 @@ public class MyMemberBonusListDto {
     private String printCode;
     @JsonIgnore
     private BonusDefine bonusDefine;
-    private double bonusStartPrice = 5d;//开始金额
+    private double bonusStartPrice;//开始金额
     private Integer status = 1;//1未使用，2已使用，3已过期
 
     public String getId() {

@@ -1,5 +1,6 @@
 package com.kingpivot.base.memberBonus.model;
 
+import com.kingpivot.base.city.model.City;
 import com.kingpivot.common.model.BaseModel;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -25,6 +26,10 @@ public class MemberBonus extends BaseModel<String> {
 
     @Column(length = 36)
     private String bonusID;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "bonusID", insertable = false, updatable = false)  //不能保存和修改
+    private MemberBonus memberBonus;
 
     @Column(length = 36)
     private String memberOrderID;
@@ -153,5 +158,13 @@ public class MemberBonus extends BaseModel<String> {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+
+    public MemberBonus getMemberBonus() {
+        return memberBonus;
+    }
+
+    public void setMemberBonus(MemberBonus memberBonus) {
+        this.memberBonus = memberBonus;
     }
 }
