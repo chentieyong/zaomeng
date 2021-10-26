@@ -5,8 +5,8 @@ public class CollectGoodsShopListDto {
     private String objectID;
     private String objectName;
     private String listImage;
-    private double showPrice = 0.0d;//显示价格
-    private double memberPrice = 0.0d;//会员价格
+    private Double showPrice = 0.0d;//显示价格
+    private Double memberPrice = 0.0d;//会员价格
     private int stockNumber = 0;//当前库存
     private int stockOut = 0;//销售总数
     private String unitDescription;
@@ -44,12 +44,20 @@ public class CollectGoodsShopListDto {
         this.listImage = listImage;
     }
 
-    public double getShowPrice() {
+    public Double getShowPrice() {
         return showPrice;
     }
 
-    public void setShowPrice(double showPrice) {
+    public void setShowPrice(Double showPrice) {
         this.showPrice = showPrice;
+    }
+
+    public Double getMemberPrice() {
+        return memberPrice;
+    }
+
+    public void setMemberPrice(Double memberPrice) {
+        this.memberPrice = memberPrice;
     }
 
     public int getStockNumber() {
@@ -82,13 +90,5 @@ public class CollectGoodsShopListDto {
 
     public void setObjectFeatureItemID1(String objectFeatureItemID1) {
         this.objectFeatureItemID1 = objectFeatureItemID1;
-    }
-
-    public double getMemberPrice() {
-        return memberPrice;
-    }
-
-    public void setMemberPrice(double memberPrice) {
-        this.memberPrice = memberPrice;
     }
 }

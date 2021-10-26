@@ -19,6 +19,7 @@ import com.kingpivot.base.major.service.MajorService;
 import com.kingpivot.base.member.model.Member;
 import com.kingpivot.base.member.service.MemberService;
 import com.kingpivot.base.memberBonus.service.MemberBonusService;
+import com.kingpivot.base.memberCard.service.MemberCardService;
 import com.kingpivot.base.memberMajor.service.MemberMajorService;
 import com.kingpivot.base.memberRankTemp.service.MemberRankTempService;
 import com.kingpivot.base.memberStatisticsTemp.model.MemberStatisticsTemp;
@@ -131,6 +132,8 @@ public class ApiMemberController extends ApiBaseController {
     private MemberStatisticsTempService memberStatisticsTempService;
     @Autowired
     private BrowseService browseService;
+    @Autowired
+    private MemberCardService memberCardService;
 
     @ApiOperation(value = "同步会员资金", notes = "同步会员资金")
     @RequestMapping(value = "/synchronizedMemberStatistics")
@@ -1046,6 +1049,7 @@ public class ApiMemberController extends ApiBaseController {
         MemberStatisticsInfoDto data = BeanMapper.map(memberStatistics, MemberStatisticsInfoDto.class);
         data.setMemberBonusNum(memberBonusService.getMemberBonusNum(1, member.getId()));
         data.setGoodsShopCollectNum(collectService.getCollectNumByObjectDefineIDAndMemberID(Config.GOODSSHOP_OBJECTDEFINEID,member.getId()));
+        data.setMemberCardNum(memberCardService.getCountEffectiveMemberCard(member.getId()));
         data.setGoodsShopBrowseNum(browseService.getBrowseNumByObjectDefineIDAndMemberID(Config.GOODSSHOP_OBJECTDEFINEID,member.getId()));
         if (StringUtils.isNotBlank(newMember.getRankID())) {
             Rank rank = rankService.findById(newMember.getRankID());
