@@ -74,8 +74,8 @@ public class ApiBonusDefineController extends ApiBaseController {
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("isValid", Constants.ISVALID_YES);
         paramMap.put("isLock", Constants.ISLOCK_NO);
-        paramMap.put("startDate:gte", new Timestamp(System.currentTimeMillis()));
-        paramMap.put("endDate:lte", new Timestamp(System.currentTimeMillis()));
+        paramMap.put("startDate:lte", new Timestamp(System.currentTimeMillis()));
+        paramMap.put("endDate:gte", new Timestamp(System.currentTimeMillis()));
 
         List<Sort.Order> orders = new ArrayList<Sort.Order>();
         orders.add(new Sort.Order(Sort.Direction.DESC, "createdTime"));
