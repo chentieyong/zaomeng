@@ -148,7 +148,7 @@ public class ApiMemberCardController extends ApiBaseController {
         memberCard.setApplicationID(member.getApplicationID());
         memberCard.setName(cardDefine.getName());
         memberCard.setFaceImage(cardDefine.getFaceImage());
-        memberCard.setListImage(memberCard.getListImage());
+        memberCard.setListImage(cardDefine.getListImage());
         memberCard.setMemberID(member.getId());
         memberCard.setCardDefineID(cardDefine.getId());
         memberCard.setBeginTime(TimeTest.timeToDate(new Timestamp(System.currentTimeMillis())));

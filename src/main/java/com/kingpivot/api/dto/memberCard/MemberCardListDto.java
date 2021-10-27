@@ -2,6 +2,7 @@ package com.kingpivot.api.dto.memberCard;
 
 import com.kingpivot.common.utils.TimeTest;
 
+import javax.persistence.Column;
 import java.sql.Timestamp;
 
 public class MemberCardListDto {
@@ -14,6 +15,8 @@ public class MemberCardListDto {
     private String beginTimeStr;
     private Timestamp endTime;
     private String endTimeStr;
+    private String listImage;
+    private String faceImage;
 
     public String getId() {
         return id;
@@ -87,5 +90,21 @@ public class MemberCardListDto {
 
     public void setEndTimeStr(String endTimeStr) {
         this.endTimeStr = endTimeStr;
+    }
+
+    public String getListImage() {
+        return listImage;
+    }
+
+    public void setListImage(String listImage) {
+        this.listImage = listImage;
+    }
+
+    public String getFaceImage() {
+        return faceImage;
+    }
+
+    public void setFaceImage(String faceImage) {
+        this.faceImage = faceImage;
     }
 }
