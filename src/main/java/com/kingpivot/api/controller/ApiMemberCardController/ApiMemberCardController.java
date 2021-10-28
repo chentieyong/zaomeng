@@ -143,6 +143,10 @@ public class ApiMemberCardController extends ApiBaseController {
         if (cardDefine == null) {
             return MessagePacket.newFail(MessageHeader.Code.cardDefineIDIsError, "卡定义id不正确");
         }
+        int cardSize = memberCardService.getCountEffectiveMemberCardByCardDefineID(member.getId(), cardDefineID);
+        if (cardSize != 0) {
+            return MessagePacket.newFail(MessageHeader.Code.cardDefineIsValid, "存在未过期的卡券，无法再次购买");
+        }
         //创建会员卡记录
         MemberCard memberCard = new MemberCard();
         memberCard.setApplicationID(member.getApplicationID());

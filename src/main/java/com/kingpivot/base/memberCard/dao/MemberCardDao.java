@@ -13,9 +13,12 @@ import javax.persistence.Table;
 @Qualifier("memberCardDao")
 public interface MemberCardDao extends BaseDao<MemberCard, String> {
 
-    @Query(value = "SELECT * FROM memberCard WHERE isValid=1 AND isLock=0 AND memberID=?1 AND NOW() BETWEEN beginTime AND endTime ORDER BY createdTime DESC limit 1", nativeQuery = true)
+    @Query(value = "SELECT * FROM memberCard WHERE status=1 and isValid=1 AND isLock=0 AND memberID=?1 AND NOW() BETWEEN beginTime AND endTime ORDER BY createdTime DESC limit 1", nativeQuery = true)
     MemberCard getEffectiveMemberCard(String memberID);
 
-    @Query(value = "SELECT count(1) FROM memberCard WHERE isValid=1 AND isLock=0 AND memberID=?1 AND NOW() BETWEEN beginTime AND endTime", nativeQuery = true)
+    @Query(value = "SELECT count(1) FROM memberCard WHERE status=1 and isValid=1 AND isLock=0 AND memberID=?1 AND NOW() BETWEEN beginTime AND endTime", nativeQuery = true)
     int getCountEffectiveMemberCard(String memberID);
+
+    @Query(value = "SELECT count(1) FROM memberCard WHERE status=1 and isValid=1 AND isLock=0 AND memberID=?1 AND cardDefineID=?2 AND NOW() BETWEEN beginTime AND endTime", nativeQuery = true)
+    int getCountEffectiveMemberCardByCardDefineID(String memberID, String cardDefineID);
 }

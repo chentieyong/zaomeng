@@ -7,4 +7,6 @@ public interface MemberCardService extends BaseService<MemberCard, String> {
     MemberCard getEffectiveMemberCard(String memberID);
 
     int getCountEffectiveMemberCard(String memberID);
+
+    int getCountEffectiveMemberCardByCardDefineID(String memberID, String cardDefineID);
 }

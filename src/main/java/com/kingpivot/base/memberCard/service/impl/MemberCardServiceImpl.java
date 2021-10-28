@@ -29,4 +29,9 @@ public class MemberCardServiceImpl extends BaseServiceImpl<MemberCard, String> i
     public int getCountEffectiveMemberCard(String memberID) {
         return memberCardDao.getCountEffectiveMemberCard(memberID);
     }
+
+    @Override
+    public int getCountEffectiveMemberCardByCardDefineID(String memberID, String cardDefineID) {
+        return memberCardDao.getCountEffectiveMemberCardByCardDefineID(memberID, cardDefineID);
+    }
 }

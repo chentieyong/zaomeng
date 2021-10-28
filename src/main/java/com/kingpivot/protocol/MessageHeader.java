@@ -217,6 +217,7 @@ public class MessageHeader implements Serializable {
         cardDefineIDIsError(10149),//卡定义id异常
         memberCardIDIsError(10150),//会员卡id异常
         contentIsNull(10151),//描述为欧空
+        cardDefineIsValid(10152),//卡券重复购买
         ;
         public int code;
 
