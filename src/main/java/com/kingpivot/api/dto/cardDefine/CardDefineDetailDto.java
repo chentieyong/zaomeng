@@ -1,6 +1,6 @@
 package com.kingpivot.api.dto.cardDefine;
 
-public class CardDefineListDto {
+public class CardDefineDetailDto {
     private String id;//主键
     private String companyID;//公司ID
     private String applicationID;

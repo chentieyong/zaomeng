@@ -1,12 +1,14 @@
 package com.kingpivot.api.controller.ApiCardDefineController;
 
 import com.google.common.collect.Maps;
+import com.kingpivot.api.dto.cardDefine.CardDefineDetailDto;
 import com.kingpivot.api.dto.cardDefine.CardDefineListDto;
 import com.kingpivot.base.cardDefine.model.CardDefine;
 import com.kingpivot.base.cardDefine.service.CardDefineService;
 import com.kingpivot.base.config.RedisKey;
 import com.kingpivot.base.config.UserAgent;
 import com.kingpivot.base.member.model.Member;
+import com.kingpivot.base.memberCard.service.MemberCardService;
 import com.kingpivot.base.memberlog.model.Memberlog;
 import com.kingpivot.base.support.MemberLogDTO;
 import com.kingpivot.common.jms.SendMessageService;
@@ -49,6 +51,8 @@ public class ApiCardDefineController extends ApiBaseController {
     private RedisTemplate redisTemplate;
     @Autowired
     private CardDefineService cardDefineService;
+    @Autowired
+    private MemberCardService memberCardService;
 
     @ApiOperation(value = "getCardDefineList", notes = "获取卡定义列表")
     @ApiImplicitParams({
@@ -89,6 +93,9 @@ public class ApiCardDefineController extends ApiBaseController {
         List<CardDefineListDto> list = null;
         if (rs != null && rs.getSize() != 0) {
             list = BeanMapper.mapList(rs.getContent(), CardDefineListDto.class);
+            for (CardDefineListDto obj : list) {
+                obj.setIsMeBuy(memberCardService.getCountEffectiveMemberCardByCardDefineID(member.getId(), obj.getId()) == 0 ? 0 : 1);
+            }
             page.setTotalSize((int) rs.getTotalElements());
         }
 
@@ -106,5 +113,51 @@ public class ApiCardDefineController extends ApiBaseController {
         MessagePage messagePage = new MessagePage(page, list);
         rsMap.put("data", messagePage);
         return MessagePacket.newSuccess(rsMap, "getCardDefineList success!");
+    }
+
+    @ApiOperation(value = "getCardDefineList", notes = "获取卡定义列表")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query", name = "sessionID", value = "登录标识", dataType = "String"),
+            @ApiImplicitParam(paramType = "query", name = "cardDefineID", value = "卡定义id", dataType = "String")})
+    @RequestMapping(value = "/getCardDefineDetail")
+    public MessagePacket getCardDefineDetail(HttpServletRequest request) {
+        String sessionID = request.getParameter("sessionID");
+        if (StringUtils.isEmpty(sessionID)) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        Member member = (Member) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBER_KEY.key, sessionID));
+        if (member == null) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        MemberLogDTO memberLogDTO = (MemberLogDTO) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBERLOG_KEY.key, sessionID));
+        if (memberLogDTO == null) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+
+        String cardDefineID = request.getParameter("cardDefineID");
+        if (StringUtils.isEmpty(cardDefineID)) {
+            return MessagePacket.newFail(MessageHeader.Code.cardDefineIDIsNull, "卡定义id为空");
+        }
+        CardDefine cardDefine = cardDefineService.findById(cardDefineID);
+        if (cardDefine == null) {
+            return MessagePacket.newFail(MessageHeader.Code.cardDefineIDIsError, "卡定义id不正确");
+        }
+
+        CardDefineDetailDto cardDefineDetailDto = BeanMapper.map(cardDefine, CardDefineDetailDto.class);
+        cardDefineDetailDto.setIsMeBuy(memberCardService.getCountEffectiveMemberCardByCardDefineID(member.getId(), cardDefineDetailDto.getId()) == 0 ? 0 : 1);
+
+        String desc = String.format("%s获取卡定义详情", member.getName());
+        UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));
+        MemberLogRequestBase base = MemberLogRequestBase.BALANCE()
+                .sessionID(sessionID)
+                .description(desc)
+                .userAgent(userAgent == null ? null : userAgent.getBrowserType())
+                .operateType(Memberlog.MemberOperateType.GETCARDDEFINEDETAIL.getOname())
+                .build();
+        sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
+
+        Map<String, Object> rsMap = Maps.newHashMap();
+        rsMap.put("data", cardDefineDetailDto);
+        return MessagePacket.newSuccess(rsMap, "getCardDefineDetail success!");
     }
 }
