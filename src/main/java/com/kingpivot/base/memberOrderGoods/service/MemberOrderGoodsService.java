@@ -12,4 +12,6 @@ import java.util.List;
  */
 public interface MemberOrderGoodsService extends BaseService<MemberOrderGoods, String> {
     List<MemberOrderGoods> getMemberOrderGoodsByMemberOrderID(String memberOrderID);
+
+    int getUnFinishCount(String memberOrderID);
 }

@@ -27,4 +27,9 @@ public class MemberOrderGoodsServiceImpl extends BaseServiceImpl<MemberOrderGood
     public List<MemberOrderGoods> getMemberOrderGoodsByMemberOrderID(String memberOrderID) {
         return memberOrderGoodsDao.getMemberOrderGoodsByMemberOrderID(memberOrderID);
     }
+
+    @Override
+    public int getUnFinishCount(String memberOrderID) {
+        return memberOrderGoodsDao.getUnFinishCount(memberOrderID);
+    }
 }

@@ -22,4 +22,9 @@ public interface MemberOrderDao extends BaseDao<MemberOrder, String> {
     @Query(value = "UPDATE memberOrder SET paywayID=?1 WHERE memberPaymentID=?2",nativeQuery = true)
     @Modifying
     void updateMemberOrderByMemberPaymentID(String paywayID, String memberPaymentID);
+
+    @Transactional
+    @Query(value = "UPDATE memberOrder SET status=?2 WHERE id=?1",nativeQuery = true)
+    @Modifying
+    void updateMemberOrderStatus(String memberOrderID, int status);
 }

@@ -15,4 +15,7 @@ import java.util.List;
 public interface MemberOrderGoodsDao extends BaseDao<MemberOrderGoods, String> {
     @Query(value = "select * from memberOrderGoods where memberOrderID=?1 and isValid=1 and isLock=0",nativeQuery = true)
     List<MemberOrderGoods> getMemberOrderGoodsByMemberOrderID(String memberOrderID);
+
+    @Query(value = "select count(1) from memberOrderGoods where memberOrderID=?1 and status!=5 and isValid=1 and isLock=0",nativeQuery = true)
+    int getUnFinishCount(String memberOrderID);
 }

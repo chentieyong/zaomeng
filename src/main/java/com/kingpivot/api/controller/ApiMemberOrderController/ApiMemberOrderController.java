@@ -571,7 +571,7 @@ public class ApiMemberOrderController extends ApiBaseController {
             return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
         }
         String content = request.getParameter("content");
-        if(StringUtils.isEmpty(content)){
+        if (StringUtils.isEmpty(content)) {
             return MessagePacket.newFail(MessageHeader.Code.contentIsNull, "评论内容不能为空");
         }
         if (StringUtils.isEmpty(memberOrderGoodsID)) {
@@ -597,6 +597,11 @@ public class ApiMemberOrderController extends ApiBaseController {
 
         memberOrderGoods.setStatus(5);
         memberOrderGoodsService.save(memberOrderGoods);
+
+        int unFinishCount = memberOrderGoodsService.getUnFinishCount(memberOrderGoods.getMemberOrderID());
+        if (unFinishCount == 0) {
+            memberOrderService.updateMemberOrderStatus(memberOrderGoods.getMemberOrderID(), 9);
+        }
 
         String description = String.format("%s评价一个订单商品", member.getName());
         UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));

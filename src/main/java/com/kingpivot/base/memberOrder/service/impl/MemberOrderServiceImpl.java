@@ -379,6 +379,11 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
         memberOrderDao.updateMemberOrderByMemberPaymentID(paywayID, memberPaymentID);
     }
 
+    @Override
+    public void updateMemberOrderStatus(String memberOrderID, int status) {
+        memberOrderDao.updateMemberOrderStatus(memberOrderID, status);
+    }
+
     private void editFare(MemberOrder memberOrder) {
         try {
             String orderAmountFreeFare = parameterDao.getParemeterValueByCode("orderAmountFreeFare");

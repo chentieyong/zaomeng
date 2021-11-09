@@ -72,5 +72,7 @@ public interface MemberOrderService extends BaseService<MemberOrder, String> {
      * @param memberPaymentID
      */
     void updateMemberOrderByMemberPaymentID(String paywayID, String memberPaymentID);
+
+    void updateMemberOrderStatus(String memberOrderID, int status);
 }
 
