@@ -155,7 +155,7 @@ public class ApiBonusDefineController extends ApiBaseController {
             return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "红包不可重复领取~");
         }
 
-        if ((bonusDefine.getCanGetNumber().intValue() + 1) < bonusDefine.getMaxNumber()) {
+        if (bonusDefine.getCanGetNumber().intValue() <= 0) {
             return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "红包已领完");
         }
 
