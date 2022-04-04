@@ -28,7 +28,7 @@ public interface MemberOrderService extends BaseService<MemberOrder, String> {
      */
     String createMemberOrder(Member member, GoodsShop goodsShop, String objectFeatureItemID1,
                              int qty, String contactName, String contactPhone,
-                             String address, String memberBonusID, String orderType);
+                             String address, String memberBonusID, String orderType, String sendType);
 
     /**
      * 单店铺生成订单
@@ -41,7 +41,7 @@ public interface MemberOrderService extends BaseService<MemberOrder, String> {
      * @param memberBonusID
      * @return
      */
-    String createMemberOrderFromCart(List<CartGoods> cartGoodsList, Member member, String contactName, String contactPhone, String address, String memberBonusID);
+    String createMemberOrderFromCart(List<CartGoods> cartGoodsList, Member member, String contactName, String contactPhone, String address, String memberBonusID, String sendType);
 
     /**
      * 多店铺生成订单

@@ -2,12 +2,19 @@ package com.kingpivot.common.jms.dto.memberOrder;
 
 public class HbShopBuyGoodsRequest {
     private String memberOrderID;
+    private String encourageDefineID;
 
     public static class Builder {
         private String memberOrderID;
+        private String encourageDefineID;
 
         public Builder memberOrderID(String val) {
             memberOrderID = val;
+            return this;
+        }
+
+        public Builder encourageDefineID(String val) {
+            encourageDefineID = val;
             return this;
         }
 
@@ -29,5 +36,13 @@ public class HbShopBuyGoodsRequest {
 
     public void setMemberOrderID(String memberOrderID) {
         this.memberOrderID = memberOrderID;
+    }
+
+    public String getEncourageDefineID() {
+        return encourageDefineID;
+    }
+
+    public void setEncourageDefineID(String encourageDefineID) {
+        this.encourageDefineID = encourageDefineID;
     }
 }

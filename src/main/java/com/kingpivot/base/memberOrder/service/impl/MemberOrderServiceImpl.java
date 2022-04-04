@@ -76,7 +76,7 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
     @Transactional(rollbackFor = Exception.class)
     public String createMemberOrder(Member member, GoodsShop goodsShop, String objectFeatureItemID1,
                                     int qty, String contactName, String contactPhone, String address,
-                                    String memberBonusID, String orderType) {
+                                    String memberBonusID, String orderType, String sendType) {
         boolean memberPrice = kingBase.checkMemberCard(member.getId());
         double price = memberPrice ? goodsShop.getMemberPrice() : goodsShop.getRealPrice();
         if (StringUtils.isNotBlank(objectFeatureItemID1)) {
@@ -111,9 +111,8 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
         memberOrder.setContactName(contactPhone);
         memberOrder.setContactPhone(contactPhone);
         memberOrder.setAddress(address);
+        memberOrder.setSendType(sendType == null ? 1 : Integer.parseInt(sendType));
         memberOrder.setApplyTime(new Timestamp(System.currentTimeMillis()));
-        MemberPayment memberPayment = kingBase.addMemberPayment(member, Config.MEMBERORDER_OBJECTDEFINEID, memberOrder.getPriceAfterDiscount());
-        memberOrder.setMemberPaymentID(memberPayment.getId());
 
         MemberBonus memberBonus = null;
         if (StringUtils.isNotBlank(memberBonusID)) {
@@ -161,14 +160,14 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
         goodsShop.setStockNumber(goodsShop.getStockNumber() - qty);
         goodsShopDao.save(goodsShop);
 
-        return memberPayment.getId();
+        return memberOrder.getId();
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public String createMemberOrderFromCart(List<CartGoods> cartGoodsList, Member member, String contactName,
                                             String contactPhone, String address,
-                                            String memberBonusID) {
+                                            String memberBonusID, String sendType) {
         double rate = 1d;
 //        if (StringUtils.isNotBlank(member.getRankID())) {
 //            Rank rank = rankDao.findOne(member.getRankID());
@@ -217,10 +216,9 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
         memberOrder.setContactName(contactName);
         memberOrder.setContactPhone(contactPhone);
         memberOrder.setAddress(address);
+        memberOrder.setSendType(sendType == null ? 1 : Integer.parseInt(sendType));
         memberOrder.setApplyTime(new Timestamp(System.currentTimeMillis()));
         memberOrder.setCreatedTime(memberOrder.getApplyTime());
-        MemberPayment memberPayment = kingBase.addMemberPayment(member, Config.MEMBERORDER_OBJECTDEFINEID, memberOrder.getPriceAfterDiscount());
-        memberOrder.setMemberPaymentID(memberPayment.getId());
         memberOrder.setModifiedTime(memberOrder.getApplyTime());
         memberOrderDao.save(memberOrder);
 
@@ -268,7 +266,7 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
             cartGoods.setModifiedTime(new Timestamp(System.currentTimeMillis()));
             cartGoodsDao.save(cartGoods);
         }
-        return memberPayment.getId();
+        return memberOrder.getId();
     }
 
     @Override

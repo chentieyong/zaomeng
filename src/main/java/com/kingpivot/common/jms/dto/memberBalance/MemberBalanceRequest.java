@@ -13,19 +13,23 @@ public class MemberBalanceRequest {
     private BigDecimal amount;//操作总金额
     private Integer point;//积分个数
     private String description;//描述"
+    private String encourageDefineID;//分销定义id
+    private String payWayID;//支付方式id
     private Integer type;//1湖北手工补资金
 
     public static class Builder {
         private String memberID;//会员id
         private String applicationID;
         private String siteID;
-        private Integer operateType;//1湖北手工补资金2抽奖获取余额  -1其他
+        private Integer operateType;//1湖北手工补资金2抽奖获取余额3余额购买商品4充值  -1其他
         private String objectID;//操作对象id
         private String objectDefineID;
         private String objectName;
         private BigDecimal amount;//操作总金额
         private Integer point;//积分个数
         private String description;//描述"
+        private String encourageDefineID;//分销定义id
+        private String payWayID;//支付方式id
         private Integer type;//1湖北手工补资金
 
         public Builder memberID(String val) {
@@ -78,6 +82,16 @@ public class MemberBalanceRequest {
             return this;
         }
 
+        public Builder encourageDefineID(String val) {
+            encourageDefineID = val;
+            return this;
+        }
+
+        public Builder payWayID(String val) {
+            payWayID = val;
+            return this;
+        }
+
         public Builder type(Integer val) {
             type = val;
             return this;
@@ -100,6 +114,8 @@ public class MemberBalanceRequest {
         this.amount = builder.amount;//操作总金额
         this.point = builder.point;//积分个数
         this.description = builder.description;//描述"
+        this.encourageDefineID = builder.encourageDefineID;
+        this.payWayID = builder.payWayID;
         this.type = builder.type;//1湖北手工补资金
     }
 

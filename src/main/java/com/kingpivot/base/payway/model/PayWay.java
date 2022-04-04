@@ -35,6 +35,8 @@ public class PayWay extends BaseModel<String> {
     private String applicationID;//应用ID
     @Column(length = 100)
     private String orderNotifyURL;//订单通知地址
+    @Column(length = 100)
+    private String rechargeNotifyURL;//充值通知地址
     @Column()
     private Integer supportType;//供应商类型
     @Column(length=20)
@@ -135,6 +137,14 @@ public class PayWay extends BaseModel<String> {
 
     public void setOrderNotifyURL(String orderNotifyURL) {
         this.orderNotifyURL = orderNotifyURL;
+    }
+
+    public String getRechargeNotifyURL() {
+        return rechargeNotifyURL;
+    }
+
+    public void setRechargeNotifyURL(String rechargeNotifyURL) {
+        this.rechargeNotifyURL = rechargeNotifyURL;
     }
 
     public Integer getSupportType() {

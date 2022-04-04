@@ -133,9 +133,10 @@ public class ApiMemberOrderController extends ApiBaseController {
         String objectFeatureItemID1 = request.getParameter("objectFeatureItemID1");
         String memberBonusID = request.getParameter("memberBonusID");
         String orderType = request.getParameter("orderType");
+        String sendType = request.getParameter("sendType");
 
-        String memberPaymentID = memberOrderService.createMemberOrder(member, goodsShop, objectFeatureItemID1,
-                Integer.parseInt(qty), contactName, contactPhone, address, memberBonusID, orderType);
+        String memberOrderID = memberOrderService.createMemberOrder(member, goodsShop, objectFeatureItemID1,
+                Integer.parseInt(qty), contactName, contactPhone, address, memberBonusID, orderType, sendType);
 
         String description = String.format("%s店铺商品生成订单", member.getName());
 
@@ -150,7 +151,7 @@ public class ApiMemberOrderController extends ApiBaseController {
         sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
 
         Map<String, Object> rsMap = Maps.newHashMap();
-        rsMap.put("data", memberPaymentID);
+        rsMap.put("data", memberOrderID);
 
         return MessagePacket.newSuccess(rsMap, "createMemberOrder success!");
     }
@@ -196,28 +197,12 @@ public class ApiMemberOrderController extends ApiBaseController {
         }
 
         String memberBonusID = request.getParameter("memberBonusID");
-
-        String type = request.getParameter("type");//1默认单店铺，2多店铺
-        if (StringUtils.isEmpty(type)) {
-            type = "1";
+        String sendType = request.getParameter("sendType");
+        List<CartGoods> cartGoodsList = cartGoodsService.getCartGoodsListByCartID(cartID, 1);
+        if (cartGoodsList.isEmpty()) {
+            return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "购物车为空");
         }
-        String memberPaymentID = null;
-        switch (type) {
-            case "1":
-                List<CartGoods> cartGoodsList = cartGoodsService.getCartGoodsListByCartID(cartID, 1);
-                if (cartGoodsList.isEmpty()) {
-                    return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "购物车为空");
-                }
-                memberPaymentID = memberOrderService.createMemberOrderFromCart(cartGoodsList, member, contactName, contactPhone, address, memberBonusID);
-                break;
-            case "2":
-                List<String> shopList = cartGoodsService.getSelectCartGoodsShopList(cartID, "1");
-                if (shopList == null || shopList.isEmpty()) {
-                    return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "购物车为空");
-                }
-                memberPaymentID = memberOrderService.createMemberOrderFromShopCart(shopList, cartID, member, contactName, contactPhone, address, memberBonusID);
-                break;
-        }
+        String memberOrderID = memberOrderService.createMemberOrderFromCart(cartGoodsList, member, contactName, contactPhone, address, memberBonusID, sendType);
 
         String description = String.format("%s店铺商品生成订单", member.getName());
 
@@ -232,7 +217,7 @@ public class ApiMemberOrderController extends ApiBaseController {
         sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
 
         Map<String, Object> rsMap = Maps.newHashMap();
-        rsMap.put("data", memberPaymentID);
+        rsMap.put("data", memberOrderID);
 
         return MessagePacket.newSuccess(rsMap, "createMemberOrder success!");
     }

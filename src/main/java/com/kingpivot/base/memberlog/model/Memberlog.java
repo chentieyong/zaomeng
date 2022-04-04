@@ -104,7 +104,7 @@ public class Memberlog extends BaseModel<String> {
         APPLYMEMBERSHOP("申请会员店铺"),UPDATEMEMBERSHOP("修改会员店铺"),GETMEMBERORDERLIST("获取会员订单列表"),GETMEMBERORDERDETAIL("获取会员订单详情"),
         GETMEMBERSHOPLIST("获取会员店铺列表"),GETMEMBERSHOPDETAIL("获取会员店铺详情"),REMOVEMEMBERSHOP("删除会员店铺"),GETCOLLECTLIST("获取收藏列表"),
         REMOVECOLLECT("删除收藏"),SUBMITONEFEE("提交一个意见反馈"),GETMYMEMBERBONUSLIST("获取我的会员红包列表"),USEMEMBERBONUS("使用会员红包"),
-        APPAPPLYMEMBERORDERPAY("APP申请订单支付"),SUBMITONESIGNIN("会员签到"),GETSIGNINLIST("获取签到记录"),GETMYPOINTLIST("获取我的积分列表"),
+        APPAPPLYMEMBERORDERPAY("APP申请订单支付"),APPLYMEMBERRECHARGEPAY("会员充值申请支付"),SUBMITONESIGNIN("会员签到"),GETSIGNINLIST("获取签到记录"),GETMYPOINTLIST("获取我的积分列表"),
         GETMYMESSAGELIST("获取我的消息列表"),GETMESSAGEDETAIL("获取消息详情"),CANCELMEMBERORDER("取消订单"),CONFIRMMEMBERORDER("确认收货"),
         GETCANGETBONUSDEFINELIST("获取可领红包定义列表"),MEMBERGETBONUS("会员领红包"),UPDATEMEMBERINFO("修改会员信息"),UPDATELOGINPASSWORD("修改登录密码")
         ,APPLYRETURNMEMBERORDER("申请订单退单"),GETMEMBERRANKINFO("获取会员等级信息"),GETMEMBERINFO("获取会员信息"),READONEMESSAGE("阅读一个消息"),
@@ -122,7 +122,7 @@ public class Memberlog extends BaseModel<String> {
         SUBMITONEGOODSCHANGE("提交一个产品互换"),JOINONELOTTERY("参加一个抽奖"),GETMEMBERISHAVEMAJOR("获取是否申请专业"),SUBMITONEHELPNEED("帮助需求"),
         UPDATEONEGOODSCHANGE("修改一个产品互换"),GETMEMBERBALANCELIST("获取会员资金列表"),GETMEMBERCARDLIST("获取会员卡列表"),GETCARDDEFINELIST("获取卡定义列表"),
         BUYMEMBERCARD("购买会员卡"),SUBMITONEDISCUSS("提交一个评论"),DISCUSSMEMBERORDERGOODS("评价订单商品"),ADDBROWSE("添加浏览"),REMOVEBROWSE("删除浏览"),
-        GETBROWSELIST("获取会员浏览列表"),GETCARDDEFINEDETAIL("获取卡定义详情");
+        GETBROWSELIST("获取会员浏览列表"),GETCARDDEFINEDETAIL("获取卡定义详情"),SUBMITONMEMBERCHARGE("提交一个会员充值");
         private String oname;
 
         MemberOperateType(String oname) {
