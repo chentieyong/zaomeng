@@ -101,16 +101,21 @@ public class ApiMemberOrderController extends ApiBaseController {
             return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
         }
 
+        String sendType = request.getParameter("sendType");
+        if(StringUtils.isEmpty(sendType)){
+            sendType = "1";
+        }
+
         String contactName = request.getParameter("contactName");
-        if (StringUtils.isEmpty(contactName)) {
+        if (sendType.equals("1") && StringUtils.isEmpty(contactName)) {
             return MessagePacket.newFail(MessageHeader.Code.contactNameIsNull, "联系人不能为空");
         }
         String contactPhone = request.getParameter("contactPhone");
-        if (StringUtils.isEmpty(contactPhone)) {
+        if (sendType.equals("1") && StringUtils.isEmpty(contactPhone)) {
             return MessagePacket.newFail(MessageHeader.Code.contactPhoneIsNull, "联系电话不能为空");
         }
         String address = request.getParameter("address");
-        if (StringUtils.isEmpty(address)) {
+        if (sendType.equals("1") && StringUtils.isEmpty(address)) {
             return MessagePacket.newFail(MessageHeader.Code.addressIsNull, "地址不能为空");
         }
 
@@ -133,7 +138,6 @@ public class ApiMemberOrderController extends ApiBaseController {
         String objectFeatureItemID1 = request.getParameter("objectFeatureItemID1");
         String memberBonusID = request.getParameter("memberBonusID");
         String orderType = request.getParameter("orderType");
-        String sendType = request.getParameter("sendType");
 
         String memberOrderID = memberOrderService.createMemberOrder(member, goodsShop, objectFeatureItemID1,
                 Integer.parseInt(qty), contactName, contactPhone, address, memberBonusID, orderType, sendType);
@@ -177,16 +181,20 @@ public class ApiMemberOrderController extends ApiBaseController {
             return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
         }
 
+        String sendType = request.getParameter("sendType");
+        if(StringUtils.isEmpty(sendType)){
+            sendType = "1";
+        }
         String contactName = request.getParameter("contactName");
-        if (StringUtils.isEmpty(contactName)) {
+        if (sendType.equals("1") && StringUtils.isEmpty(contactName)) {
             return MessagePacket.newFail(MessageHeader.Code.contactNameIsNull, "联系人不能为空");
         }
         String contactPhone = request.getParameter("contactPhone");
-        if (StringUtils.isEmpty(contactPhone)) {
+        if (sendType.equals("1") && StringUtils.isEmpty(contactPhone)) {
             return MessagePacket.newFail(MessageHeader.Code.contactPhoneIsNull, "联系电话不能为空");
         }
         String address = request.getParameter("address");
-        if (StringUtils.isEmpty(address)) {
+        if (sendType.equals("1") && StringUtils.isEmpty(address)) {
             return MessagePacket.newFail(MessageHeader.Code.addressIsNull, "地址不能为空");
         }
 
@@ -197,7 +205,6 @@ public class ApiMemberOrderController extends ApiBaseController {
         }
 
         String memberBonusID = request.getParameter("memberBonusID");
-        String sendType = request.getParameter("sendType");
         List<CartGoods> cartGoodsList = cartGoodsService.getCartGoodsListByCartID(cartID, 1);
         if (cartGoodsList.isEmpty()) {
             return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "购物车为空");
