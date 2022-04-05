@@ -98,7 +98,7 @@ public class ApiMemberRechargeController extends ApiBaseController {
         sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
 
         Map<String, Object> rsMap = Maps.newHashMap();
-        rsMap.put("memberRechargeID", memberRecharge.getMemberID());
+        rsMap.put("memberRechargeID", memberRecharge.getId());
         return MessagePacket.newSuccess(rsMap, "submitOneMemberCharge success!");
     }
 }

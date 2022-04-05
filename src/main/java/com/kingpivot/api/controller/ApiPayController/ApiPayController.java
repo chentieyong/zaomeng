@@ -73,8 +73,6 @@ public class ApiPayController extends ApiBaseController {
     @Autowired
     private ShopRechargeService shopRechargeService;
     @Autowired
-    private MemberPaymentService memberPaymentService;
-    @Autowired
     private MemberOrderService memberOrderService;
     @Autowired
     private MemberRechargeService memberRechargeService;
@@ -136,105 +134,52 @@ public class ApiPayController extends ApiBaseController {
 
         Map<String, Object> param = Maps.newHashMap();
 
-        if (payway.getSupportType() == 1) {//app支付宝
-            //实例化客户端
-            AlipayClient alipayClient = new DefaultAlipayClient(Config.ALIPAY_GATEWAY, payway.getServerPassword(),
-                    payway.getPrivateKey(), "json", "utf-8",
-                    payway.getCommonKey(), payway.getSignType());
-            //实例化具体API对应的request类,类名称和接口名称对应,当前调用接口名称：alipay.trade.app.pay
-            AlipayTradeAppPayRequest alipayTradeAppPayRequest = new AlipayTradeAppPayRequest();
-            //SDK已经封装掉了公共参数，这里只需要传入业务参数。以下方法为sdk的model入参方式(model和biz_content同时存在的情况下取biz_content)。
-            AlipayTradeAppPayModel model = new AlipayTradeAppPayModel();
-            model.setBody("购买商品");
-            model.setSubject("购买商品");
-            model.setOutTradeNo(memberOrder.getOrderCode());
-            model.setPassbackParams(null);
-            model.setTimeoutExpress("30m");
-            model.setTotalAmount(String.valueOf(memberOrder.getPriceAfterDiscount()));
-            model.setProductCode("QUICK_MSECURITY_PAY");
-            alipayTradeAppPayRequest.setBizModel(model);
-            alipayTradeAppPayRequest.setNotifyUrl(payway.getOrderNotifyURL());
-            try {
-                //这里和普通的接口调用不同，使用的是sdkExecute
-                AlipayTradeAppPayResponse response = alipayClient.sdkExecute(alipayTradeAppPayRequest);
-                param.put("dataString", response.getBody());//就是orderString 可以直接给客户端请求，无需再做处理。
-            } catch (AlipayApiException e) {
-                e.printStackTrace();
-                return MessagePacket.newFail(MessageHeader.Code.sendError, e.getMessage());
-            }
-        } else if (payway.getSupportType() == 2) {//app微信
-            WechatPayInfo payInfo = new WechatPayInfo();
-            payInfo.setAppid(payway.getServerPassword());
-            payInfo.setMch_id(payway.getPartnerID());
-            payInfo.setNonce_str(WechatPayUtils.buildRandom());
-            payInfo.setBody("购买商品");
-            payInfo.setOut_trade_no(memberOrder.getOrderCode());
-            payInfo.setTotal_fee((int) (NumberUtils.keepPrecision(memberOrder.getPriceAfterDiscount().doubleValue(), 2) * 100));
-            payInfo.setSpbill_create_ip(request.getRemoteAddr());
-            payInfo.setNotify_url(payway.getOrderNotifyURL());
-            payInfo.setAttach(null);
-            payInfo.setTrade_type("APP");
-            payInfo.setSign(WechatPayUtils.createSign(MapUtil.beanToMap(payInfo), payway.getPrivateKey()));
-            PayOrderResponseInfo payOrderResponseInfo = WechatPayUtils.doGenOrderNo(payInfo);
-            if (null != payOrderResponseInfo && "success".equalsIgnoreCase(payOrderResponseInfo.getReturn_code())) {
-                param.put("appid", payway.getServerPassword());
-                param.put("package", "Sign=WXPay");
-                param.put("partnerid", payway.getPartnerID());
-                param.put("timestamp", String.format("%s", System.currentTimeMillis()).substring(0, 10));
-                param.put("prepayid", payOrderResponseInfo.getPrepay_id());
-                param.put("noncestr", payInfo.getNonce_str());
-                param.put("sign", WechatPayUtils.createSign(param, payway.getPrivateKey()));
-            } else {
-                return MessagePacket.newFail(MessageHeader.Code.wecharterror, payOrderResponseInfo.getReturn_msg());
-            }
-        } else if (payway.getSupportType() == 3) {//微信
-            WechatPayInfo payInfo = new WechatPayInfo();
-            payInfo.setAppid(payway.getServerPassword());
-            payInfo.setMch_id(payway.getPartnerID());
-            payInfo.setNonce_str(WechatPayUtils.buildRandom());
-            payInfo.setBody(body);
-            payInfo.setAttach(body);
-            Double total_fee = NumberUtils.keepPrecision(memberOrder.getPriceAfterDiscount().doubleValue() * 100d, 2);
-            payInfo.setTotal_fee(total_fee.intValue());
-            payInfo.setSpbill_create_ip(WebUtil.getRemortIP(request));
-            payInfo.setOut_trade_no(memberOrder.getOrderCode());
-            payInfo.setNotify_url(payway.getOrderNotifyURL());
-            payInfo.setTrade_type("JSAPI");
-            payInfo.setOpenid(openid);
-            payInfo.setSign(WechatPayUtils.createSign(MapUtil.beanToMap(payInfo), payway.getPrivateKey()));
-            String result = "";
-            try {
-                result = WechatPayUtils.doGenOrder(XStreamUtil.getXstream(WechatPayInfo.class).toXML(payInfo));
-                logger.info("微信报文={}", result);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            PayOrderResponseInfo payOrderResponseInfo = (PayOrderResponseInfo) XStreamUtil.getXstream(PayOrderResponseInfo.class).fromXML(result);
-
-            if (payOrderResponseInfo != null && !payOrderResponseInfo.getResult_code().equals("SUCCESS")) {
-                return MessagePacket.newFail(MessageHeader.Code.illegalParameter, payOrderResponseInfo.getErr_code_des());
-            }
-
-            param.put("appId", payway.getServerPassword());
-            param.put("timeStamp", String.format("%s", System.currentTimeMillis()).substring(0, 10));
-            param.put("nonceStr", WechatPayUtils.buildRandom());
-            param.put("package", "prepay_id=" + payOrderResponseInfo.getPrepay_id());
-            param.put("signType", "MD5");
-            String sign = WechatPayUtils.createSign(param, payway.getPrivateKey());
-            param.put("packageValue", "prepay_id=" + payOrderResponseInfo.getPrepay_id());
-            param.put("paySign", sign);
-            String userAgent = request.getHeader("user-agent");
-            char agent = userAgent.charAt(userAgent.indexOf("MicroMessenger") + 15);
-            param.put("agent", agent);
+        WechatPayInfo payInfo = new WechatPayInfo();
+        payInfo.setAppid(payway.getServerPassword());
+        payInfo.setMch_id(payway.getPartnerID());
+        payInfo.setNonce_str(WechatPayUtils.buildRandom());
+        payInfo.setBody(body);
+        payInfo.setAttach(body);
+        Double total_fee = NumberUtils.keepPrecision((memberOrder.getPriceAfterDiscount() + memberOrder.getSendPrice()) * 100d, 2);
+        payInfo.setTotal_fee(total_fee.intValue());
+        payInfo.setSpbill_create_ip(WebUtil.getRemortIP(request));
+        payInfo.setOut_trade_no(memberOrder.getOrderCode());
+        payInfo.setNotify_url(payway.getOrderNotifyURL());
+        payInfo.setTrade_type("JSAPI");
+        payInfo.setOpenid(openid);
+        payInfo.setSign(WechatPayUtils.createSign(MapUtil.beanToMap(payInfo), payway.getPrivateKey()));
+        String result = "";
+        try {
+            result = WechatPayUtils.doGenOrder(XStreamUtil.getXstream(WechatPayInfo.class).toXML(payInfo));
+            logger.info("微信报文={}", result);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        PayOrderResponseInfo payOrderResponseInfo = (PayOrderResponseInfo) XStreamUtil.getXstream(PayOrderResponseInfo.class).fromXML(result);
+
+        if (payOrderResponseInfo != null && !payOrderResponseInfo.getResult_code().equals("SUCCESS")) {
+            return MessagePacket.newFail(MessageHeader.Code.illegalParameter, payOrderResponseInfo.getErr_code_des());
+        }
+
+        param.put("appId", payway.getServerPassword());
+        param.put("timeStamp", String.format("%s", System.currentTimeMillis()).substring(0, 10));
+        param.put("nonceStr", WechatPayUtils.buildRandom());
+        param.put("package", "prepay_id=" + payOrderResponseInfo.getPrepay_id());
+        param.put("signType", "MD5");
+        String sign = WechatPayUtils.createSign(param, payway.getPrivateKey());
+        param.put("packageValue", "prepay_id=" + payOrderResponseInfo.getPrepay_id());
+        param.put("paySign", sign);
+        String userAgent = request.getHeader("user-agent");
+        char agent = userAgent.charAt(userAgent.indexOf("MicroMessenger") + 15);
+        param.put("agent", agent);
 
         String description = String.format("%s申请订单支付", member.getName());
 
-        UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));
+        UserAgent userAgents = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));
         MemberLogRequestBase base = MemberLogRequestBase.BALANCE()
                 .sessionID(sessionID)
                 .description(description)
-                .userAgent(userAgent == null ? null : userAgent.getBrowserType())
+                .userAgent(userAgents == null ? null : userAgents.getBrowserType())
                 .operateType(Memberlog.MemberOperateType.APPAPPLYMEMBERORDERPAY.getOname())
                 .build();
 
@@ -471,7 +416,7 @@ public class ApiPayController extends ApiBaseController {
                 .objectDefineID(Config.MEMBERORDER_OBJECTDEFINEID)
                 .objectName(memberOrder.getName())
                 .objectID(memberOrder.getId())
-                .amount(new BigDecimal(memberOrder.getPriceAfterDiscount()))
+                .amount(new BigDecimal(memberOrder.getPriceAfterDiscount() + memberOrder.getSendPrice()))
                 .payWayID(payWayID)
                 .encourageDefineID(encourageDefineID)
                 .description("余额支付购买商品")
