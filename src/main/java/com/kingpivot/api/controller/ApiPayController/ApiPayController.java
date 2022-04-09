@@ -20,6 +20,8 @@ import com.kingpivot.base.memberPayment.service.MemberPaymentService;
 import com.kingpivot.base.memberRecharge.model.MemberRecharge;
 import com.kingpivot.base.memberRecharge.service.MemberRechargeService;
 import com.kingpivot.base.memberlog.model.Memberlog;
+import com.kingpivot.base.memberstatistics.model.MemberStatistics;
+import com.kingpivot.base.memberstatistics.service.MemberStatisticsService;
 import com.kingpivot.base.payway.model.PayWay;
 import com.kingpivot.base.payway.service.PayWayService;
 import com.kingpivot.base.sequenceDefine.service.SequenceDefineService;
@@ -76,6 +78,8 @@ public class ApiPayController extends ApiBaseController {
     private MemberOrderService memberOrderService;
     @Autowired
     private MemberRechargeService memberRechargeService;
+    @Autowired
+    private MemberStatisticsService memberStatisticsService;
 
     @ApiOperation(value = "申请订单支付", notes = "申请订单支付")
     @ApiImplicitParams({
@@ -402,8 +406,14 @@ public class ApiPayController extends ApiBaseController {
             return MessagePacket.newFail(MessageHeader.Code.statusIsError, "订单状态异常，请重新下单！");
         }
 
-        if (memberOrder.getPriceAfterDiscount() <= 0) {
+        if (memberOrder.getPriceAfterDiscount() + memberOrder.getSendPrice() <= 0) {
             return MessagePacket.newFail(MessageHeader.Code.cashBalanceZero, "金额异常，无法支付");
+        }
+
+        //判断金额是否足够
+        MemberStatistics memberStatistics = memberStatisticsService.getByMemberId(member.getId());
+        if (memberStatistics.getCashBalance() < memberOrder.getPriceAfterDiscount() + memberOrder.getSendPrice()) {
+            return MessagePacket.newFail(MessageHeader.Code.cashBalanceZero, "金额不足，无法支付");
         }
 
         //调用队列余额支付

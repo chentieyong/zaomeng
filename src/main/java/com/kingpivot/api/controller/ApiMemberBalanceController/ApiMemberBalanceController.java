@@ -75,7 +75,7 @@ public class ApiMemberBalanceController extends ApiBaseController {
         paramMap.put("isLock", Constants.ISLOCK_NO);
 
         List<Sort.Order> orders = new ArrayList<Sort.Order>();
-        orders.add(new Sort.Order(Sort.Direction.DESC, "createdTime"));
+        orders.add(new Sort.Order(Sort.Direction.DESC, "orderSeq"));
 
         Object currentPage = request.getParameter("currentPage");
         Object pageNumber = request.getParameter("pageNumber");

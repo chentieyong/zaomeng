@@ -206,4 +206,20 @@ public class MemberBalanceRequest {
     public void setType(Integer type) {
         this.type = type;
     }
+
+    public String getEncourageDefineID() {
+        return encourageDefineID;
+    }
+
+    public void setEncourageDefineID(String encourageDefineID) {
+        this.encourageDefineID = encourageDefineID;
+    }
+
+    public String getPayWayID() {
+        return payWayID;
+    }
+
+    public void setPayWayID(String payWayID) {
+        this.payWayID = payWayID;
+    }
 }
