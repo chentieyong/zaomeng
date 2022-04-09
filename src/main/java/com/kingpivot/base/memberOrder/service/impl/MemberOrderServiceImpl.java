@@ -106,7 +106,9 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
         memberOrder.setPriceStandTotal(NumberUtils.keepPrecision(price * qty, 2));
         memberOrder.setPriceTotal(NumberUtils.keepPrecision(price * qty * rate, 2));
         memberOrder.setPriceAfterDiscount(memberOrder.getPriceTotal());
-        editFare(memberOrder);
+        if ("1".equals(sendType)) {
+            editFare(memberOrder);
+        }
         memberOrder.setBonusAmount(0d);
         memberOrder.setContactName(contactName);
         memberOrder.setContactPhone(contactPhone);
@@ -202,7 +204,9 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
         memberOrder.setPriceStandTotal(NumberUtils.keepPrecision(priceStandTotal, 2));
         memberOrder.setPriceTotal(NumberUtils.keepPrecision(priceTotal * rate, 2));
         memberOrder.setPriceAfterDiscount(memberOrder.getPriceTotal());//优惠后金额
-        editFare(memberOrder);
+        if ("1".equals(sendType)) {
+            editFare(memberOrder);
+        }
 
         MemberBonus memberBonus = null;
         if (StringUtils.isNotBlank(memberBonusID)) {
