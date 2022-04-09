@@ -381,7 +381,6 @@ public class ApiPayController extends ApiBaseController {
 
         String payWayID = request.getParameter("payWayID");
         String memberOrderID = request.getParameter("memberOrderID");
-        String encourageDefineID = request.getParameter("encourageDefineID");
 
         if (StringUtils.isEmpty(payWayID)) {
             return MessagePacket.newFail(MessageHeader.Code.paywayIDNotNull, "paywayID不能为空！");
@@ -418,7 +417,7 @@ public class ApiPayController extends ApiBaseController {
                 .objectID(memberOrder.getId())
                 .amount(new BigDecimal(memberOrder.getPriceAfterDiscount() + memberOrder.getSendPrice()))
                 .payWayID(payWayID)
-                .encourageDefineID(encourageDefineID)
+                .encourageDefineID("000000007bdd5c53017c8e5adcf3004c")
                 .description("余额支付购买商品")
                 .type(3)
                 .build()));

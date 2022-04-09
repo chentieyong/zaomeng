@@ -108,7 +108,7 @@ public class ApiThirdNotifyController extends ApiBaseController {
                 sendMessageService.sendHbShopBuyGoodsMessage(
                         JacksonHelper.toJson(new HbShopBuyGoodsRequest.Builder()
                                 .memberOrderID(memberOrder.getId())
-                                .encourageDefineID("")
+                                .encourageDefineID("000000007bdd5c53017c8e5adcf3004c")
                                 .build()));
                 //支付成功
                 resXml = "<xml>" + "<return_code><![CDATA[SUCCESS]]></return_code>"
