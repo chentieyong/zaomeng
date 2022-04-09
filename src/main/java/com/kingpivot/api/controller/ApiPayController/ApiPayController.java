@@ -143,7 +143,7 @@ public class ApiPayController extends ApiBaseController {
         Double total_fee = NumberUtils.keepPrecision((memberOrder.getPriceAfterDiscount() + memberOrder.getSendPrice()) * 100d, 2);
         payInfo.setTotal_fee(total_fee.intValue());
         payInfo.setSpbill_create_ip(WebUtil.getRemortIP(request));
-        payInfo.setOut_trade_no(memberOrder.getOrderCode());
+        payInfo.setOut_trade_no(memberOrder.getId());
         payInfo.setNotify_url(payway.getOrderNotifyURL());
         payInfo.setTrade_type("JSAPI");
         payInfo.setOpenid(openid);
