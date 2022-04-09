@@ -250,7 +250,7 @@ public class ApiPayController extends ApiBaseController {
         Double total_fee = NumberUtils.keepPrecision(memberRecharge.getAmount() * 100d, 2);
         payInfo.setTotal_fee(total_fee.intValue());
         payInfo.setSpbill_create_ip(WebUtil.getRemortIP(request));
-        payInfo.setOut_trade_no(memberRecharge.getMemberID());
+        payInfo.setOut_trade_no(memberRecharge.getId());
         payInfo.setNotify_url(payway.getRechargeNotifyURL());
         payInfo.setTrade_type("JSAPI");
         payInfo.setOpenid(openid);
