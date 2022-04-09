@@ -28,6 +28,7 @@ public class HbShopBuyGoodsRequest {
 
     private HbShopBuyGoodsRequest(Builder builder) {
         this.memberOrderID = builder.memberOrderID;
+        this.encourageDefineID = builder.encourageDefineID;
     }
 
     public String getMemberOrderID() {
