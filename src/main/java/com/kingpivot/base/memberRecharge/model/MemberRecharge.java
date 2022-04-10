@@ -25,9 +25,9 @@ public class MemberRecharge extends BaseModel<String> {
     @Column(length = 36)
     private String companyID;//公司
     @Column(name = "payTotal", columnDefinition = "double default 0")
-    private int payTotal = 0; //支付金额
+    private Double payTotal = 0d; //支付金额
     @Column(name = "amount", columnDefinition = "double default 0")
-    private int amount = 0; //实际金额
+    private Double amount = 0d; //实际金额
     @Column()
     private Timestamp payTime;//支付时间
     @Column(length = 36)
@@ -78,19 +78,19 @@ public class MemberRecharge extends BaseModel<String> {
         this.companyID = companyID;
     }
 
-    public int getPayTotal() {
+    public Double getPayTotal() {
         return payTotal;
     }
 
-    public void setPayTotal(int payTotal) {
+    public void setPayTotal(Double payTotal) {
         this.payTotal = payTotal;
     }
 
-    public int getAmount() {
+    public Double getAmount() {
         return amount;
     }
 
-    public void setAmount(int amount) {
+    public void setAmount(Double amount) {
         this.amount = amount;
     }
 

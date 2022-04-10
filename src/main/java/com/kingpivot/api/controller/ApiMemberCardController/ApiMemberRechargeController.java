@@ -73,7 +73,7 @@ public class ApiMemberRechargeController extends ApiBaseController {
             return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
         }
         String amount = request.getParameter("amount");
-        if (StringUtils.isEmpty(amount) || Integer.parseInt(amount) <= 0) {
+        if (StringUtils.isEmpty(amount) || Double.parseDouble(amount) <= 0) {
             return MessagePacket.newFail(MessageHeader.Code.amountNotNull, "充值金额异常");
         }
 
@@ -83,7 +83,7 @@ public class ApiMemberRechargeController extends ApiBaseController {
         memberRecharge.setMemberID(member.getId());
         memberRecharge.setCompanyID(member.getCompanyID());
         memberRecharge.setMemberID(member.getId());
-        memberRecharge.setAmount(Integer.parseInt(amount));
+        memberRecharge.setAmount(Double.parseDouble(amount));
         memberRecharge.setStatus(1);
         memberRechargeService.save(memberRecharge);
 

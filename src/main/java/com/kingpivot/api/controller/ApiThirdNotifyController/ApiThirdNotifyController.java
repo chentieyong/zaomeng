@@ -164,7 +164,7 @@ public class ApiThirdNotifyController extends ApiBaseController {
             }
             if ("SUCCESS".equals(result_code) && memberRecharge.getStatus() == 1) {
                 memberRecharge.setPayTime(new Timestamp(System.currentTimeMillis()));
-                memberRecharge.setPayTotal(Integer.parseInt(total_fee) / 100);
+                memberRecharge.setPayTotal(Double.parseDouble(total_fee) / 100);
                 memberRecharge.setPaySequence(transaction_id);
                 memberRecharge.setStatus(2);
                 memberRecharge.setPaySequence(transaction_id);
