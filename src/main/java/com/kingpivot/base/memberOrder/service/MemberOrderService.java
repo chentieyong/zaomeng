@@ -4,6 +4,7 @@ import com.kingpivot.base.cartGoods.model.CartGoods;
 import com.kingpivot.base.goodsShop.model.GoodsShop;
 import com.kingpivot.base.member.model.Member;
 import com.kingpivot.base.memberOrder.model.MemberOrder;
+import com.kingpivot.base.memberstatistics.model.MemberStatistics;
 import com.kingpivot.common.service.BaseService;
 
 import java.util.List;
@@ -74,5 +75,7 @@ public interface MemberOrderService extends BaseService<MemberOrder, String> {
     void updateMemberOrderByMemberPaymentID(String paywayID, String memberPaymentID);
 
     void updateMemberOrderStatus(String memberOrderID, int status);
+
+    void monthBalancePayMemberOrder(MemberOrder memberOrder, MemberStatistics memberStatistics, String payWayID);
 }
 

@@ -41,6 +41,10 @@ public class MemberStatistics extends BaseModel<String> {
     @Column(name = "cashTotalIncome", columnDefinition = "double default 0")
     private double cashTotalIncome = 0d;//累计收入
 
+    @Column(name = "monthBalance", columnDefinition = "double default 0")
+    private double monthBalance = 0d;//月结额度
+
+
     @Override
     public String getId() {
         return id;
@@ -120,5 +124,13 @@ public class MemberStatistics extends BaseModel<String> {
 
     public void setCashTotalIncome(double cashTotalIncome) {
         this.cashTotalIncome = cashTotalIncome;
+    }
+
+    public double getMonthBalance() {
+        return monthBalance;
+    }
+
+    public void setMonthBalance(double monthBalance) {
+        this.monthBalance = monthBalance;
     }
 }

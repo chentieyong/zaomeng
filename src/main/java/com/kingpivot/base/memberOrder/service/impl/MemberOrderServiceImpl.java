@@ -17,6 +17,8 @@ import com.kingpivot.base.memberOrderGoods.model.MemberOrderGoods;
 import com.kingpivot.base.memberOrderGoods.service.MemberOrderGoodsService;
 import com.kingpivot.base.memberPayment.dao.MemberPaymentDao;
 import com.kingpivot.base.memberPayment.model.MemberPayment;
+import com.kingpivot.base.memberstatistics.dao.MemberStatisticsDao;
+import com.kingpivot.base.memberstatistics.model.MemberStatistics;
 import com.kingpivot.base.objectFeatureData.dao.ObjectFeatureDataDao;
 import com.kingpivot.base.objectFeatureData.model.ObjectFeatureData;
 import com.kingpivot.base.parameter.dao.ParameterDao;
@@ -66,6 +68,8 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
     private ShopDao shopDao;
     @Autowired
     private ParameterDao parameterDao;
+    @Autowired
+    private MemberStatisticsDao memberStatisticsDao;
 
     @Override
     public BaseDao<MemberOrder, String> getDAO() {
@@ -384,6 +388,27 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
     @Override
     public void updateMemberOrderStatus(String memberOrderID, int status) {
         memberOrderDao.updateMemberOrderStatus(memberOrderID, status);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void monthBalancePayMemberOrder(MemberOrder memberOrder, MemberStatistics memberStatistics, String payWayID) {
+        memberStatistics.setMonthBalance(NumberUtils.keepPrecision(memberStatistics.getMonthBalance() - memberOrder.getPayTotal(), 2));
+        memberStatistics.setModifiedTime(new Timestamp(System.currentTimeMillis()));
+        memberStatisticsDao.save(memberStatistics);
+
+        memberOrder.setPaywayID(payWayID);
+        memberOrder.setPayTime(new Timestamp(System.currentTimeMillis()));
+        memberOrder.setPayTotal(memberOrder.getPriceAfterDiscount());
+        memberOrder.setStatus(memberOrder.getSendType() == 1 ? 4 : 8);
+        memberOrder.setPayFrom(4);
+        memberOrderDao.save(memberOrder);
+
+        List<MemberOrderGoods> memberOrderGoodsList = memberOrderGoodsDao.getMemberOrderGoodsByMemberOrderID(memberOrder.getId());
+        for (MemberOrderGoods memberOrderGoods : memberOrderGoodsList) {
+            memberOrderGoods.setStatus(4);
+            memberOrderGoodsDao.save(memberOrderGoods);
+        }
     }
 
     private void editFare(MemberOrder memberOrder) {

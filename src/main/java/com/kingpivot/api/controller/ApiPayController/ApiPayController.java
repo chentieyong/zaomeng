@@ -444,4 +444,76 @@ public class ApiPayController extends ApiBaseController {
 
         return MessagePacket.newSuccess("balancePayMemberOrder success!");
     }
+
+    @ApiOperation(value = "月结金额支付订单", notes = "月结金额支付订单")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query", name = "sessionID", value = "登录标识", dataType = "String"),
+            @ApiImplicitParam(paramType = "query", name = "payWayID", value = "支付机构id", dataType = "String"),
+            @ApiImplicitParam(paramType = "query", name = "memberOrderID", value = "订单id", dataType = "String")})
+    @RequestMapping(value = "/monthBalancePayMemberOrder")
+    public MessagePacket monthBalancePayMemberOrder(HttpServletRequest request) {
+        String sessionID = request.getParameter("sessionID");
+        if (StringUtils.isEmpty(sessionID)) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "sessionID不能为空！");
+        }
+        if (StringUtils.isEmpty(sessionID)) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        Member member = (Member) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBER_KEY.key, sessionID));
+        if (member == null) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        MemberLogDTO memberLogDTO = (MemberLogDTO) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBERLOG_KEY.key, sessionID));
+        if (memberLogDTO == null) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+
+        String payWayID = request.getParameter("payWayID");
+        String memberOrderID = request.getParameter("memberOrderID");
+
+        if (StringUtils.isEmpty(payWayID)) {
+            return MessagePacket.newFail(MessageHeader.Code.paywayIDNotNull, "paywayID不能为空！");
+        }
+        PayWay payway = paywayService.findById(payWayID);
+        if (payway == null) {
+            return MessagePacket.newFail(MessageHeader.Code.paywayIDIsError, "paywayID不正确！");
+        }
+
+        if (StringUtils.isEmpty(memberOrderID)) {
+            return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "memberOrderID不能为空");
+        }
+
+        MemberOrder memberOrder = memberOrderService.findById(memberOrderID);
+        if (memberOrder == null) {
+            return MessagePacket.newFail(MessageHeader.Code.memberOrderIDIsError, "memberOrderID不正确！");
+        }
+        if (memberOrder.getStatus() != 1) {
+            return MessagePacket.newFail(MessageHeader.Code.statusIsError, "订单状态异常，请重新下单！");
+        }
+
+        if (memberOrder.getPriceAfterDiscount() + memberOrder.getSendPrice() <= 0) {
+            return MessagePacket.newFail(MessageHeader.Code.cashBalanceZero, "金额异常，无法支付");
+        }
+
+        //判断金额是否足够
+        MemberStatistics memberStatistics = memberStatisticsService.getByMemberId(member.getId());
+        if (memberStatistics.getMonthBalance() < memberOrder.getPriceAfterDiscount() + memberOrder.getSendPrice()) {
+            return MessagePacket.newFail(MessageHeader.Code.cashBalanceZero, "月结额度不足，无法支付");
+        }
+
+        //支付
+        memberOrderService.monthBalancePayMemberOrder(memberOrder, memberStatistics, payWayID);
+
+        String description = String.format("%s月结金额支付订单", member.getName());
+        UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));
+        MemberLogRequestBase base = MemberLogRequestBase.BALANCE()
+                .sessionID(sessionID)
+                .description(description)
+                .userAgent(userAgent == null ? null : userAgent.getBrowserType())
+                .operateType(Memberlog.MemberOperateType.MONTHBALANCEAPPLYMEMBERORDERPAY.getOname())
+                .build();
+        sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
+
+        return MessagePacket.newSuccess("monthBalancePayMemberOrder success!");
+    }
 }

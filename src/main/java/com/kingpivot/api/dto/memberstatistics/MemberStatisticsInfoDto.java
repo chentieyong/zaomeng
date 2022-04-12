@@ -17,6 +17,7 @@ public class MemberStatisticsInfoDto {
     private int goodsShopBrowseNum;
     private String rankName;
     private String rankUrl;
+    private double monthBalance = 0d;//月结额度
 
     public String getId() {
         return id;
@@ -144,5 +145,13 @@ public class MemberStatisticsInfoDto {
 
     public void setCashTotalIncome(double cashTotalIncome) {
         this.cashTotalIncome = cashTotalIncome;
+    }
+
+    public double getMonthBalance() {
+        return monthBalance;
+    }
+
+    public void setMonthBalance(double monthBalance) {
+        this.monthBalance = monthBalance;
     }
 }
