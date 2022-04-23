@@ -393,7 +393,8 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void monthBalancePayMemberOrder(MemberOrder memberOrder, MemberStatistics memberStatistics, String payWayID) {
-        memberStatistics.setMonthBalance(NumberUtils.keepPrecision(memberStatistics.getMonthBalance() - memberOrder.getPayTotal(), 2));
+        memberStatistics.setMonthBalance(NumberUtils.keepPrecision(memberStatistics.getMonthBalance() -
+                (memberOrder.getPriceAfterDiscount() + memberOrder.getSendPrice()), 2));
         memberStatistics.setModifiedTime(new Timestamp(System.currentTimeMillis()));
         memberStatisticsDao.save(memberStatistics);
 

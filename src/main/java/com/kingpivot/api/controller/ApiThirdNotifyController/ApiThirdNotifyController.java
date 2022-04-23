@@ -78,7 +78,6 @@ public class ApiThirdNotifyController extends ApiBaseController {
             String result_code = map.get("result_code");
             String total_fee = map.get("total_fee");
             String transaction_id = map.get("transaction_id");
-            String attach = map.get("attach");
 
             MemberOrder memberOrder = memberOrderService.findById(out_trade_no);
             if (null == memberOrder || memberOrder.getStatus() != 1) {
@@ -149,7 +148,6 @@ public class ApiThirdNotifyController extends ApiBaseController {
             String result_code = map.get("result_code");
             String total_fee = map.get("total_fee");
             String transaction_id = map.get("transaction_id");
-            String attach = map.get("attach");
 
             MemberRecharge memberRecharge = this.memberRechargeService.findById(out_trade_no);
             if (null == memberRecharge || memberRecharge.getStatus() != 1) {
