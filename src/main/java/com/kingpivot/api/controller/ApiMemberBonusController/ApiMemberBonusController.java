@@ -5,6 +5,7 @@ import com.kingpivot.api.dto.memberBonus.MyMemberBonusListDto;
 import com.kingpivot.base.config.RedisKey;
 import com.kingpivot.base.config.UserAgent;
 import com.kingpivot.base.member.model.Member;
+import com.kingpivot.base.member.service.MemberService;
 import com.kingpivot.base.memberBonus.model.MemberBonus;
 import com.kingpivot.base.memberBonus.service.MemberBonusService;
 import com.kingpivot.base.memberOrder.model.MemberOrder;
@@ -23,6 +24,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -51,6 +53,8 @@ public class ApiMemberBonusController extends ApiBaseController {
     private MemberBonusService memberBonusService;
     @Autowired
     private MemberOrderService memberOrderService;
+    @Autowired
+    private MemberService memberService;
 
     @ApiOperation(value = "获取我的会员红包", notes = "获取我的会员红包")
     @ApiImplicitParams({
@@ -191,5 +195,78 @@ public class ApiMemberBonusController extends ApiBaseController {
         Map<String, Object> rsMap = Maps.newHashMap();
         rsMap.put("data", TimeTest.getTimeStr());
         return MessagePacket.newSuccess(rsMap, "useMemberBonus success!");
+    }
+
+    @ApiOperation(value = "使用会员红包", notes = "使用会员红包")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query", name = "sessionID", value = "登录标识", dataType = "String"),
+            @ApiImplicitParam(paramType = "query", name = "memberBonusID", value = "会员红包id", dataType = "String"),
+            @ApiImplicitParam(paramType = "query", name = "memberOrderID", value = "会员订单id", dataType = "int")})
+    @RequestMapping(value = "/sendMemberBonusToMember")
+    public MessagePacket sendMemberBonusToMember(HttpServletRequest request) {
+        String sessionID = request.getParameter("sessionID");
+        if (StringUtils.isEmpty(sessionID)) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        Member member = (Member) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBER_KEY.key, sessionID));
+        if (member == null) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+        MemberLogDTO memberLogDTO = (MemberLogDTO) redisTemplate.opsForValue().get(String.format("%s%s", RedisKey.Key.MEMBERLOG_KEY.key, sessionID));
+        if (memberLogDTO == null) {
+            return MessagePacket.newFail(MessageHeader.Code.unauth, "请先登录");
+        }
+
+        String memberBonusID = request.getParameter("memberBonusID");
+        if (StringUtils.isEmpty(memberBonusID)) {
+            return MessagePacket.newFail(MessageHeader.Code.memberBonusIdIsNull, "memberBonusID不能为空");
+        }
+        String toMemberCode = request.getParameter("toMemberCode");
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("isValid", Constants.ISVALID_YES);
+        params.put("isLock", Constants.ISLOCK_NO);
+        params.put("applicationID",member.getApplicationID());
+        params.put("recommandCode",toMemberCode);
+
+        List<Member> list = memberService.list(params);
+        if(CollectionUtils.isEmpty(list)){
+            return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "会员码异常");
+        }
+
+        MemberBonus memberBonus = memberBonusService.findById(memberBonusID);
+
+        if (memberBonus == null) {
+            return MessagePacket.newFail(MessageHeader.Code.memberBonusIdIsError, "memberBonusID不正确");
+        }
+
+        if (memberBonus.getUseTime() != null) {
+            return MessagePacket.newFail(MessageHeader.Code.memberbonusIsUsed, "会员红包已使用");
+        }
+
+        Timestamp nowTime = TimeTest.strToDate(TimeTest.getNowDateFormat());
+        if (memberBonus.getEndDate() != null && nowTime.getTime() > memberBonus.getEndDate().getTime()) {
+            return MessagePacket.newFail(MessageHeader.Code.memberbonusIsTimeOut, "会员红包已过期");
+        }
+        memberBonus.setMemberID(list.get(0).getId());
+
+        memberBonusService.save(memberBonus);
+
+        String description = String.format("%s赠送会员红包", member.getName());
+
+        UserAgent userAgent = UserAgentUtil.getUserAgent(request.getHeader("user-agent"));
+        MemberLogRequestBase base = MemberLogRequestBase.BALANCE()
+                .sessionID(sessionID)
+                .description(description)
+                .userAgent(userAgent == null ? null : userAgent.getBrowserType())
+                .operateType(Memberlog.MemberOperateType.SENDMEMBERBONUS.getOname())
+                .build();
+
+        sendMessageService.sendMemberLogMessage(JacksonHelper.toJson(base));
+
+        Map<String, Object> rsMap = Maps.newHashMap();
+        rsMap.put("data", TimeTest.getTimeStr());
+        return MessagePacket.newSuccess(rsMap, "sendMemberBonusToMember success!");
+
     }
 }

@@ -100,6 +100,12 @@ public class MemberOrder extends BaseModel<String> {
     @Column()
     private Integer sendType;//发货方式
 
+    @Column()
+    private Integer point;//积分
+
+    @Column()
+    private Double pointPrice;//积分金额
+
     @Column(length = 100)
     private String memberMemo;//会员留言
 
@@ -452,5 +458,21 @@ public class MemberOrder extends BaseModel<String> {
 
     public void setMemberPaymentID(String memberPaymentID) {
         this.memberPaymentID = memberPaymentID;
+    }
+
+    public Integer getPoint() {
+        return point;
+    }
+
+    public void setPoint(Integer point) {
+        this.point = point;
+    }
+
+    public Double getPointPrice() {
+        return pointPrice;
+    }
+
+    public void setPointPrice(Double pointPrice) {
+        this.pointPrice = pointPrice;
     }
 }

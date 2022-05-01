@@ -22,6 +22,10 @@ import com.kingpivot.base.memberstatistics.model.MemberStatistics;
 import com.kingpivot.base.objectFeatureData.dao.ObjectFeatureDataDao;
 import com.kingpivot.base.objectFeatureData.model.ObjectFeatureData;
 import com.kingpivot.base.parameter.dao.ParameterDao;
+import com.kingpivot.base.point.dao.PointDao;
+import com.kingpivot.base.point.model.Point;
+import com.kingpivot.base.pointapplication.model.PointApplication;
+import com.kingpivot.base.pointdefine.model.PointDefine;
 import com.kingpivot.base.rank.dao.RankDao;
 import com.kingpivot.base.rank.model.Rank;
 import com.kingpivot.base.sequenceDefine.service.SequenceDefineService;
@@ -70,6 +74,8 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
     private ParameterDao parameterDao;
     @Autowired
     private MemberStatisticsDao memberStatisticsDao;
+    @Autowired
+    private PointDao pointDao;
 
     @Override
     public BaseDao<MemberOrder, String> getDAO() {
@@ -80,7 +86,8 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
     @Transactional(rollbackFor = Exception.class)
     public String createMemberOrder(Member member, GoodsShop goodsShop, String objectFeatureItemID1,
                                     int qty, String contactName, String contactPhone, String address,
-                                    String memberBonusID, String orderType, String sendType) {
+                                    String memberBonusID, String orderType, String sendType,
+                                    String pointPrice) {
         boolean memberPrice = kingBase.checkMemberCard(member.getId());
         double price = memberPrice ? goodsShop.getMemberPrice() : goodsShop.getRealPrice();
         if (StringUtils.isNotBlank(objectFeatureItemID1)) {
@@ -128,6 +135,13 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
                 memberOrder.setPriceAfterDiscount(NumberUtils.keepPrecision(memberOrder.getPriceAfterDiscount() - memberBonus.getAmount(), 2));//优惠后金额
             }
         }
+        if (StringUtils.isNotBlank(pointPrice)) {
+            memberOrder.setPointPrice(Double.parseDouble(pointPrice));
+            memberOrder.setPoint(Integer.parseInt(pointPrice) * 100);
+            //扣除积分
+            delPoint(member, memberOrder.getPoint());
+            memberOrder.setPriceAfterDiscount(NumberUtils.keepPrecision(memberOrder.getPriceAfterDiscount() - Double.parseDouble(pointPrice), 2));//优惠后金额
+        }
         memberOrder.setCreatedTime(memberOrder.getApplyTime());
         memberOrder.setModifiedTime(memberOrder.getApplyTime());
         if (StringUtils.isNotBlank(orderType)) {
@@ -173,7 +187,8 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
     @Transactional(rollbackFor = Exception.class)
     public String createMemberOrderFromCart(List<CartGoods> cartGoodsList, Member member, String contactName,
                                             String contactPhone, String address,
-                                            String memberBonusID, String sendType) {
+                                            String memberBonusID, String sendType,
+                                            String pointPrice) {
         double rate = 1d;
 //        if (StringUtils.isNotBlank(member.getRankID())) {
 //            Rank rank = rankDao.findOne(member.getRankID());
@@ -228,6 +243,13 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
         memberOrder.setApplyTime(new Timestamp(System.currentTimeMillis()));
         memberOrder.setCreatedTime(memberOrder.getApplyTime());
         memberOrder.setModifiedTime(memberOrder.getApplyTime());
+        if (StringUtils.isNotBlank(pointPrice)) {
+            memberOrder.setPointPrice(Double.parseDouble(pointPrice));
+            memberOrder.setPoint(Integer.parseInt(pointPrice) * 100);
+            //扣除积分
+            delPoint(member, memberOrder.getPoint());
+            memberOrder.setPriceAfterDiscount(NumberUtils.keepPrecision(memberOrder.getPriceAfterDiscount() - Double.parseDouble(pointPrice), 2));//优惠后金额
+        }
         memberOrderDao.save(memberOrder);
 
         if (memberBonus != null) {
@@ -400,7 +422,7 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
 
         memberOrder.setPaywayID(payWayID);
         memberOrder.setPayTime(new Timestamp(System.currentTimeMillis()));
-        memberOrder.setPayTotal(NumberUtils.keepPrecision(memberOrder.getPriceAfterDiscount() + memberOrder.getSendPrice(),2));
+        memberOrder.setPayTotal(NumberUtils.keepPrecision(memberOrder.getPriceAfterDiscount() + memberOrder.getSendPrice(), 2));
         memberOrder.setStatus(memberOrder.getSendType() == 1 ? 4 : 8);
         memberOrder.setPayFrom(4);
         memberOrderDao.save(memberOrder);
@@ -427,5 +449,28 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+    }
+
+    private void delPoint(Member member, int point) {
+        MemberStatistics memberStatistics = memberStatisticsDao.getByMemberId(member.getId());
+        memberStatistics.setPointTotalUsed(memberStatistics.getPointTotalUsed() + point);
+        memberStatistics.setPoint(memberStatistics.getPoint() - point);
+        memberStatisticsDao.save(memberStatistics);
+
+        Point pointObj = new Point();
+        pointObj.setApplicationID(member.getApplicationID());
+        pointObj.setMemberID(member.getId());
+        pointObj.setCompanyID(member.getCompanyID());
+        pointObj.setSiteID(member.getSiteID());
+        pointObj.setOperateTime(new Timestamp(System.currentTimeMillis()));
+        pointObj.setAction("购买商品积分抵扣");
+        pointObj.setActionType(2);
+        pointObj.setNumber(point);
+        pointObj.setObjectDefineID(Config.MEMBERORDER_OBJECTDEFINEID);
+        pointObj.setObjectID(member.getId());
+        pointObj.setObjectName(member.getLoginName());
+        pointObj.setCreatedTime(new Timestamp(System.currentTimeMillis()));
+        pointObj.setModifiedTime(new Timestamp(System.currentTimeMillis()));
+        pointDao.save(pointObj);
     }
 }
