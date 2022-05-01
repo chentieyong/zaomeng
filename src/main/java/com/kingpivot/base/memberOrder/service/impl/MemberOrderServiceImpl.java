@@ -400,7 +400,7 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
 
         memberOrder.setPaywayID(payWayID);
         memberOrder.setPayTime(new Timestamp(System.currentTimeMillis()));
-        memberOrder.setPayTotal(memberOrder.getPriceAfterDiscount());
+        memberOrder.setPayTotal(NumberUtils.keepPrecision(memberOrder.getPriceAfterDiscount() + memberOrder.getSendPrice(),2));
         memberOrder.setStatus(memberOrder.getSendType() == 1 ? 4 : 8);
         memberOrder.setPayFrom(4);
         memberOrderDao.save(memberOrder);
