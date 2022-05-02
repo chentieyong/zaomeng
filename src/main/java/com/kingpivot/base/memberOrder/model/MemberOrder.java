@@ -139,6 +139,9 @@ public class MemberOrder extends BaseModel<String> {
     @Column(length = 36)
     private String memberPaymentID;//会员支付id
 
+    @Column(length = 100)
+    private String tableNumber;//桌号
+
     @Override
     public String getId() {
         return id;
@@ -474,5 +477,13 @@ public class MemberOrder extends BaseModel<String> {
 
     public void setPointPrice(Double pointPrice) {
         this.pointPrice = pointPrice;
+    }
+
+    public String getTableNumber() {
+        return tableNumber;
+    }
+
+    public void setTableNumber(String tableNumber) {
+        this.tableNumber = tableNumber;
     }
 }

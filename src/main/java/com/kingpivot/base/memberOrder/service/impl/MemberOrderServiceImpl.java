@@ -87,7 +87,7 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
     public String createMemberOrder(Member member, GoodsShop goodsShop, String objectFeatureItemID1,
                                     int qty, String contactName, String contactPhone, String address,
                                     String memberBonusID, String orderType, String sendType,
-                                    String pointPrice) {
+                                    String pointPrice, int point, String tableNumber) {
         boolean memberPrice = kingBase.checkMemberCard(member.getId());
         double price = memberPrice ? goodsShop.getMemberPrice() : goodsShop.getRealPrice();
         if (StringUtils.isNotBlank(objectFeatureItemID1)) {
@@ -126,6 +126,7 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
         memberOrder.setAddress(address);
         memberOrder.setSendType(sendType == null ? 1 : Integer.parseInt(sendType));
         memberOrder.setApplyTime(new Timestamp(System.currentTimeMillis()));
+        memberOrder.setTableNumber(tableNumber);
 
         MemberBonus memberBonus = null;
         if (StringUtils.isNotBlank(memberBonusID)) {
@@ -137,7 +138,7 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
         }
         if (StringUtils.isNotBlank(pointPrice)) {
             memberOrder.setPointPrice(Double.parseDouble(pointPrice));
-            memberOrder.setPoint(Integer.parseInt(pointPrice) * 100);
+            memberOrder.setPoint(point);
             //扣除积分
             delPoint(member, memberOrder.getPoint());
             memberOrder.setPriceAfterDiscount(NumberUtils.keepPrecision(memberOrder.getPriceAfterDiscount() - Double.parseDouble(pointPrice), 2));//优惠后金额
@@ -188,7 +189,7 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
     public String createMemberOrderFromCart(List<CartGoods> cartGoodsList, Member member, String contactName,
                                             String contactPhone, String address,
                                             String memberBonusID, String sendType,
-                                            String pointPrice) {
+                                            String pointPrice, int point, String tableNumber) {
         double rate = 1d;
 //        if (StringUtils.isNotBlank(member.getRankID())) {
 //            Rank rank = rankDao.findOne(member.getRankID());
@@ -245,11 +246,12 @@ public class MemberOrderServiceImpl extends BaseServiceImpl<MemberOrder, String>
         memberOrder.setModifiedTime(memberOrder.getApplyTime());
         if (StringUtils.isNotBlank(pointPrice)) {
             memberOrder.setPointPrice(Double.parseDouble(pointPrice));
-            memberOrder.setPoint(Integer.parseInt(pointPrice) * 100);
+            memberOrder.setPoint(point);
             //扣除积分
             delPoint(member, memberOrder.getPoint());
             memberOrder.setPriceAfterDiscount(NumberUtils.keepPrecision(memberOrder.getPriceAfterDiscount() - Double.parseDouble(pointPrice), 2));//优惠后金额
         }
+        memberOrder.setTableNumber(tableNumber);
         memberOrderDao.save(memberOrder);
 
         if (memberBonus != null) {

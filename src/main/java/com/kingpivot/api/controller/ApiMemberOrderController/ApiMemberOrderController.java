@@ -23,6 +23,7 @@ import com.kingpivot.base.memberOrder.service.MemberOrderService;
 import com.kingpivot.base.memberOrderGoods.model.MemberOrderGoods;
 import com.kingpivot.base.memberOrderGoods.service.MemberOrderGoodsService;
 import com.kingpivot.base.memberlog.model.Memberlog;
+import com.kingpivot.base.parameter.service.ParameterService;
 import com.kingpivot.base.support.MemberLogDTO;
 import com.kingpivot.common.KingBase;
 import com.kingpivot.common.jms.SendMessageService;
@@ -76,6 +77,8 @@ public class ApiMemberOrderController extends ApiBaseController {
     private MemberOrderGoodsService memberOrderGoodsService;
     @Autowired
     private DiscussService discussService;
+    @Autowired
+    private ParameterService parameterService;
 
     @ApiOperation(value = "店铺商品生成订单", notes = "店铺商品生成订单")
     @ApiImplicitParams({
@@ -102,7 +105,7 @@ public class ApiMemberOrderController extends ApiBaseController {
         }
 
         String sendType = request.getParameter("sendType");
-        if(StringUtils.isEmpty(sendType)){
+        if (StringUtils.isEmpty(sendType)) {
             sendType = "1";
         }
 
@@ -129,6 +132,11 @@ public class ApiMemberOrderController extends ApiBaseController {
             return MessagePacket.newFail(MessageHeader.Code.goodsShopIdIsError, "goodsShopID不正确");
         }
 
+        String tableNumber = request.getParameter("tableNumber");
+        if(sendType.equals("2") && StringUtils.isEmpty(tableNumber)){
+            return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "桌号不能为空");
+        }
+
         String qty = request.getParameter("qty");
 
         if (StringUtils.isEmpty(qty)) {
@@ -138,10 +146,16 @@ public class ApiMemberOrderController extends ApiBaseController {
         String objectFeatureItemID1 = request.getParameter("objectFeatureItemID1");
         String memberBonusID = request.getParameter("memberBonusID");
         String orderType = request.getParameter("orderType");
+        int point = 0;
         String pointPrice = request.getParameter("pointPrice");
-
+        if (StringUtils.isNotBlank(pointPrice)) {
+            point = (int) (Double.parseDouble(pointPrice) / Double.parseDouble(parameterService.getParemeterValueByCode("point2Price"))) * 100;
+        }
+        if (!kingBase.pointLess(member, point)) {
+            return MessagePacket.newFail(MessageHeader.Code.pointNumberLess, "积分不足");
+        }
         String memberOrderID = memberOrderService.createMemberOrder(member, goodsShop, objectFeatureItemID1,
-                Integer.parseInt(qty), contactName, contactPhone, address, memberBonusID, orderType, sendType, pointPrice);
+                Integer.parseInt(qty), contactName, contactPhone, address, memberBonusID, orderType, sendType, pointPrice, point, tableNumber);
 
         String description = String.format("%s店铺商品生成订单", member.getName());
 
@@ -183,7 +197,7 @@ public class ApiMemberOrderController extends ApiBaseController {
         }
 
         String sendType = request.getParameter("sendType");
-        if(StringUtils.isEmpty(sendType)){
+        if (StringUtils.isEmpty(sendType)) {
             sendType = "1";
         }
         String contactName = request.getParameter("contactName");
@@ -205,13 +219,25 @@ public class ApiMemberOrderController extends ApiBaseController {
             return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "购物车为空");
         }
 
+        String tableNumber = request.getParameter("tableNumber");
+        if(sendType.equals("2") && StringUtils.isEmpty(tableNumber)){
+            return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "桌号不能为空");
+        }
+
         String memberBonusID = request.getParameter("memberBonusID");
         List<CartGoods> cartGoodsList = cartGoodsService.getCartGoodsListByCartID(cartID, 1);
         if (cartGoodsList.isEmpty()) {
             return MessagePacket.newFail(MessageHeader.Code.illegalParameter, "购物车为空");
         }
+        int point = 0;
         String pointPrice = request.getParameter("pointPrice");
-        String memberOrderID = memberOrderService.createMemberOrderFromCart(cartGoodsList, member, contactName, contactPhone, address, memberBonusID, sendType, pointPrice);
+        if (StringUtils.isNotBlank(pointPrice)) {
+            point = (int) (Double.parseDouble(pointPrice) / Double.parseDouble(parameterService.getParemeterValueByCode("point2Price"))) * 100;
+        }
+        if (!kingBase.pointLess(member, point)) {
+            return MessagePacket.newFail(MessageHeader.Code.pointNumberLess, "积分不足");
+        }
+        String memberOrderID = memberOrderService.createMemberOrderFromCart(cartGoodsList, member, contactName, contactPhone, address, memberBonusID, sendType, pointPrice, point, tableNumber);
 
         String description = String.format("%s店铺商品生成订单", member.getName());
 
